@@ -2,7 +2,7 @@
 
 Honeybee-PH+ plugins and components for Rhino / Grasshopper.
 
-<img width="978" alt="image" src="https://user-images.githubusercontent.com/69652712/193476135-cfe77702-21e1-4e5e-905e-98191ce5c3e3.png">
+![Screenshot 2024-01-25 at 6 48 52 PM](https://github.com/PH-Tools/honeybee_grasshopper_ph_plus/assets/69652712/9c9261f7-52b3-4174-aa98-5d41b9231316)
 
 This repository contains the HBPH+ Grasshopper components for the Honeybee-PH plugin. These are additional components for more advanced HBPH model configurations. The basic HBPH Grasshopper pacakge is required in addition to these extra components. 
 
