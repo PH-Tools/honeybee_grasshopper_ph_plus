@@ -1,6 +1,6 @@
 # honeybee-grasshopper-ph+:
 
-Honeybee-PH+ plugins and components for Rhino / Grasshopper.
+Additional HBPH components for Rhino / Grasshopper.
 
 ![Screenshot 2024-01-25 at 6 48 52 PM](https://github.com/PH-Tools/honeybee_grasshopper_ph_plus/assets/69652712/9c9261f7-52b3-4174-aa98-5d41b9231316)
 
