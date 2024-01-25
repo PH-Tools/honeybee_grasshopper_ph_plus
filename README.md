@@ -1,14 +1,14 @@
-# honeybee-grasshopper-ph:
+# honeybee-grasshopper-ph [PLUS]:
 
-Honeybee-PH plugins and components for Rhino / Grasshopper.
+Honeybee-PH+ plugins and components for Rhino / Grasshopper.
 
 <img width="978" alt="image" src="https://user-images.githubusercontent.com/69652712/193476135-cfe77702-21e1-4e5e-905e-98191ce5c3e3.png">
 
-This repository contains all PH (Passive House) modeling Grasshopper components for the Honeybee-PH plugin. Once installed, these new Grasshopper components will allow you to add detailed 'Passive House' style data to your Honeybee models, and to export the Honeybee models to both the Passive House Planning Package (PHPP) and WUFI-Passive. The package includes both the userobjects (`.ghuser`) and the Python source (`.py`). Note that this library only possesses the Grasshopper components. In order to use the plugin the core Honeybee, Honeybee-PH and PHX libraries must also be installed in a way that they can be found by Rhino (see dependencies and install instructions below).
+This repository contains the HBPH+ Grasshopper components for the Honeybee-PH plugin. Once installed, these new Grasshopper components will allow you to add detailed 'Passive House' style data to your Honeybee models, and to export the Honeybee models to both the Passive House Planning Package (PHPP) and WUFI-Passive. The package includes both the userobjects (`.ghuser`) and the Python source (`.py`). Note that this library only possesses the Grasshopper components. In order to use the plugin the core Honeybee, Honeybee-PH and PHX libraries must also be installed in a way that they can be found by Rhino (see dependencies and install instructions below).
 
 More information, examples, and tutorials can be found on the [Honeybee-PH](https://ph-tools.github.io/honeybee_grasshopper_ph/) page.
 
-# How To Install honeybee-grasshoper-ph:
+# How To Install honeybee-grasshopper-ph-plus:
 See the [Honeybee-PH Installation](https://ph-tools.github.io/honeybee_grasshopper_ph/install/) page for more information on how to add this package to your system.
 
 Check out the [detailed installation walkthrough on YouTube](https://youtu.be/DvH_Wxf1D8A)
