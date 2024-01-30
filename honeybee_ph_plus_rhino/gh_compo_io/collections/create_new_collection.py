@@ -4,8 +4,16 @@
 """GHCompo Interface: HBPH - Create Custom Collection."""
 
 try:
-    from typing import (Collection, Dict, ItemsView, KeysView, List, Optional,
-                        TypeVar, ValuesView)
+    from typing import (
+        Collection,
+        Dict,
+        ItemsView,
+        KeysView,
+        List,
+        Optional,
+        TypeVar,
+        ValuesView,
+    )
 
     T = TypeVar("T")
 except ImportError:

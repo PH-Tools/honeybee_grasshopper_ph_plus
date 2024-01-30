@@ -10,15 +10,16 @@ except ImportError:
 
 try:
     from honeybee_energy.construction.window import WindowConstruction
-    from honeybee_energy.material.glazing import \
-        EnergyWindowMaterialSimpleGlazSys
+    from honeybee_energy.material.glazing import EnergyWindowMaterialSimpleGlazSys
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_energy:\n\t{}".format(e))
 
 try:
-    from honeybee_energy_ph.construction.window import (PhWindowFrame,
-                                                        PhWindowFrameElement,
-                                                        PhWindowGlazing)
+    from honeybee_energy_ph.construction.window import (
+        PhWindowFrame,
+        PhWindowFrameElement,
+        PhWindowGlazing,
+    )
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_energy_ph:\n\t{}".format(e))
 
@@ -34,7 +35,9 @@ except ImportError:
 
 try:
     from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import (
-        TableFields, TableRecord)
+        TableFields,
+        TableRecord,
+    )
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 

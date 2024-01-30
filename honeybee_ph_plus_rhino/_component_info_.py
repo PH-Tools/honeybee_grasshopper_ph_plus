@@ -5,7 +5,7 @@
 These are called when the component is instantiated within the Grasshopper canvas.
 """
 
-RELEASE_VERSION = "Honeybee-PH+ v0.01.03"
+RELEASE_VERSION = "Honeybee-PH+ v0.01.04"
 CATEGORY = "HB-PH+"
 SUB_CATEGORIES = {
     0: "00 | Utils",
@@ -105,6 +105,36 @@ COMPONENT_PARAMS = {
     },
     "HBPH+ - Rebuild Window Surfaces": {
         "NickName": "Rebuild Win. Surfaces",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Get Rooms by Name": {
+        "NickName": "Get Rooms by Name",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Get Faces by Name": {
+        "NickName": "Get Faces by Name",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Group Connected Faces": {
+        "NickName": "Group Connected Faces",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Get Face Polygon2Ds in Ref. Space": {
+        "NickName": "Poly2Ds in Ref. Space",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Merge LBT Polygon2Ds": {
+        "NickName": "Merge LBT Polygon2Ds",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
         "SubCategory": 3,

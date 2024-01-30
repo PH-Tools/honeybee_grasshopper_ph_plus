@@ -30,15 +30,13 @@ except ImportError:
 
 try:
     from Rhino.DocObjects import ObjectAttributes  # type: ignore
-    from Rhino.Geometry import (Brep, Curve, Mesh, Plane,  # type: ignore
-                                TextJustification)
+    from Rhino.Geometry import Brep, Curve, Mesh, Plane, TextJustification  # type: ignore
 except ImportError:
     pass  # Outside Rhino
 
 try:
     from ladybug_geometry.geometry3d import plane
-    from ladybug_rhino.fromgeometry import (from_face3d, from_plane,
-                                            from_point3d)
+    from ladybug_rhino.fromgeometry import from_face3d, from_plane, from_point3d
 except ImportError as e:
     raise ImportError("\nFailed to import ladybug_rhino:\n\t{}".format(e))
 

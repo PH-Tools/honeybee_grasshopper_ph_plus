@@ -14,8 +14,9 @@ except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
-    from honeybee_ph_plus_rhino.gh_compo_io.collections.create_new_collection import \
-        CustomCollection
+    from honeybee_ph_plus_rhino.gh_compo_io.collections.create_new_collection import (
+        CustomCollection,
+    )
 except:
     raise ImportError("Failed to import honeybee_ph_plus_rhino")
 

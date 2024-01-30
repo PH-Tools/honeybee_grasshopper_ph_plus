@@ -24,8 +24,14 @@ except ImportError:
 try:
     from Rhino.DocObjects import DetailViewObject, ObjectAttributes
     from Rhino.DocObjects.DimensionStyle import MaskFrame  # type: ignore
-    from Rhino.Geometry import (Hatch, Mesh, Point3d, Rectangle3d,
-                                TextJustification, Transform)
+    from Rhino.Geometry import (
+        Hatch,
+        Mesh,
+        Point3d,
+        Rectangle3d,
+        TextJustification,
+        Transform,
+    )
 except ImportError:
     pass  # Outside Rhino
 
@@ -40,10 +46,10 @@ except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
-    from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotations import \
-        TextAnnotation
-    from honeybee_ph_plus_rhino.gh_compo_io.reporting.build_floor_segments import \
-        ClippingPlaneLocation
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotations import TextAnnotation
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting.build_floor_segments import (
+        ClippingPlaneLocation,
+    )
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 

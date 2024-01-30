@@ -4,8 +4,7 @@
 """GHCompo Interface: HBPH - Airtable Create Material Layers."""
 
 try:
-    from typing import (Any, Dict, Iterator, KeysView, List, Optional,
-                        ValuesView)
+    from typing import Any, Dict, Iterator, KeysView, List, Optional, ValuesView
 except ImportError:
     pass  # IronPython 2.7
 
@@ -25,8 +24,7 @@ except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
-    from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import \
-        TableRecord
+    from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import TableRecord
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 

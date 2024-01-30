@@ -23,8 +23,11 @@ except ImportError:
     pass  # Outside Rhino
 
 try:
-    from ladybug_rhino.fromgeometry import (from_face3d, from_linesegment3d,
-                                            from_polyline3d)
+    from ladybug_rhino.fromgeometry import (
+        from_face3d,
+        from_linesegment3d,
+        from_polyline3d,
+    )
 except ImportError as e:
     raise ImportError("\nFailed to import ladybug_rhino:\n\t{}".format(e))
 

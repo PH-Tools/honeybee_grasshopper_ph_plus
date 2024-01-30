@@ -53,8 +53,7 @@ except ImportError as e:
     raise ImportError("\nFailed to import ph_units:\n\t{}".format(e))
 
 try:
-    from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotations import \
-        TextAnnotation
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotations import TextAnnotation
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 

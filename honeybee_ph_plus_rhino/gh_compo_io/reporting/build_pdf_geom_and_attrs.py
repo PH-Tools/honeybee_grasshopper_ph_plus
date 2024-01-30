@@ -21,8 +21,7 @@ except ImportError:
 
 try:
     from Rhino.DocObjects import ObjectAttributes
-    from Rhino.Geometry import (Brep, BrepFace, Curve, Line, LineCurve, Mesh,
-                                Polyline)
+    from Rhino.Geometry import Brep, BrepFace, Curve, Line, LineCurve, Mesh, Polyline
 
     Edge = (Curve, Polyline, Line, LineCurve)
 except ImportError:
