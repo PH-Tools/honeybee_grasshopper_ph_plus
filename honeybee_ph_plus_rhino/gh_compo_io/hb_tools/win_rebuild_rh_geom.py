@@ -4,6 +4,12 @@
 """GHCompo Interface: HBPH - Rebuild Window Surfaces."""
 
 try:
+    from Rhino.Geometry import Surface
+    from System import Guid
+except ImportError as e:
+    raise ImportError("\nFailed to import Rhino:\n\t{}".format(e))
+
+try:
     from typing import Dict, List, Tuple, Union
 except ImportError:
     pass  # IronPython 2.7
@@ -21,10 +27,10 @@ except ImportError as e:
 
 
 class GHCompo_RebuildWindowSurfaces(object):
-    def __init__(self, _IGH, _window_surfaces, _widths, _heights, *args, **kwargs):
-        # type: (gh_io.IGH, List, List[float], List[float], List, Dict) -> None
+    def __init__(self, _IGH, _surfaces_guids, _widths, _heights, *args, **kwargs):
+        # type: (gh_io.IGH, List[Guid], List[float], List[float], List, Dict) -> None
         self.IGH = _IGH
-        self.window_surfaces = _window_surfaces
+        self.surface_guids = _surfaces_guids
         self.widths = _widths
         self.heights = _heights
 
@@ -60,12 +66,29 @@ class GHCompo_RebuildWindowSurfaces(object):
 
     @property
     def names(self):
-        # type: () -> List[Guid]
+        # type: () -> List[str]
+        """Return a list of the names of the window surfaces."""
+        try:
+            return self.names_rh7
+        except Exception:
+            return self.names_rh8
+
+    @property
+    def names_rh7(self):
+        # type: () -> List[str]
+        """Get the names of the window surfaces using Rhino-7 command."""
         with self.IGH.context_rh_doc():
-            return [str(self.IGH.ghc.ObjectDetails(s).name) for s in self.window_surfaces]
+            return [str(self.IGH.ghc.ObjectDetails(s).name) for s in self.surface_guids]
+
+    @property
+    def names_rh8(self):
+        # type: () -> List[str]
+        """Get the names of the window surfaces using Rhino-8 command."""
+        with self.IGH.context_rh_doc():
+            return [str(self.IGH.ghc.ContentDetails(s).path) for s in self.surface_guids]
 
     def rebuild_surface(self, _surface_guid, _i):
-        # type: (Guid, int) -> Rhino.Geometry
+        # type: (Guid, int) -> Surface
 
         RADIUS = 0
 
@@ -74,10 +97,10 @@ class GHCompo_RebuildWindowSurfaces(object):
         old_centroid = self.IGH.ghc.Area(_surface_guid).centroid
 
         # -- Build the new Geometry
-        new_perim = self.IGH.ghc.Rectangle(
+        new_perimeter = self.IGH.ghc.Rectangle(
             plane, self.get_width(_i), self.get_height(_i), RADIUS
         ).rectangle
-        new_surface = self.IGH.ghc.BoundarySurfaces(new_perim)
+        new_surface = self.IGH.ghc.BoundarySurfaces(new_perimeter)
 
         # -- Align new geom to old geom
         new_centroid = self.IGH.ghc.Area(new_surface).centroid
@@ -86,21 +109,21 @@ class GHCompo_RebuildWindowSurfaces(object):
         return self.IGH.ghc.Move(new_surface, move_vector).geometry
 
     def run(self):
-        # type: () -> Tuple[List[Rhino.Geometry], List[str]]
+        # type: () -> Tuple[List[Surface], List[str]]
 
-        if not self.window_surfaces:
+        if not self.surface_guids:
             return [], []
 
         if not self.widths or not self.heights:
-            return self.window_surfaces, self.names
+            return self.surface_guids, self.names
 
-        if not len(self.window_surfaces) == len(self.widths) == len(self.heights):
+        if not len(self.surface_guids) == len(self.widths) == len(self.heights):
             msg = "Error: The lengths of the inputs do not match?"
             self.IGH.error(msg)
             return [], []
 
         new_surfaces_ = []
-        for i, surface in enumerate(self.window_surfaces):
+        for i, surface in enumerate(self.surface_guids):
             new_surfaces_.append(self.rebuild_surface(surface, i))
 
         return new_surfaces_, self.names

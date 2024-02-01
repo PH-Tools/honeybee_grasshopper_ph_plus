@@ -26,7 +26,7 @@ model-wide revisions to geometry. This component will center the new geometry in
 as the old geometry. Use Bake (or HumanUI Bake to get names and custom layers) to push this 
 new geometry back to the Rhino scene.
 -
-EM January 25, 2025
+EM February 01, 2024
     Args:
         _window_surfaces: (List[Guid]) A list of surface Guids to perform the transformation on.
         
@@ -56,7 +56,7 @@ ghenv.Component.Name = "HBPH+ - Rebuild Window Surfaces"
 DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
     reload(gh_io)
-    from honeybee_ph_plus_rhino.gh_compo_io import win_rebuild_rh_geom as gh_compo_io
+    from honeybee_ph_plus_rhino.gh_compo_io.hb_tools import win_rebuild_rh_geom as gh_compo_io
     reload(gh_compo_io)
 
 
