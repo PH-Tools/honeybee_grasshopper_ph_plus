@@ -25,7 +25,7 @@ the structure of the source Table is assumed to match the HBPH format and if you
 table includes data with different column names or data types you may get errors when using
 this component. 
 -
-EM January 25, 2024
+EM February 15, 2024
     Args:
         _glazing_records: (List[TableRecord]) A list of all the AirTable "TableRecord" line items
             representing the window glazing types to create. 
@@ -62,7 +62,7 @@ reload(honeybee_ph_plus_rhino._component_info_)
 ghenv.Component.Name = "HBPH+ - Airtable Create Window Constructions"
 DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
-    from honeybee_ph_plus_rhino.gh_compo_io import airtable_create_window_constructions as gh_compo_io
+    from honeybee_ph_plus_rhino.gh_compo_io.airtable import create_window_constructions as gh_compo_io
     reload(gh_compo_io)
 
 # ------------------------------------------------------------------------------

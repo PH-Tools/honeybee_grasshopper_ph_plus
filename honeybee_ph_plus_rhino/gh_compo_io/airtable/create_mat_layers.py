@@ -30,8 +30,8 @@ except ImportError as e:
 
 AT_COLUMN_NAMES = {
     "name": "DISPLAY_NAME",
-    "material": "LAYER_MATERIAL",
-    "thickness_mm": "LAYER_THICKNESS [MM]",
+    "material": "LAYER MATERIAL",
+    "thickness_mm": "LAYER THICKNESS [MM]",
     "conductivity_w_mk": "CONDUCTIVITY_W_MK",
     "data": "DATA_SHEET",
     "notes": "NOTES",
@@ -123,7 +123,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             )
             self.IGH.warning(msg)
             return None
-        layer_thickness_mm = float(layer_data.get(AT_COLUMN_NAMES["thickness_mm"], 1.0))
+        layer_thickness_mm = float(layer_data[AT_COLUMN_NAMES["thickness_mm"]])
         layer_thickness_m = layer_thickness_mm / 1000.00
         layer_name = layer_data.get(AT_COLUMN_NAMES["name"], "__unnamed__")
 

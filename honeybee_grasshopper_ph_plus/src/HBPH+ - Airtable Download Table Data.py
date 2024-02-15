@@ -32,7 +32,7 @@ stored in the "fields" dictionary and will use the AirTable column names as keys
 Note that since AirTable limits the data download to 100 records per request, this component will 
 make multiple requests until all the data of the table has been downloaded. 
 -
-EM January 25, 2024
+EM February 15, 2024
     Args:
         _access_token: (str) The AirTable Personal Access Token 
             needed for accessing the base/table data.
@@ -75,7 +75,7 @@ reload(honeybee_ph_plus_rhino._component_info_)
 ghenv.Component.Name = "HBPH+ - Airtable Download Table Data"
 DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
-    from honeybee_ph_plus_rhino.gh_compo_io import airtable_download_data as gh_compo_io
+    from honeybee_ph_plus_rhino.gh_compo_io.airtable import download_data as gh_compo_io
     reload(gh_compo_io)
 
 # ------------------------------------------------------------------------------

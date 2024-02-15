@@ -56,7 +56,7 @@ reload(honeybee_ph_plus_rhino._component_info_)
 ghenv.Component.Name = "HBPH+ - Airtable Create Constructions"
 DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
-    from honeybee_ph_plus_rhino.gh_compo_io import airtable_create_constructions as gh_compo_io
+    from honeybee_ph_plus_rhino.gh_compo_io.airtable import create_constructions as gh_compo_io
     reload(gh_compo_io)
 
 # ------------------------------------------------------------------------------
