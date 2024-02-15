@@ -16,7 +16,7 @@ except:
     raise ImportError("Failed to import Grasshopper")
 
 try:
-    from Rhino.Geometry import Point3d, Brep # type: ignore
+    from Rhino.Geometry import Point3d, Brep  # type: ignore
 except ImportError:
     raise ImportError("Failed to import Rhino")
 
@@ -55,13 +55,13 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
         # type: () -> List[Face3D]
         """Return the LBT-Face3Ds of all the HB-Faces."""
         return [f.geometry for f in self.hb_faces]
-    
+
     @property
     def lbt_poly2Ds(self):
         # type: () -> List[Polygon2D]
         """Return the Polygon2Ds of all the LBT-Face3Ds."""
         return [f.geometry.polygon2d for f in self.hb_faces]
-    
+
     @property
     def lbt_face3D_planes(self):
         # type: () -> List[Plane]
@@ -72,7 +72,7 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
     def reference_plane(self):
         # type: () -> Plane
         """Return the reference plane to be used for all the Polygon2Ds created.
-        
+
         This is always the plane of the first face input.
         """
 
@@ -87,30 +87,30 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
             starting_polygons_.Add(
                 self.IGH.ghc.BoundarySurfaces(
                     self.IGH.ghc.PolyLine(
-                        (Point3d(v.x, v.y, v.z) for v in _face3D.vertices),
-                        True)
+                        (Point3d(v.x, v.y, v.z) for v in _face3D.vertices), True
+                    )
                 ),
-                GH_Path(i)
+                GH_Path(i),
             )
         return starting_polygons_
-    
+
     def generate_result_breps(self, polygons_in_ref_space_):
         # type: (List[Polygon2D]) -> DataTree[Brep]
         """Generate the resulting (translated) Rhino breps for the component (for preview)."""
-        
+
         rhino_breps_ = DataTree[Brep]()
         for i, p in enumerate(polygons_in_ref_space_):
             rhino_breps_.Add(
                 self.IGH.ghc.BoundarySurfaces(
                     self.IGH.ghc.PolyLine(
-                        (Point3d(v.x, v.y, 0) for v in p.vertices),
-                        True)
-                    ),
-                    GH_Path(i)
-                )
-        
+                        (Point3d(v.x, v.y, 0) for v in p.vertices), True
+                    )
+                ),
+                GH_Path(i),
+            )
+
         return rhino_breps_
-            
+
     def run(self):
         # type: () -> Tuple[List[Polygon2D], DataTree[Brep], DataTree[Brep]]
         """Run the component and return the results.
@@ -124,7 +124,7 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
         """
         # ---------------------------------------------------------------------
         # -- Get all the LBT-Face3D Polygon2Ds in the same Plane-space
-        translated_polygon2Ds = [] # type: List[Polygon2D]
+        translated_polygon2Ds = []  # type: List[Polygon2D]
         for face3D_poly_2D, face3D_plane in zip(self.lbt_poly2Ds, self.lbt_face3D_planes):
             translated_polygon2Ds.append(
                 polygon2d_tools.translate_polygon2D(
@@ -137,4 +137,4 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
         starting_breps = self.generate_starting_breps()
         result_breps = self.generate_result_breps(translated_polygon2Ds)
 
-        return ( translated_polygon2Ds, starting_breps, result_breps )
+        return (translated_polygon2Ds, starting_breps, result_breps)

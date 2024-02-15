@@ -32,6 +32,11 @@ class GHCompo_GetSubFaceMaterials(object):
         geo_ = []
         names_ = []
         brep = self.IGH.rs.coercebrep(_brep_guid)
+        if not brep:
+            msg = "Failed to coerce Brep from GUID: {}".format(_brep_guid)
+            self.IGH.warning(msg)
+            return geo_, names_
+
         for face in brep.Faces:
             # -- Add the face geometry to the output set
             geo_.append(face)

@@ -88,7 +88,8 @@ class GHCompo_AirTableCreateConstructions(object):
 
             mats = []
             for layer_name in sorted(layers):
-                mats.append(self.ep_mat_layers[layers[layer_name]])
+                layer = layers[layer_name]
+                mats.append(self.ep_mat_layers[layer])
 
             const = self.create_hb_constructions(const_name, mats)
             constructions_.append(const)

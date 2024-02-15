@@ -71,6 +71,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_create_types import (
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_rebuild_rh_geom import (
     GHCompo_RebuildWindowSurfaces,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_get_design_ph_shading_factors import (
+    GHCompo_GetDesignPHShadingFactors,
+)
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.get_rooms_by_name import (
     GHCompo_GetRoomsByName,
 )
@@ -84,8 +87,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.generate_polygon2d_from_faces i
     GHCompo_GeneratePolygon2DFromHBFaces,
 )
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.merge_lbt_polygon2ds import (
-    GHCompo_MergeLBTPolygon2Ds
+    GHCompo_MergeLBTPolygon2Ds,
 )
+
 #
 # -- Reporting
 #

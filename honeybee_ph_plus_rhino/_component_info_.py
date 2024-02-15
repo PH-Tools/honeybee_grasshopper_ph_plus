@@ -5,7 +5,7 @@
 These are called when the component is instantiated within the Grasshopper canvas.
 """
 
-RELEASE_VERSION = "Honeybee-PH+ v1.01.05"
+RELEASE_VERSION = "Honeybee-PH+ v1.01.06"
 CATEGORY = "HB-PH+"
 SUB_CATEGORIES = {
     0: "00 | Utils",
@@ -95,7 +95,13 @@ COMPONENT_PARAMS = {
         "NickName": "Create Geom",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
-        "SubCategory": 31,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Get Shading Factors from DesignPH": {
+        "NickName": "Create Shading from DesignPH",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
     },
     "HBPH+ - Import Flixo Materials": {
         "NickName": "Import Flixo Mats.",
