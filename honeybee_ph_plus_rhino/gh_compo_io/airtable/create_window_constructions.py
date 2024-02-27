@@ -4,7 +4,7 @@
 """GHCompo Interface: HBPH - Airtable Create Window Constructions."""
 
 try:
-    from typing import Any, Dict, List
+    from typing import Any, Dict, List, Optional
 except ImportError:
     pass  # IronPython 2.7
 
@@ -51,14 +51,16 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         _glazing_records,
         _frame_element_records,
         _window_unit_records,
+        _psi_install_records,
         *args,
         **kwargs
     ):
-        # type: (gh_io.IGH, List[TableRecord], List[TableRecord], List[TableRecord], *Any, **Any) -> None
+        # type: (gh_io.IGH, List[TableRecord], List[TableRecord], List[TableRecord], Optional[List[TableRecord]], *Any, **Any) -> None
         self.IGH = IGH
         self.glazing_records = _glazing_records
         self.frame_element_records = _frame_element_records
         self.window_unit_records = _window_unit_records
+        self.psi_installs = self.create_psi_install_dictionary(_psi_install_records)
 
         self.hbph_glazings = {}  # type: Dict[str, PhWindowGlazing]
         self.hbph_frame_elements = {}  # type: Dict[str, PhWindowFrameElement]
@@ -75,6 +77,14 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         if not self.window_unit_records:
             return False
         return True
+
+    def create_psi_install_dictionary(self, _records):
+        # type: (Optional[List[TableRecord]]) -> Dict[str, float]
+        """Create a dictionary of the Psi-Install values."""
+        psi_installs_ = {} # type: Dict[str, float]
+        for record in _records or []:
+            psi_installs_[record.FIELDS['DISPLAY_NAME']] = record.FIELDS['PSI-VALUE [W/MK]']
+        return psi_installs_
 
     def create_new_hbph_glazing(self, record):
         # type: (TableRecord) -> PhWindowGlazing
@@ -186,6 +196,11 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         glazing_name = glazing_names[0]
         return self.hbph_glazings[glazing_name]
 
+    def _get_psi_install_name(self, _record, _side):
+        # type: (TableRecord, str) -> str
+        """Return the Psi-Install-Name for the Window Unit by side (TOP, LEFT, RIGHT, BOTTOM)"""
+        return _record.FIELDS.get('PSI-INSTALL-{}-NAME'.format(_side), [""])[0]
+
     def create_new_hbph_window_construction(self, record):
         # type: (TableRecord) -> WindowConstruction
         """Return the new HB Window Construction"""
@@ -195,7 +210,17 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         hbph_frame = self._get_frame_type(hbph_display_name, window_data)
         hbph_glazing = self._get_glazing_type(window_data)
 
-        # # -------------------------------------------------------------------------------------
+        # # -----------------------------------------------------------------------------
+        # -- Set the Psi-Install value on the Frame Elements
+        if self.psi_installs:
+            hbph_frame = hbph_frame.duplicate()
+            hbph_frame.top.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'TOP'), 0.0)
+            hbph_frame.right.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'RIGHT'), 0.0)
+            hbph_frame.bottom.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'BOTTOM'), 0.0)
+            hbph_frame.left.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'LEFT'), 0.0)
+
+
+        # # -----------------------------------------------------------------------------
         # -- Build the HB Window Material and Construction
         hbph_mat = self.create_new_hbph_window_material(
             hbph_display_name, hbph_frame, hbph_glazing
@@ -214,7 +239,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         window_constructions_ = []  # type: List[WindowConstruction]
         if not self.ready:
             return window_constructions_
-
+        
         # -- Build the Ph-Window Glazing Collection
         for record in self.glazing_records:
             hb_ph_glazing = self.create_new_hbph_glazing(record)
@@ -230,7 +255,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
             hbph_window_frame = self.create_new_hbph_window_frame(record)
             self.hbph_window_frames[hbph_window_frame.display_name] = hbph_window_frame
 
-        # # -- Build all the HBPH Window Constructions
+        # -- Build all the HBPH Window Constructions
         for record in self.window_unit_records:
             window_constructions_.append(self.create_new_hbph_window_construction(record))
 

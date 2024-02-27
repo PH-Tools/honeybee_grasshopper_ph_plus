@@ -25,22 +25,27 @@ the structure of the source Table is assumed to match the HBPH format and if you
 table includes data with different column names or data types you may get errors when using
 this component. 
 -
-EM February 15, 2024
+EM February 27, 2024
     Args:
         _glazing_records: (List[TableRecord]) A list of all the AirTable "TableRecord" line items
             representing the window glazing types to create. 
             Use the HBPH "HBPH - Airtable Download Table Data" component to download 
-            this data from your "Assemblies" table.
+            this data from your "WINDOW: GLAZING TYPES" table.
             
         _frame_element_records: (List[TableRecord]) A list of all the AirTable "TableRecord" line items
             representing the window frame elements to create. 
             Use the HBPH "HBPH - Airtable Download Table Data" component to download 
-            this data from your "Assemblies" table.
+            this data from your "WINDOW: FRAME TYPES" table.
             
         _window_unit_records: (List[TableRecord]) A list of all the AirTable "TableRecord" line items
             representing the window unit-types to create. 
             Use the HBPH "HBPH - Airtable Download Table Data" component to download 
-            this data from your "Assemblies" table.
+            this data from your "WINDOW: UNITS" table.
+
+        _psi_install_records: (List[TableRecord]) A list of all the AirTable "TableRecord" line items
+            representing the various Psi-Install values for the Window Units/Types.
+            Use the HBPH "HBPH - Airtable Download Table Data" component to download 
+            this data from your "WINDOW: PSI-INSTALLS" table.
             
     Returns:
         
@@ -74,6 +79,7 @@ gh_compo_interface = gh_compo_io.GHCompo_AirTableCreateWindowConstructions(
     IGH,
     _glazing_records,
     _frame_element_records,
-    _window_unit_records
+    _window_unit_records,
+    _psi_install_records,
     )
 window_constructions_ = gh_compo_interface.run()
