@@ -148,18 +148,28 @@ class GHCompo_AirTableCreateWindowConstructions(object):
 
         hbph_frame_type = PhWindowFrame(frame_data.display_name)
         hbph_frame_type.display_name = frame_data.display_name
-        hbph_frame_type.top = self.hbph_frame_elements[
-            frame_data["FRAME ELEMENT NAME: TOP"][0]
-        ]
-        hbph_frame_type.right = self.hbph_frame_elements[
-            frame_data["FRAME ELEMENT NAME: RIGHT"][0]
-        ]
-        hbph_frame_type.bottom = self.hbph_frame_elements[
-            frame_data["FRAME ELEMENT NAME: BOTTOM"][0]
-        ]
-        hbph_frame_type.left = self.hbph_frame_elements[
-            frame_data["FRAME ELEMENT NAME: LEFT"][0]
-        ]
+        try:
+            hbph_frame_type.top = self.hbph_frame_elements[
+                frame_data["FRAME ELEMENT NAME: TOP"][0]
+            ]
+            hbph_frame_type.right = self.hbph_frame_elements[
+                frame_data["FRAME ELEMENT NAME: RIGHT"][0]
+            ]
+            hbph_frame_type.bottom = self.hbph_frame_elements[
+                frame_data["FRAME ELEMENT NAME: BOTTOM"][0]
+            ]
+            hbph_frame_type.left = self.hbph_frame_elements[
+                frame_data["FRAME ELEMENT NAME: LEFT"][0]
+            ]
+        except KeyError as e:
+            raise KeyError(
+                "\nThe record: '{}' is missing the required field '{}'."\
+                "\nRecord FIELDS include only: {}"\
+                "\nPlease check AirTable's field names and ensure that the required field has a valid entry.".format(
+                    record.FIELDS.display_name, e, record.FIELDS.keys()
+                )
+            )
+
         return hbph_frame_type
 
     def create_new_hbph_window_material(self, _display_name, _hbph_frame, _hbph_glazing):

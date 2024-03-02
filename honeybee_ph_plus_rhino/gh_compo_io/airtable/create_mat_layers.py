@@ -24,7 +24,7 @@ except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
-    from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import TableRecord
+    from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import TableRecord, TableFields
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 
@@ -110,6 +110,38 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         """Create a dictionary of materials from the AirTable Data."""
         return {record.ID: record.FIELDS for record in _material_records}
 
+    def _layer_name(self, _layer_data):
+        # type: (TableFields) -> str
+        """Get the name of the layer from the TableFields dict."""
+        try:
+            return _layer_data[AT_COLUMN_NAMES["name"]]
+        except KeyError:
+            msg = "No Name found for the layer: {}".format(_layer_data)
+            self.IGH.warning(msg)
+            return "__unnamed__"
+
+    def _layer_thickness(self, _layer_data):
+        # type: (TableFields) -> float
+        """Get the thickness of the layer from the TableFields dict."""
+        try:
+            return float(_layer_data[AT_COLUMN_NAMES["thickness_mm"]])
+        except KeyError as e:
+            layer_name = self._layer_name(_layer_data)
+            msg = "Failed to get the thickness of the layer: '{}'"\
+                "\nKey: '{}' was not found? Please check the AirTable field names.".format(layer_name, e)
+            raise KeyError(msg)
+
+    def _layer_conductivity(self, _layer_material_data):
+        # type: (TableFields) -> float
+        """Get the conductivity of the layer from the TableFields dict."""
+        try:
+            return float(_layer_material_data[AT_COLUMN_NAMES["conductivity_w_mk"]])
+        except KeyError as e:
+            layer_name = self._layer_name(_layer_material_data)
+            msg = "Failed to get the conductivity of the layer: '{}'"\
+                "\nKey: '{}' was not found? Please check the AirTable field names.".format(layer_name, e)
+            raise KeyError(msg)
+
     def create_ep_material(self, _record):
         # type: (TableRecord) -> Optional[EnergyMaterial]
         """Create the EnergyPlus Material Layers from the AirTable Data."""
@@ -123,9 +155,10 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             )
             self.IGH.warning(msg)
             return None
-        layer_thickness_mm = float(layer_data[AT_COLUMN_NAMES["thickness_mm"]])
+        
+        layer_thickness_mm = self._layer_thickness(layer_data) 
         layer_thickness_m = layer_thickness_mm / 1000.00
-        layer_name = layer_data.get(AT_COLUMN_NAMES["name"], "__unnamed__")
+        layer_name = self._layer_name(layer_data)
 
         # -- Get the Layer Material Data
         layer_mat_id = layer_mat_id_list[0]
@@ -135,7 +168,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         hb_mat = EnergyMaterial(
             clean_ep_string(self.clean_name(layer_name)),
             layer_thickness_m,
-            float(layer_mat[AT_COLUMN_NAMES["conductivity_w_mk"]]),
+            self._layer_conductivity(layer_mat),
             self.DENSITY,
             self.SPEC_HEAT,
             self.ROUGHNESS,
