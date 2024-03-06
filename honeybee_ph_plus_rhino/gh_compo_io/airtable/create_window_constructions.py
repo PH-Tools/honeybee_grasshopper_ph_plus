@@ -83,7 +83,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         """Create a dictionary of the Psi-Install values."""
         psi_installs_ = {} # type: Dict[str, float]
         for record in _records or []:
-            psi_installs_[record.FIELDS['DISPLAY_NAME']] = record.FIELDS['PSI-VALUE [W/MK]']
+            psi_installs_[record.FIELDS['DISPLAY_NAME']] = self.get_float_value_with_warning(record.FIELDS, 'PSI-VALUE [W/MK]')
         return psi_installs_
 
     def create_new_hbph_glazing(self, record):
@@ -98,23 +98,23 @@ class GHCompo_AirTableCreateWindowConstructions(object):
 
         return hbph_glazing
 
-    def get_float_value_with_warning(self, record, key):
+    def get_float_value_with_warning(self, _table_fields, key):
         # type: (TableFields, str) -> float
         try:
-            return float(record[key])
+            return float(_table_fields[key])
         except KeyError:
             msg = (
                 "The record '{}' is missing the required field '{}'."
                 "\nPlease check the AirTable heading format."
                 "\nKeys found in the table include only: {}."
                 "\nEnsure that the record's values are not 'None'.".format(
-                    record.display_name, key, record.keys()
+                    _table_fields.display_name, key, _table_fields.keys()
                 )
             )
             raise KeyError(msg)
         except ValueError:
             msg = "The record '{}' has an invalid value for the field '{}'. Got the value: '{}'".format(
-                record.display_name, key, record[key]
+                _table_fields.display_name, key, _table_fields[key]
             )
             raise ValueError(msg)
 
