@@ -19,14 +19,25 @@ except ImportError:
     raise Exception("Error importing honeybee_energy modules?")
 
 try:
+    from honeybee_energy_ph.properties.materials.opaque import EnergyMaterialPhProperties
+except ImportError:
+    raise ImportError("Failed to import honeybee_energy_ph")
+
+try:
     from honeybee_ph_rhino import gh_io
 except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
+    from honeybee_ph_utils.color import PhColor
+except ImportError:
+    raise ImportError("Failed to import honeybee_ph_utils")
+
+try:
     from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import TableRecord, TableFields
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
+
 
 AT_COLUMN_NAMES = {
     "name": "DISPLAY_NAME",
@@ -142,6 +153,16 @@ class GHCompo_AirTableCreateMaterialLayers(object):
                 "\nKey: '{}' was not found? Please check the AirTable field names.".format(layer_name, e)
             raise KeyError(msg)
 
+    def _layer_material_color(self, _layer_material_data):
+        # type: (TableFields) -> Optional[PhColor]
+        """Get the color of the layer from the TableFields dict."""
+        try:
+            color_string = _layer_material_data["ARGB_COLOR"] # ie: "255,255,62,143"
+        except KeyError:
+            color_string = "255,255,255,255" # White
+        
+        return PhColor.from_argb(*[int(_) for _ in color_string.split(",")])
+
     def create_ep_material(self, _record):
         # type: (TableRecord) -> Optional[EnergyMaterial]
         """Create the EnergyPlus Material Layers from the AirTable Data."""
@@ -160,7 +181,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         layer_thickness_m = layer_thickness_mm / 1000.00
         layer_name = self._layer_name(layer_data)
 
-        # -- Get the Layer Material Data
+        # -- Get the Layer's Material Data
         layer_mat_id = layer_mat_id_list[0]
         layer_mat = self.materials[layer_mat_id]
 
@@ -176,6 +197,11 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             self.SOL_ABS,
             self.VIS_ABS,
         )
+
+        # -- Set the Layer's Color
+        mat_prop_ph = hb_mat.properties.ph # type: EnergyMaterialPhProperties # type: ignore
+        mat_prop_ph.ph_color = self._layer_material_color(layer_mat)
+
         return hb_mat
 
     @property
