@@ -4,7 +4,7 @@
 """GHCompo Interface: HBPH - Airtable Create Material Layers."""
 
 try:
-    from typing import Any, Dict, Iterator, KeysView, List, Optional, ValuesView
+    from typing import Any, Dict, Iterator, KeysView, List, Optional, ValuesView, Tuple, ItemsView
 except ImportError:
     pass  # IronPython 2.7
 
@@ -62,6 +62,10 @@ class EpMaterialCollection(object):
     def values(self):
         # type: () -> ValuesView[EnergyMaterial]
         return self._storage.values()
+
+    def items(self):
+        # type: () -> ItemsView[str, EnergyMaterial]
+        return self._storage.items()
 
     def __getitem__(self, key):
         # type: (str) -> EnergyMaterial
