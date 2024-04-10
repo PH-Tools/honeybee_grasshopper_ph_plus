@@ -3,6 +3,8 @@
 
 """TextAnnotations class used for writing to PDF."""
 
+from copy import copy
+
 try:
     from typing import Any, List, Optional, TypeVar, Union
 
@@ -178,7 +180,7 @@ class TextAnnotation(object):
         # type: () -> TextAnnotation
         return TextAnnotation(
             self.IGH,
-            self._text,
+            copy(self._text),
             self.text_size,
             self._location,
             self.format,
@@ -188,6 +190,7 @@ class TextAnnotation(object):
             self.mask_offset,
             self.mask_frame,
             self.mask_draw_frame,
+            self.align_to_layout_view,
         )
 
     def _truncate(self, txt):
