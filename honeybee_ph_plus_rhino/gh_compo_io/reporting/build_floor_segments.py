@@ -17,8 +17,8 @@ except ImportError:
     pass  # Outside .NET
 
 try:
-    from Rhino.DocObjects import ObjectAttributes
-    from Rhino.Geometry import Brep, Line, Point3d, Vector3d
+    from Rhino.DocObjects import ObjectAttributes  # type: ignore
+    from Rhino.Geometry import Brep, Line, Point3d, Vector3d  # type: ignore
 except ImportError:
     pass  # Outside Rhino
 
@@ -403,9 +403,7 @@ class GHCompo_CreateFloorSegmentPDFGeometry(object):
             self.colors = color_by_Vent
             self.text = text_by_Vent
         else:
-            self.IGH.error(
-                "Error: Plan type: {} is not suppported?".format(_drawing_type)
-            )
+            self.IGH.error("Error: Plan type: {} is not supported?".format(_drawing_type))
 
     def run(self):
         # type: () -> Tuple
