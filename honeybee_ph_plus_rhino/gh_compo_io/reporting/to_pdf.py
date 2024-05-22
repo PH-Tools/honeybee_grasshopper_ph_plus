@@ -889,7 +889,8 @@ def export_pdfs(
             try:
                 for cp in _cp_loc.Branch(branch_num):
                     add_clipping_plane(_IGH, cp, cp_layer, dtl_view_objs)
-            except ValueError:
+            except ValueError as e:
+                print("Error: {}".format(e))
                 pass
 
             # ----------------------------------------------------------------------------------------------------------
@@ -930,7 +931,8 @@ def export_pdfs(
             try:
                 for layout_annotation in _layout_annotations.Branch(branch_num):
                     bake_annotation_object(_IGH, layout_annotation, label_bake_layer)
-            except ValueError:
+            except ValueError as e:
+                print("Error: {}".format(e))
                 pass
 
             # ----------------------------------------------------------------------------------------------------------

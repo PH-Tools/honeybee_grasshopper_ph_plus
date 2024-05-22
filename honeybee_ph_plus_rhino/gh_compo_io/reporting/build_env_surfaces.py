@@ -17,6 +17,7 @@ except ImportError:
     pass  # Outside .NET
 
 try:
+    from Grasshopper import DataTree  # type: ignore
     from Grasshopper.Kernel.Data import GH_Path
     from Rhino.DocObjects import ObjectAttributes
 except ImportError:
@@ -173,21 +174,27 @@ class GHCompo_CreateEnvelopeSurfaces(object):
                         surface_color = rh_attr_surface_default
                         crv_color = rh_attr_curve_default
 
-                    # -- Surface
+                    # -- Create the Mesh Surface
                     mesh = self.IGH.ghpythonlib_components.MeshColours(
                         from_face3d(hb_face.geometry), surface_color.ObjectColor
                     )
                     face_geometry_.Add(mesh, pth(i))
                     face_rh_attributes_.Add(surface_color, pth(i))
 
-                    # -- Boundary Edges
+                    # -- Create the Mesh Boundary Edges
                     msh_edges = self.IGH.ghpythonlib_components.MeshEdges(
                         mesh
                     ).naked_edges
                     msh_boundary = self.IGH.ghpythonlib_components.JoinCurves(
                         msh_edges, preserve=False
                     )
-                    face_geometry_.Add(msh_boundary, pth(i))
-                    face_rh_attributes_.Add(crv_color, pth(i))
+                    if isinstance(msh_boundary, list):
+                        # If boundary is more than one curve, its a donut shaped face....
+                        for crv in msh_boundary:
+                            face_geometry_.Add(crv, pth(i))
+                            face_rh_attributes_.Add(crv_color, pth(i))
+                    else:
+                        face_geometry_.Add(msh_boundary, pth(i))
+                        face_rh_attributes_.Add(crv_color, pth(i))
 
         return (face_const_names_, face_geometry_, face_rh_attributes_, face_areas_)
