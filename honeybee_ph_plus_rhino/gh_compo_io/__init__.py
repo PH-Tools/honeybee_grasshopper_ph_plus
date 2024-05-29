@@ -89,6 +89,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.generate_polygon2d_from_faces i
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.merge_lbt_polygon2ds import (
     GHCompo_MergeLBTPolygon2Ds,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.check_shade_mesh import (
+    GHCompo_CheckShadeMesh,
+)
 
 #
 # -- Reporting
