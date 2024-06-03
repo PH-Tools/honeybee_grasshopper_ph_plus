@@ -4,7 +4,7 @@
 """GHCompo Interface: HBPH - Sort Geom by Level."""
 
 try:
-    from typing import Any, Dict, List, Tuple
+    from typing import Dict, List, Tuple
 except ImportError:
     pass  # IronPython 2.7
 
@@ -16,7 +16,7 @@ except ImportError:
 from collections import defaultdict
 
 try:
-    import Rhino  # type: ignore
+    from Rhino import Geometry  # type: ignore
     from Grasshopper import DataTree  # type: ignore
     from Grasshopper.Kernel.Data import GH_Path  # type: ignore
     from Rhino.Geometry import GeometryBase  # type: ignore
@@ -34,7 +34,7 @@ class GHCompo_SortGeomObjectsByLevel(object):
     """Utility for sorting any Rhino Geometry objects by their Z-location (height)."""
 
     def __init__(self, _IGH, _geom, _tolerance):
-        # type: (gh_io.IGH, List[Rhino.Geometry.GeometryBase], float) -> None
+        # type: (gh_io.IGH, List[Geometry.GeometryBase], float) -> None
         self.IGH = _IGH
         self.geom = _geom
         self.geom_by_level = defaultdict(
@@ -45,7 +45,7 @@ class GHCompo_SortGeomObjectsByLevel(object):
         self.tolerance = _tolerance or 0.001
 
     def get_z_height(self, _geom):
-        # type: (Rhino.Geometry.GeometryBase) -> float
+        # type: (Geometry.GeometryBase) -> float
         """Return the Z-dimension value for the bottom / lowest element of the geometry."""
         return min((_.Z for _ in self.IGH.ghc.BoxCorners(_geom)))
 
