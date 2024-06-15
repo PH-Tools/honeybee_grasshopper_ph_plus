@@ -11,12 +11,13 @@ except ImportError:
     pass  # Python 2.7
 
 try:
-    from System import Object  # type: ignore
     from System.Drawing import Color  # type: ignore
 except ImportError:
     pass  # Outside .NET
 
 try:
+    from Rhino import Geometry as rg  # type: ignore
+    from Rhino import DocObjects as rdo  # type: ignore
     from Rhino.DocObjects import ObjectAttributes  # type: ignore
     from Rhino.Geometry import Brep, Line, Point3d, Vector3d  # type: ignore
 except ImportError:
@@ -34,6 +35,8 @@ except ImportError as e:
 
 try:
     from honeybee_ph import space
+    from honeybee_ph.properties.space import SpacePhProperties
+    from honeybee_ph.properties.room import RoomPhProperties
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph:\n\t{}".format(e))
 
@@ -99,12 +102,12 @@ def color_by_TFA(_flr_seg, _space):
 def color_by_Vent(_flr_seg, _space):
     # type: (space.SpaceFloorSegment, space.Space) -> Color
     """Return a System.Drawing.Color based on the Ventilation Air Flow Rate of the Space"""
-
-    if _space.properties.ph._v_sup > 0 and _space.properties.ph._v_eta > 0:
+    space_prop_ph = getattr(_space.properties, "ph")  # type: SpacePhProperties
+    if space_prop_ph._v_sup or 0 > 0 and space_prop_ph._v_eta or 0 > 0:
         return Color.FromArgb(255, 234, 192, 240)  # Balanced
-    elif _space.properties.ph._v_sup > 0:
+    elif space_prop_ph._v_sup or 0 > 0:
         return Color.FromArgb(255, 183, 227, 238)  # Supply Only
-    elif _space.properties.ph._v_eta > 0:
+    elif space_prop_ph._v_eta or 0 > 0:
         return Color.FromArgb(255, 246, 170, 154)  # Extract Only
     else:
         return Color.FromArgb(255, 235, 235, 235)  # No Vent Flow
@@ -141,18 +144,18 @@ def text_by_TFA(_space, _units="SI"):
 def text_by_Vent(_space, _units="SI"):
     # type: (space.Space, str) -> str
     """Return the space data in a formatted block."""
-
+    space_prop_ph = getattr(_space.properties, "ph")  # type: SpacePhProperties
     # -- get the data cleanly, in case None
     try:
-        v_sup = "{:.0f}".format(_space.properties.ph._v_sup * 3600)
+        v_sup = "{:.0f}".format(space_prop_ph._v_sup or 0 * 3600)
     except:
         v_sup = "-"
     try:
-        v_eta = "{:.0f}".format(_space.properties.ph._v_eta * 3600)
+        v_eta = "{:.0f}".format(space_prop_ph._v_eta or 0 * 3600)
     except:
         v_eta = "-"
     try:
-        v_tran = "{:.0f}".format(_space.properties.ph._v_tran * 3600)
+        v_tran = "{:.0f}".format(space_prop_ph._v_tran or 0 * 3600)
     except:
         v_tran = "-"
 
@@ -187,7 +190,8 @@ def _get_hbph_spaces(_hb_room_group):
 
     spaces = {}
     for room in _hb_room_group:
-        for space in room.properties.ph.spaces:
+        room_prop_ph = getattr(room.properties, "ph")  # type: RoomPhProperties
+        for space in room_prop_ph.spaces:
             spaces[space.display_name] = space
 
     return sorted(list(spaces.values()), key=lambda sp: sp.display_name)
@@ -242,19 +246,15 @@ def _group_hb_rooms_by_story(_hb_model):
 def _build_rh_attrs(_IGH, _color, _weight=0.5, _draw_order=None):
     # type: (gh_io.IGH, Color, float, Optional[int]) -> ObjectAttributes
 
-    new_attr_obj = _IGH.Rhino.DocObjects.ObjectAttributes()
+    new_attr_obj = rdo.ObjectAttributes()
 
     new_attr_obj.ObjectColor = _color
     new_attr_obj.PlotColor = _color
-    new_attr_obj.ColorSource = _IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
-    new_attr_obj.PlotColorSource = (
-        _IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
-    )
+    new_attr_obj.ColorSource = rdo.ObjectColorSource.ColorFromObject
+    new_attr_obj.PlotColorSource = rdo.ObjectPlotColorSource.PlotColorFromObject
 
     new_attr_obj.PlotWeight = _weight
-    new_attr_obj.PlotWeightSource = (
-        _IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
-    )
+    new_attr_obj.PlotWeightSource = rdo.ObjectPlotWeightSource.PlotWeightFromObject
 
     if _draw_order:
         new_attr_obj.DisplayOrder = _draw_order  # 1 = Front, -1 = Back
@@ -313,7 +313,7 @@ def _get_clipping_plane_locations(_IGH, _room_group, _offset_up=0.25, _offset_do
     space_floor_segments = [
         face
         for rm in _room_group
-        for sp in rm.properties.ph.spaces
+        for sp in getattr(rm.properties, "ph").spaces
         for faces in sp.floor_segment_surfaces
         for face in faces
     ]
@@ -329,12 +329,12 @@ def _get_clipping_plane_locations(_IGH, _room_group, _offset_up=0.25, _offset_do
 
     # --Create the clipping plane location objects up/down from that level.
     upper_clipping_plane = ClippingPlaneLocation(
-        _IGH.Rhino.Geometry.Point3d(0, 0, flr_level_max_z + _offset_up),
-        _IGH.Rhino.Geometry.Vector3d(0, 0, -1),
+        rg.Point3d(0, 0, flr_level_max_z + _offset_up),
+        rg.Vector3d(0, 0, -1),
     )
     lower_clipping_plane = ClippingPlaneLocation(
-        _IGH.Rhino.Geometry.Point3d(0, 0, flr_level_min_z - _offset_down),
-        _IGH.Rhino.Geometry.Vector3d(0, 0, 1),
+        rg.Point3d(0, 0, flr_level_min_z - _offset_down),
+        rg.Vector3d(0, 0, 1),
     )
 
     return upper_clipping_plane, lower_clipping_plane
@@ -363,7 +363,7 @@ def _build_annotation_leader_line(_IGH, _pt1, _pt2):
     # type: (gh_io.IGH, Point3d, Point3d) -> Tuple[Line, ObjectAttributes]
     """Return a new LeaderLine and ObjectAttributes"""
 
-    rh_geom = _IGH.Rhino.Geometry.Line(_pt1, _pt2)
+    rh_geom = rg.Line(_pt1, _pt2)
     rh_attr = _build_rh_attrs(_IGH, Color.FromArgb(255, 0, 0, 0), 0.05)
 
     return rh_geom, rh_attr

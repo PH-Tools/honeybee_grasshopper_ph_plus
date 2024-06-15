@@ -20,39 +20,25 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 #
 """
-Create a new Text Annotation object which can be used during PDF Export. These
-annotations can be used to add titles or other data to Layouts, or to add notes or 
-text directly into the Rhino-scene as well.
+Description....
 -
 EM June 15, 2024
     Args:
-        _text: (str) The Text for the annotation to show.
-        
-        _size: (float) The size of the Text to show. Default=0.25
-        
-        _location: (Rhino.Geometry.Point3d) The anchor point for the Text.
-        
-        _format: (str) Optional. A format string using the standard python
-            'f-string' inputs. Incude the curly-braces. For example, if you 
-            want to show the text "0.3456789" as "0.35 m3" you would pass 
-            in "{:0.2f} m3" (inclding the curly braces).
-            
-        _justification: (int) Relative to the anchor point. Input either:
-            0 [Bottom-Left]
-            1 [Bottom-Center]
-            2 [Bottom-Right]
-            3 [Middle-Left]
-            4 [Middle-Center]
-            5 [Middle-Right]
-            6 [Top-Left]
-            7 [Top-Middle]
-            8 [Top-Right]
+        _show_mask: (bool) default=True
 
-        _mask: (TextAnnotationMaskAttributes | None): Mask Attributes, if any
-            
+        _color: (System.Color)
+
+        _offset: (float) default=0.0
+
+        _frame_type: (MaskFrame) Input Either -
+"0" No Frame
+"1" Rectangular Frame (default)
+"2" Capsule Frame
+
+        _show_frame: (bool) default=True
+
     Returns:
-        text_annotations_: The new TextAnnotations objects. These can be used by 
-            the "HBPH - Export PDFs" component when exporting PDF documents.
+        mask_: The mask to apply to the Text Annotation
 """
 
 import scriptcontext as sc
@@ -67,10 +53,10 @@ from honeybee_ph_plus_rhino import gh_compo_io
 # ------------------------------------------------------------------------------
 import honeybee_ph_plus_rhino._component_info_
 reload(honeybee_ph_plus_rhino._component_info_)
-ghenv.Component.Name = "HBPH+ - Create Text Annotation"
+ghenv.Component.Name = "HBPH+ - Create Text Annotation Mask"
 DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
-    from honeybee_ph_plus_rhino.gh_compo_io.reporting import annotations as gh_compo_io
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting import annotation_mask as gh_compo_io
     reload(gh_compo_io)
 
 
@@ -80,13 +66,12 @@ IGH = gh_io.IGH( ghdoc, ghenv, sc, rh, rs, ghc, gh )
 
 
 # ------------------------------------------------------------------------------
-gh_compo_interface = gh_compo_io.GHCompo_CreateTextAnnotations(    
+gh_compo_interface = gh_compo_io.GHCompo_CreateTextAnnotationMask(    
     IGH,
-    _text,
-    _size,
-    _location,
-    _format,
-    _justification,
-    _mask,
+    _show_mask,
+    _color,
+    _offset,
+    _frame_type,
+    _show_frame,
 )
-text_annotations_ = gh_compo_interface.run()
+mask_ = gh_compo_interface.run()

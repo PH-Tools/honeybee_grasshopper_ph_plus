@@ -13,15 +13,8 @@ except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from System.Drawing import Color  # type: ignore
-except ImportError:
-    pass  # Outside .NET
-
-try:
+    from Rhino import Geometry as rg  # type:ignore
     from Grasshopper import DataTree  # type: ignore
-    from Rhino.DocObjects.DimensionStyle import MaskFrame  # type: ignore
-    from Rhino.Geometry import Point3d  # type: ignore
-    from Rhino.Geometry import Plane, TextJustification, Transform
 except ImportError:
     pass  # Outside Rhino
 
@@ -32,9 +25,13 @@ except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
-    from honeybee_ph_utils.input_tools import clean_get, clean_tree_get
+    from honeybee_ph_utils.input_tools import cleaner_get, clean_tree_get
 except ImportError as e:
     raise ImportError("{}\nFailed to import honeybee_ph_utils".format(e))
+
+from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotation_mask import (
+    TextAnnotationMaskAttributes,
+)
 
 
 class RHTextJustify(ghio_validators.Validated):
@@ -44,26 +41,26 @@ class RHTextJustify(ghio_validators.Validated):
         if new_value is None:
             return old_value
 
-        if isinstance(new_value, TextJustification):
+        if isinstance(new_value, rg.TextJustification):
             return new_value
 
         # if it's an integer input, convert to a TextJustification
         mapping = {
-            0: TextJustification.BottomLeft,
-            1: TextJustification.BottomCenter,
-            2: TextJustification.BottomRight,
-            3: TextJustification.MiddleLeft,
-            4: TextJustification.MiddleCenter,
-            5: TextJustification.MiddleRight,
-            6: TextJustification.TopLeft,
-            7: TextJustification.TopCenter,
-            8: TextJustification.TopRight,
+            0: rg.TextJustification.BottomLeft,
+            1: rg.TextJustification.BottomCenter,
+            2: rg.TextJustification.BottomRight,
+            3: rg.TextJustification.MiddleLeft,
+            4: rg.TextJustification.MiddleCenter,
+            5: rg.TextJustification.MiddleRight,
+            6: rg.TextJustification.TopLeft,
+            7: rg.TextJustification.TopCenter,
+            8: rg.TextJustification.TopRight,
         }
 
         try:
             return mapping[int(new_value)]
         except KeyError as e:
-            msg = "Error: Key {} is not a valid Text Justification?".format(new_value)
+            msg = "Error: {} is not a valid Text Justification?".format(new_value)
             raise KeyError("{}\n{}".format(e, msg))
 
 
@@ -80,35 +77,27 @@ class TextAnnotation(object):
         _location,
         _format="{}",
         _justification=3,
-        _mask_draw=False,
-        _mask_color=None,
-        _mask_offset=0.02,
-        _mask_frame=None,
-        _mask_draw_frame=False,
         _align_to_layout_view=False,
+        _mask=None,
     ):
-        # type: (gh_io.IGH, str, float, Union[Point3d, Plane], str, int, bool, Optional[Color], float, Optional[MaskFrame], bool, bool) -> None
+        # type: (gh_io.IGH, str, float, Union[rg.Point3d, rg.Plane], str, int, bool, Optional[TextAnnotationMaskAttributes]) -> None
         self.IGH = _IGH
         self._text = _text
         self.text_size = _size
         self._location = _location
         self.format = _format
-        self.justification = _justification
-        self.mask_draw = _mask_draw
-        self.mask_color = _mask_color or Color.FromArgb(50, 0, 0, 0)
-        self.mask_offset = _mask_offset
-        self.mask_frame = _mask_frame or MaskFrame.RectFrame
-        self.mask_draw_frame = _mask_draw_frame
+        self.justification = _justification  # type: TextJustification # type: ignore
         self.align_to_layout_view = _align_to_layout_view
+        self.mask = _mask
 
     @property
     def anchor_point(self):
-        # type: () -> Point3d
+        # type: () -> rg.Point3d
         """Return the 3D anchor point for the Text Annotation"""
 
-        if isinstance(self._location, Plane):
+        if isinstance(self._location, rg.Plane):
             return self._location.Origin
-        elif isinstance(self._location, Point3d):
+        if isinstance(self._location, rg.Point3d):
             return self._location
         else:
             raise ValueError(
@@ -119,16 +108,14 @@ class TextAnnotation(object):
 
     @property
     def plane(self):
-        # type: () -> Plane
+        # type: () -> rg.Plane
         """Return the 3D Plane for the Text Annotation."""
 
-        if isinstance(self._location, Plane):
+        if isinstance(self._location, rg.Plane):
             return self._location
-        elif isinstance(self._location, Point3d):
-            default_normal = self.IGH.Rhino.Geometry.Vector3d(0, 0, 1)  # Assumes Top View
-            default_plane = self.IGH.Rhino.Geometry.Plane(
-                origin=self._location, normal=default_normal
-            )
+        elif isinstance(self._location, rg.Point3d):
+            default_normal = rg.Vector3d(0, 0, 1)  # Assumes Top View
+            default_plane = rg.Plane(origin=self._location, normal=default_normal)
             return default_plane
         else:
             raise ValueError(
@@ -149,7 +136,7 @@ class TextAnnotation(object):
                 return self._text
 
     def transform(self, _transform):
-        # type: (Transform) -> TextAnnotation
+        # type: (rg.Transform) -> TextAnnotation
         """Applies a Rhino-Transform to a TextAnnotation object. Returns a copy of the TextAnnotation.
 
         Arguments:
@@ -185,12 +172,8 @@ class TextAnnotation(object):
             self._location,
             self.format,
             self.justification,
-            self.mask_draw,
-            self.mask_color,
-            self.mask_offset,
-            self.mask_frame,
-            self.mask_draw_frame,
             self.align_to_layout_view,
+            copy(self.mask),
         )
 
     def _truncate(self, txt):
@@ -220,44 +203,77 @@ class TextAnnotation(object):
 
 class GHCompo_CreateTextAnnotations(object):
     default_size = 0.25
+    default_location = rg.Point3d(0, 0, 0)
     default_format = "{}"
     default_justification = 4  # 4=Middle-Center
 
     def __init__(
-        self, _IGH, _text, _size, _location, _format, _justification, *args, **kwargs
+        self,
+        _IGH,
+        _text,
+        _size,
+        _location,
+        _format,
+        _justification,
+        _mask,
+        *args,
+        **kwargs
     ):
-        # type: (gh_io.IGH, DataTree, DataTree, DataTree, DataTree, DataTree, *Any, **Any) -> None
+        # type: (gh_io.IGH, DataTree, DataTree, DataTree, DataTree, DataTree, DataTree, *Any, **Any) -> None
         self.IGH = _IGH
         self.text = _text
         self.size = _size
         self.location = _location
         self.format = _format
         self.justification = _justification
+        self.mask = _mask
+
+    def get_size_branch(self, i):
+        # type: (int) -> List[float]
+        return clean_tree_get(self.size, i, _default=[self.default_size])
+
+    def get_location_branch(self, i):
+        # type: (int) -> List[rg.Point3d]
+        return clean_tree_get(self.location, i, _default=[rg.Point3d(0, 0, 0)])
+
+    def get_format_branch(self, i):
+        # type: (int) -> List[str]
+        return clean_tree_get(self.format, i, _default=[self.default_format])
+
+    def get_justification_branch(self, i):
+        # type: (int) -> List[int]
+        return clean_tree_get(
+            self.justification, i, _default=[self.default_justification]
+        )
+
+    def get_mask_branch(self, i):
+        # type: (int) -> List[TextAnnotationMaskAttributes] | List[None]
+        return clean_tree_get(self.mask, i, _default=[None])
 
     def run(self):
         # type: () -> DataTree[TextAnnotation]
         text_annotations_ = self.IGH.DataTree(TextAnnotation)
         for i, branch in enumerate(self.text.Branches):
             # -- Get the right tree branch
-            size_branch = clean_tree_get(self.size, i, _default=[self.default_size])
-            loc_branch = clean_tree_get(self.location, i, _default=[Point3d(0, 0, 0)])
-            format_branch = clean_tree_get(self.format, i, _default=[self.default_format])
-            justify_branch = clean_tree_get(
-                self.justification, i, _default=[self.default_justification]
-            )
+            size_branch = self.get_size_branch(i)
+            loc_branch = self.get_location_branch(i)
+            format_branch = self.get_format_branch(i)
+            justify_branch = self.get_justification_branch(i)
+            mask_branch = self.get_mask_branch(i)
 
             for k, txt in enumerate(branch):
                 # -- Get the right data from the tree branch
-                size = clean_get(list(size_branch), k, 0.25) or 0.25
-                location = clean_get(list(loc_branch), k)
-                format = clean_get(list(format_branch), k) or self.default_format
-                justification = (
-                    clean_get(list(justify_branch), k) or self.default_justification
+                size = cleaner_get(list(size_branch), k, 0.25)
+                location = cleaner_get(list(loc_branch), k, self.default_location)
+                format = cleaner_get(list(format_branch), k, self.default_format)
+                justification = cleaner_get(
+                    list(justify_branch), k, self.default_justification
                 )
+                mask = cleaner_get(list(mask_branch), k, None)
 
                 # -- Build the TextAnnotation
                 new_label = TextAnnotation(
-                    self.IGH, txt, size, location, format, justification
+                    self.IGH, txt, size, location, format, justification, False, mask
                 )
                 text_annotations_.Add(new_label, self.IGH.GH_Path(i))
 
