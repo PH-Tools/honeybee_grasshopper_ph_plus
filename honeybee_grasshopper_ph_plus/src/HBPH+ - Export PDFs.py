@@ -37,7 +37,7 @@ cause all sorts of unexpected results sometimes.
 -
 Set the component '_export_pdfs' to 'True' to run the exporter.
 -
-EM January 25, 2024
+EM June 15, 2024
     Args:
         _save_folder: (str) The name of the target folder to save the PDF files to.
         
@@ -72,6 +72,11 @@ EM January 25, 2024
             sometimes needed when Rhino is unable to properly output vector artwork. If you are 
             having trouble with draw-order or line-weights / types, try setting to True.
             
+        _remove_baked_items: (bool) default=True. If you need to troubleshoot, try setting this to 
+            False in order to be able to clearly see and investigate the geometry and Annotations that 
+            are created during the print-to-pdf process. Note that you should delete the generated geometry
+            and the new layers before running this PDF writing again. 
+
         _export_pdfs: (bool) Set True to run the exporter.
 
     Returns:
@@ -92,8 +97,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.reporting import to_pdf
 import honeybee_ph_plus_rhino._component_info_
 reload(honeybee_ph_plus_rhino._component_info_)
 ghenv.Component.Name = "HBPH+ - Export PDFs"
-DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
+DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev='240615')
 if DEV:
+    reload(gh_io)
     reload(to_pdf)
 
 
@@ -117,5 +123,6 @@ if file_paths_ and _geom and layout_names_ and _export_pdfs:
                 _geom_attributes,
                 _model_annotations,
                 _layout_annotations,
+                _remove_baked_objects,
                 _raster,
             )
