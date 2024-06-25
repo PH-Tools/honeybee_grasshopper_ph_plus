@@ -97,7 +97,7 @@ from honeybee_ph_plus_rhino.gh_compo_io.reporting import to_pdf
 import honeybee_ph_plus_rhino._component_info_
 reload(honeybee_ph_plus_rhino._component_info_)
 ghenv.Component.Name = "HBPH+ - Export PDFs"
-DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev='240615')
+DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
     reload(gh_io)
     reload(to_pdf)

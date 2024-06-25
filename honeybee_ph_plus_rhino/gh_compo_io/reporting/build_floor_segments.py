@@ -56,7 +56,10 @@ except ImportError as e:
     raise ImportError("\nFailed to import ph_units:\n\t{}".format(e))
 
 try:
-    from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotations import TextAnnotation
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotations import (
+        TextAnnotation,
+        TextAnnotationMaskAttributes,
+    )
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 
@@ -145,37 +148,40 @@ def text_by_Vent(_space, _units="SI"):
     # type: (space.Space, str) -> str
     """Return the space data in a formatted block."""
     space_prop_ph = getattr(_space.properties, "ph")  # type: SpacePhProperties
-    # -- get the data cleanly, in case None
-    try:
-        v_sup = "{:.0f}".format(space_prop_ph._v_sup or 0 * 3600)
-    except:
-        v_sup = "-"
-    try:
-        v_eta = "{:.0f}".format(space_prop_ph._v_eta or 0 * 3600)
-    except:
-        v_eta = "-"
-    try:
-        v_tran = "{:.0f}".format(space_prop_ph._v_tran or 0 * 3600)
-    except:
-        v_tran = "-"
+
+    def format_vent_rate(_rate, _target_unit="M3/HR"):
+        # type (float | str | None) -> str
+        # -- get the data cleanly, in case None
+        try:
+            return "{:.0f}".format(convert(_rate * 3600, "M3/HR", _target_unit))
+        except:
+            return "-"
 
     if str(_units).upper().strip() == "IP":
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
             "GROSS AREA: {:.01f} ft2".format(convert(_space.floor_area, "M2", "FT2")),
-            "SUP: {:.0f} cfm".format(convert(v_sup, "M3/HR", "CFM")),
-            "ETA: {:.0f} cfm".format(convert(v_eta, "M3/HR", "CFM")),
-            "TRAN: {:.0f} cfm".format(convert(v_tran, "M3/HR", "CFM")),
+            "NET AREA: {:.01f} ft2".format(convert(_space.net_floor_area, "M2", "FT2")),
+            "SUP: {} cfm".format(format_vent_rate(space_prop_ph._v_sup or 0.0, "CFM")),
+            "ETA: {} cfm".format(format_vent_rate(space_prop_ph._v_eta or 0.0, "CFM")),
+            "TRAN: {} cfm".format(format_vent_rate(space_prop_ph._v_tran or 0.0, "CFM")),
         ]
     else:
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
             "GROSS AREA: {:.01f} m2".format(_space.floor_area),
-            "SUP: {} m3/hr".format(v_sup),
-            "ETA: {} m3/hr".format(v_eta),
-            "TRAN: {} m3/hr".format(v_tran),
+            "NET AREA: {:.01f} m2".format(_space.net_floor_area),
+            "SUP: {} m3/hr".format(
+                format_vent_rate(space_prop_ph._v_sup or 0.0, "M3/HR")
+            ),
+            "ETA: {} m3/hr".format(
+                format_vent_rate(space_prop_ph._v_eta or 0.0, "M3/HR")
+            ),
+            "TRAN: {} m3/hr".format(
+                format_vent_rate(space_prop_ph._v_tran or 0.0, "M3/HR")
+            ),
         ]
 
     return "\n".join(txt)
@@ -270,7 +276,7 @@ def _get_flr_seg_data(_IGH, _get_color, _space):
     flr_sef_attrs_ = []  # type: List[ObjectAttributes]
 
     # -- Build the outline curve attr
-    crv_attr = _build_rh_attrs(_IGH, Color.FromArgb(255, 40, 40, 40), 0.5)
+    crv_attr = _build_rh_attrs(_IGH, Color.FromArgb(255, 40, 40, 40), 0.4)
 
     for volume in _space.volumes:
         for flr_seg in volume.floor.floor_segments:
@@ -405,6 +411,17 @@ class GHCompo_CreateFloorSegmentPDFGeometry(object):
         else:
             self.IGH.error("Error: Plan type: {} is not supported?".format(_drawing_type))
 
+    @property
+    def mask(self):
+        # type: () -> TextAnnotationMaskAttributes
+        return TextAnnotationMaskAttributes(
+            _show_mask=True,
+            _mask_color=Color.FromArgb(0, 0, 0, 0),
+            _mask_offset=0.5,
+            _frame_type=1,
+            _show_frame=True,
+        )
+
     def run(self):
         # type: () -> Tuple
 
@@ -472,9 +489,7 @@ class GHCompo_CreateFloorSegmentPDFGeometry(object):
                     _location=anno_cp,
                     _format="{}",
                     _justification=4,
-                    _mask_draw=True,
-                    _mask_offset=self.flr_anno_txt_size,
-                    _mask_draw_frame=True,
+                    _mask=self.mask,
                     _align_to_layout_view=True,
                 )
                 floor_annotations_.Add(txt_annotation, pth(i))

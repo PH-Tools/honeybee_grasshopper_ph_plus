@@ -25,7 +25,7 @@ TFA/iCFA or Fresh-air ventilation data. This component will read through the
 Honeybee-Model and pull out relevant data and prepare it for export using
 the "HBPH - Export PDFs" component.
 -
-EM January 25, 2024
+EM June 25, 2024
     Args:
         _hb_model: (honeybee.model.Model) The honeybee Model to use as the source.
         
@@ -67,9 +67,9 @@ ghenv.Component.Name = "HBPH+ - Report Space Floor Segments"
 DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
     reload(gh_io)
-    from honeybee_ph_plus_rhino.reporting import annotations
+    from honeybee_ph_plus_rhino.gh_compo_io. reporting import annotations
     reload(annotations)
-    from honeybee_ph_plus_rhino.reporting import build_floor_segments as gh_compo_io
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting import build_floor_segments as gh_compo_io
     reload(gh_compo_io)
 
 # ------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ gh_compo_interface = gh_compo_io.GHCompo_CreateFloorSegmentPDFGeometry(
         _type,
         _units_,
         _flr_anno_txt_size,
-        )
+)
 
 (floor_names_, clipping_plane_locations_, floor_geom_,
         floor_rh_attributes_, floor_annotations_) = gh_compo_interface.run()
