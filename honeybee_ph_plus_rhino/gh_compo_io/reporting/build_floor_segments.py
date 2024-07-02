@@ -106,7 +106,7 @@ def color_by_Vent(_flr_seg, _space):
     # type: (space.SpaceFloorSegment, space.Space) -> Color
     """Return a System.Drawing.Color based on the Ventilation Air Flow Rate of the Space"""
     space_prop_ph = getattr(_space.properties, "ph")  # type: SpacePhProperties
-    if space_prop_ph._v_sup or 0 > 0 and space_prop_ph._v_eta or 0 > 0:
+    if (space_prop_ph._v_sup or 0 > 0) and (space_prop_ph._v_eta or 0 > 0):
         return Color.FromArgb(255, 234, 192, 240)  # Balanced
     elif space_prop_ph._v_sup or 0 > 0:
         return Color.FromArgb(255, 183, 227, 238)  # Supply Only
