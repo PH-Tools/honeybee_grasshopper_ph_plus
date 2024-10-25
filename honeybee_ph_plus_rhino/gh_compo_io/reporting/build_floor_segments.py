@@ -314,6 +314,12 @@ def _get_clipping_plane_locations(_IGH, _room_group, _offset_up=0.25, _offset_do
     These are used to clip the scene local to the floor-plan being printed.
     """
 
+    # -- Get the offset distance in the Rhino-document units
+
+    doc_units = _IGH.get_rhino_unit_system_name()
+    offset_up_in_doc_units = convert(_offset_up, "M", doc_units)
+    offset_down_in_doc_units = convert(_offset_down, "M", doc_units)
+
     # -- Find the Min Z-location of the Floor-Faces of the Room-Group
     # -- use both the space floor-segments and the Honeybee 'Floor' surfaces
     space_floor_segments = [
@@ -335,11 +341,11 @@ def _get_clipping_plane_locations(_IGH, _room_group, _offset_up=0.25, _offset_do
 
     # --Create the clipping plane location objects up/down from that level.
     upper_clipping_plane = ClippingPlaneLocation(
-        rg.Point3d(0, 0, flr_level_max_z + _offset_up),
+        rg.Point3d(0, 0, flr_level_max_z + offset_up_in_doc_units),
         rg.Vector3d(0, 0, -1),
     )
     lower_clipping_plane = ClippingPlaneLocation(
-        rg.Point3d(0, 0, flr_level_min_z - _offset_down),
+        rg.Point3d(0, 0, flr_level_min_z - offset_down_in_doc_units),
         rg.Vector3d(0, 0, 1),
     )
 
@@ -414,10 +420,11 @@ class GHCompo_CreateFloorSegmentPDFGeometry(object):
     @property
     def mask(self):
         # type: () -> TextAnnotationMaskAttributes
+
         return TextAnnotationMaskAttributes(
             _show_mask=True,
             _mask_color=Color.FromArgb(0, 0, 0, 0),
-            _mask_offset=0.5,
+            _mask_offset=self.flr_anno_txt_size * 2,
             _frame_type=1,
             _show_frame=True,
         )

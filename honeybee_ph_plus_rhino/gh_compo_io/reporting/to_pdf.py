@@ -62,7 +62,7 @@ def hatch_from_curve(_hatchCurve, _tolerance):
     # type: (rg.Curve, float) -> rg.Hatch
     return rg.Hatch.Create(
         curve=_hatchCurve,
-        hatchPatternIndex=0,
+        hatchPatternIndex=0,  # TODO: This might fail. Should add a new Solid hatch first...
         rotationRadians=0,
         scale=0,
         tolerance=_tolerance,
