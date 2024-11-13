@@ -211,4 +211,4 @@ class GHCompo_CreateWindowUnitTypes(object):
                 WindowElement(width, height, pos_col, pos_row)
             )
 
-        return list(window_types.values())
+        return [window_types[k] for k in sorted(window_types.keys())]
