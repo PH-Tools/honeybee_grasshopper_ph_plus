@@ -92,6 +92,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.merge_lbt_polygon2ds import (
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.check_shade_mesh import (
     GHCompo_CheckShadeMesh,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.convert_unit import (
+    GHCompo_ConvertValueToUnit,
+)
 
 #
 # -- Reporting

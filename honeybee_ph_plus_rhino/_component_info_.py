@@ -5,7 +5,7 @@
 These are called when the component is instantiated within the Grasshopper canvas.
 """
 
-RELEASE_VERSION = "Honeybee-PH+ v1.01.16"
+RELEASE_VERSION = "Honeybee-PH+ v1.01.17"
 CATEGORY = "HB-PH+"
 SUB_CATEGORIES = {
     0: "00 | Utils",
@@ -147,6 +147,12 @@ COMPONENT_PARAMS = {
     },
     "HBPH+ - Merge LBT Polygon2Ds": {
         "NickName": "Merge LBT Polygon2Ds",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Convert Unit": {
+        "NickName": "Convert Unit",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
         "SubCategory": 3,
