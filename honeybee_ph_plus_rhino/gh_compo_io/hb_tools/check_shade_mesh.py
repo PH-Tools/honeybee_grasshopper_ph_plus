@@ -67,11 +67,11 @@ def interpret_input_from_face_vertices(mesh_faces):
 
 
 class GHCompo_CheckShadeMesh(object):
-    def __init__(self, _IGH, _shades, _threshold, *args, **kwargs):
+    def __init__(self, _IGH, _shades, _face_to_vertix_threshold, *args, **kwargs):
         # type: (gh_io.IGH, List[shade.Shade], float, *Any, **Any) -> None
         self.IGH = _IGH
         self.shades = _shades
-        self.threshold = _threshold or 1.5
+        self.face_to_vertix_threshold = _face_to_vertix_threshold or 1.5
 
     def shades_grouped_by_name(self):
         # type: () -> dict[str, List[shade.Shade]]
@@ -98,7 +98,9 @@ class GHCompo_CheckShadeMesh(object):
             face_to_vert_ratio = float(len(joined_mesh.faces)) / float(
                 len(joined_mesh.vertices)
             )
-            if face_to_vert_ratio > self.threshold:
+
+            # -- Add any problem-Meshes to the check_shades_ list
+            if face_to_vert_ratio > self.face_to_vertix_threshold:
                 check_shades_.append(from_mesh3d(joined_mesh))
 
         if len(check_shades_) > 0:

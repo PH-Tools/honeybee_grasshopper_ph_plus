@@ -57,12 +57,39 @@ try:
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 
+def create_default_solid_hatch_pattern(_IGH):
+    # type: (gh_io.IGH) -> int
+    """Create a new SOLID hatch pattern in the document and return its index."""
+    hatch_pattern = rdo.HatchPattern()
+    hatch_pattern.FillType = rdo.HatchPatternFillType.Solid
+    hatch_pattern.Name = "SOLID"
+    try: 
+        new_index = _IGH.sc.doc.HatchPatterns.Add(hatch_pattern)
+        return new_index
+    except Exception as e:
+        print(e)
+        return 0
 
-def hatch_from_curve(_hatchCurve, _tolerance):
-    # type: (rg.Curve, float) -> rg.Hatch
+def get_default_solid_hatch_index(_IGH):
+    # type: (gh_io.IGH) -> int
+    """Return the index of the default SOLID hatch pattern. 
+    
+    If the SOLID hatch pattern does not exist, create it first.
+    """
+    for hatch_pattern in _IGH.sc.doc.HatchPatterns:
+        if hatch_pattern.Name == "SOLID":
+            return hatch_pattern.Index
+    try:
+        return create_default_solid_hatch_pattern(_IGH)
+    except Exception as e:
+        print(e)
+        return 0
+
+def hatch_from_curve(_IGH, _hatchCurve, _tolerance, _hatch_pattern_index=0):
+    # type: (gh_io.IGH, rg.Curve, float, int) -> rg.Hatch
     return rg.Hatch.Create(
         curve=_hatchCurve,
-        hatchPatternIndex=0,  # TODO: This might fail. Should add a new Solid hatch first...
+        hatchPatternIndex=_hatch_pattern_index,
         rotationRadians=0,
         scale=0,
         tolerance=_tolerance,
@@ -398,8 +425,8 @@ def remove_bake_layer(_IGH, _layer_name):
         )
 
 
-def mesh2Hatch(_IGH, mesh):
-    # type: (gh_io.IGH, rg.Mesh) -> Tuple[List[rg.Hatch], List[Color]]
+def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
+    # type: (gh_io.IGH, rg.Mesh, int) -> Tuple[List[rg.Hatch], List[Color]]
     """Copied / Adapted from Ladybug Definition
 
     Arguments:
@@ -485,7 +512,7 @@ def mesh2Hatch(_IGH, mesh):
         # Create the hatch.
         try:
             if hatchCurve.IsPlanar():
-                meshFaceHatch = hatch_from_curve(hatchCurve, _IGH.tolerance)
+                meshFaceHatch = hatch_from_curve(_IGH, hatchCurve, _IGH.tolerance, _hatch_pattern_index)
                 hatches.append(meshFaceHatch)
                 colors.append(hatchColor)
             else:
@@ -498,7 +525,7 @@ def mesh2Hatch(_IGH, mesh):
                     [hatchCurveInit1, hatchExtra1],
                     _IGH.tolerance,
                 )[0]
-                meshFaceHatch1 = hatch_from_curve(hatchCurve1, _IGH.tolerance)
+                meshFaceHatch1 = hatch_from_curve(_IGH, hatchCurve1, _IGH.tolerance, _hatch_pattern_index)
                 hatchCurveInit2 = rg.PolylineCurve(
                     [facePointList[2], facePointList[3], facePointList[0]]
                 )
@@ -507,7 +534,7 @@ def mesh2Hatch(_IGH, mesh):
                     [hatchCurveInit2, hatchExtra2],
                     _IGH.tolerance,
                 )[0]
-                meshFaceHatch2 = hatch_from_curve(hatchCurve2, _IGH.tolerance)
+                meshFaceHatch2 = hatch_from_curve(_IGH, hatchCurve2, _IGH.tolerance, _hatch_pattern_index)
 
                 hatches.extend([meshFaceHatch1, meshFaceHatch2])
                 colors.extend([hatchColor, hatchColor])
@@ -546,7 +573,8 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
 
     with _IGH.context_rh_doc():
         layer_table = _IGH.Rhino.RhinoDoc.ActiveDoc.Layers  # layer table
-
+        hatch_id = get_default_solid_hatch_index(_IGH)
+        
         if _IGH.rhinoscriptsyntax.IsMesh(geometry):
             # Find the target layer index
             parentLayerIndex = rdo.Tables.LayerTable.FindByFullPath(
@@ -555,7 +583,7 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
 
             # Create a hatch from the mesh
             guids = []
-            hatches, colors = mesh2Hatch(_IGH, geometry)
+            hatches, colors = mesh2Hatch(_IGH, geometry, hatch_id)
 
             # Bake the Hatches into the Rhino Doc
             for count, hatch in enumerate(hatches):
