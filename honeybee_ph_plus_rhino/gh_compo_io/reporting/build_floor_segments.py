@@ -16,8 +16,8 @@ except ImportError:
     pass  # Outside .NET
 
 try:
-    from Rhino import Geometry as rg  # type: ignore
     from Rhino import DocObjects as rdo  # type: ignore
+    from Rhino import Geometry as rg  # type: ignore
     from Rhino.DocObjects import ObjectAttributes  # type: ignore
     from Rhino.Geometry import Brep, Line, Point3d, Vector3d  # type: ignore
 except ImportError:
@@ -35,8 +35,8 @@ except ImportError as e:
 
 try:
     from honeybee_ph import space
-    from honeybee_ph.properties.space import SpacePhProperties
     from honeybee_ph.properties.room import RoomPhProperties
+    from honeybee_ph.properties.space import SpacePhProperties
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph:\n\t{}".format(e))
 

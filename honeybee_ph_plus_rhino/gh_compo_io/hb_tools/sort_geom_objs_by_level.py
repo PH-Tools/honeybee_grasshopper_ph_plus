@@ -16,9 +16,9 @@ except ImportError:
 from collections import defaultdict
 
 try:
-    from Rhino import Geometry  # type: ignore
     from Grasshopper import DataTree  # type: ignore
     from Grasshopper.Kernel.Data import GH_Path  # type: ignore
+    from Rhino import Geometry  # type: ignore
     from Rhino.Geometry import GeometryBase  # type: ignore
     from System import Object  # type: ignore
 except:

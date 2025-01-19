@@ -4,7 +4,7 @@
 """GHCompo Interface: HBPH+ - Merge LBT Polygon2Ds."""
 
 try:
-    from typing import Any, Dict, List, Any, Optional
+    from typing import Any, Dict, List, Optional
 except ImportError:
     pass  # IronPython 2.7
 

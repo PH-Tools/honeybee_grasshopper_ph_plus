@@ -4,26 +4,26 @@
 """GHCompo Interface: HBPH+ - Get Face Polygon2Ds in Ref. Space."""
 
 try:
-    from typing import Any, Dict, List, Any, Optional, Tuple, Generator
+    from typing import Any, Dict, Generator, List, Optional, Tuple
 except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from System import Object  # type: ignore
     from Grasshopper import DataTree  # type: ignore
     from Grasshopper.Kernel.Data import GH_Path  # type: ignore
+    from System import Object  # type: ignore
 except:
     raise ImportError("Failed to import Grasshopper")
 
 try:
-    from Rhino.Geometry import Point3d, Brep  # type: ignore
+    from Rhino.Geometry import Brep, Point3d  # type: ignore
 except ImportError:
     raise ImportError("Failed to import Rhino")
 
 try:
     from ladybug_geometry.geometry2d.polygon import Polygon2D
-    from ladybug_geometry.geometry3d.plane import Plane
     from ladybug_geometry.geometry3d.face import Face3D
+    from ladybug_geometry.geometry3d.plane import Plane
 except ImportError as e:
     raise ImportError("Failed to import ladybug_geometry")
 

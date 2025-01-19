@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""GHCompo Interface: HBPH - Rebuild Window Surfaces."""
+"""GHCompo Interface: HBPH+ - Rebuild Window Surfaces."""
 
 try:
     from Rhino.Geometry import Surface

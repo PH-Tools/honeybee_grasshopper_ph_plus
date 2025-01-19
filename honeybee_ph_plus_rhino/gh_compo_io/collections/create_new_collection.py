@@ -26,7 +26,6 @@ except ImportError:
 
 
 class CustomCollection(object):
-
     """A custom 'Collection' class which works like a Python Dictionary."""
 
     def __init__(self, _display_name="", *args, **kwargs):

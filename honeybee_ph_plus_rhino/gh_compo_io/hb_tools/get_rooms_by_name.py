@@ -4,7 +4,7 @@
 """GHCompo Interface: HBPH+ - Get Rooms by Name."""
 
 try:
-    from typing import Any, Dict, List, Tuple, Any
+    from typing import Any, Dict, List, Tuple
 except ImportError:
     pass  # IronPython 2.7
 

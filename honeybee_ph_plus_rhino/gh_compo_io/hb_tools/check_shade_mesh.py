@@ -6,13 +6,12 @@
 from collections import defaultdict
 
 try:
-    from typing import Any, List, Iterable
+    from typing import Any, Iterable, List
 except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from ladybug_geometry.geometry3d import Point3D
-    from ladybug_geometry.geometry3d import Mesh3D
+    from ladybug_geometry.geometry3d import Mesh3D, Point3D
 except ImportError as e:
     raise ImportError("Failed to import ladybug_rhino: {}".format(e))
 

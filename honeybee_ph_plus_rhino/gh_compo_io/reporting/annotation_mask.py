@@ -38,7 +38,7 @@ except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
-    from honeybee_ph_utils.input_tools import cleaner_get, clean_tree_get
+    from honeybee_ph_utils.input_tools import clean_tree_get, cleaner_get
 except ImportError as e:
     raise ImportError("{}\nFailed to import honeybee_ph_utils".format(e))
 

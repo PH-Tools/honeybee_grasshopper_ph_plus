@@ -28,7 +28,7 @@ except ImportError:
 
 class GHCompo_CreateObjectsFromKeyValues(object):
     def __init__(self, _IGH, _type_name, _keys, _values):
-        # type: (gh_io.IGH, str, List[str], DataTree[List[Any]],) -> None
+        # type: (gh_io.IGH, str, DataTree, DataTree,) -> None
         self.IGH = _IGH
         self.type_name = _type_name
         self._keys = [self.clean_key(k) for k in _keys]
@@ -44,7 +44,9 @@ class GHCompo_CreateObjectsFromKeyValues(object):
         # type: () -> List[str]
         """Returns a list of keys with a length that matches the input values."""
         if self.values.BranchCount != len(self._keys):
-            msg = "The Number of Keys does not match the number of Values?"
+            msg = "The Number of Keys ({}) does not match the number of Values ({})?".format(
+                self.values.BranchCount, len(self._keys)
+            )
             self.IGH.warning(msg)
 
         keys_ = []

@@ -22,10 +22,10 @@ except ImportError:
     pass  # Outside .NET
 
 try:
-    from Rhino import Geometry as rg  # type: ignore
-    from Rhino import DocObjects as rdo  # type: ignore
     from Rhino import Display as rdp  # type: ignore
+    from Rhino import DocObjects as rdo  # type: ignore
     from Rhino import FileIO  # type: ignore
+    from Rhino import Geometry as rg  # type: ignore
     from Rhino.DocObjects.DimensionStyle import MaskFrame  # type: ignore
 
     # from Rhino.Geometry import (
@@ -57,23 +57,25 @@ try:
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 
+
 def create_default_solid_hatch_pattern(_IGH):
     # type: (gh_io.IGH) -> int
     """Create a new SOLID hatch pattern in the document and return its index."""
     hatch_pattern = rdo.HatchPattern()
     hatch_pattern.FillType = rdo.HatchPatternFillType.Solid
     hatch_pattern.Name = "SOLID"
-    try: 
+    try:
         new_index = _IGH.sc.doc.HatchPatterns.Add(hatch_pattern)
         return new_index
     except Exception as e:
         print(e)
         return 0
 
+
 def get_default_solid_hatch_index(_IGH):
     # type: (gh_io.IGH) -> int
-    """Return the index of the default SOLID hatch pattern. 
-    
+    """Return the index of the default SOLID hatch pattern.
+
     If the SOLID hatch pattern does not exist, create it first.
     """
     for hatch_pattern in _IGH.sc.doc.HatchPatterns:
@@ -84,6 +86,7 @@ def get_default_solid_hatch_index(_IGH):
     except Exception as e:
         print(e)
         return 0
+
 
 def hatch_from_curve(_IGH, _hatchCurve, _tolerance, _hatch_pattern_index=0):
     # type: (gh_io.IGH, rg.Curve, float, int) -> rg.Hatch
@@ -512,7 +515,9 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
         # Create the hatch.
         try:
             if hatchCurve.IsPlanar():
-                meshFaceHatch = hatch_from_curve(_IGH, hatchCurve, _IGH.tolerance, _hatch_pattern_index)
+                meshFaceHatch = hatch_from_curve(
+                    _IGH, hatchCurve, _IGH.tolerance, _hatch_pattern_index
+                )
                 hatches.append(meshFaceHatch)
                 colors.append(hatchColor)
             else:
@@ -525,7 +530,9 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
                     [hatchCurveInit1, hatchExtra1],
                     _IGH.tolerance,
                 )[0]
-                meshFaceHatch1 = hatch_from_curve(_IGH, hatchCurve1, _IGH.tolerance, _hatch_pattern_index)
+                meshFaceHatch1 = hatch_from_curve(
+                    _IGH, hatchCurve1, _IGH.tolerance, _hatch_pattern_index
+                )
                 hatchCurveInit2 = rg.PolylineCurve(
                     [facePointList[2], facePointList[3], facePointList[0]]
                 )
@@ -534,7 +541,9 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
                     [hatchCurveInit2, hatchExtra2],
                     _IGH.tolerance,
                 )[0]
-                meshFaceHatch2 = hatch_from_curve(_IGH, hatchCurve2, _IGH.tolerance, _hatch_pattern_index)
+                meshFaceHatch2 = hatch_from_curve(
+                    _IGH, hatchCurve2, _IGH.tolerance, _hatch_pattern_index
+                )
 
                 hatches.extend([meshFaceHatch1, meshFaceHatch2])
                 colors.extend([hatchColor, hatchColor])
@@ -574,7 +583,7 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
     with _IGH.context_rh_doc():
         layer_table = _IGH.Rhino.RhinoDoc.ActiveDoc.Layers  # layer table
         hatch_id = get_default_solid_hatch_index(_IGH)
-        
+
         if _IGH.rhinoscriptsyntax.IsMesh(geometry):
             # Find the target layer index
             parentLayerIndex = rdo.Tables.LayerTable.FindByFullPath(

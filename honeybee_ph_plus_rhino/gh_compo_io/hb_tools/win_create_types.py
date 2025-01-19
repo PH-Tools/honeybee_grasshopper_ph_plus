@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""GHCompo Interface: HBPH - Create Window Types."""
+"""GHCompo Interface: HBPH+ - Create Window Types."""
 
 from collections import OrderedDict, defaultdict
 

@@ -5,7 +5,7 @@
 These are called when the component is instantiated within the Grasshopper canvas.
 """
 
-RELEASE_VERSION = "Honeybee-PH+ v1.01.18"
+RELEASE_VERSION = "Honeybee-PH+ v1.01.19"
 CATEGORY = "HB-PH+"
 SUB_CATEGORIES = {
     0: "00 | Utils",
@@ -157,6 +157,30 @@ COMPONENT_PARAMS = {
         "Category": CATEGORY,
         "SubCategory": 3,
     },
+    "HBPH+ - SQL Get Table Names": {
+        "NickName": "SQL Get Table Names",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - SQL Get Column Names": {
+        "NickName": "SQL Get Column Names",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - SQL Get Report Variable Names": {
+        "NickName": "SQL Get Report Variable Names",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - SQL Get Column Data": {
+        "NickName": "SQL Get Column Data",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
     # -- AirTable
     "HBPH+ - Airtable Download Table Data": {
         "NickName": "Download Table Data",
@@ -227,6 +251,12 @@ COMPONENT_PARAMS = {
     },
     "HBPH+ - Export PDFs": {
         "NickName": "Export PDFs",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 5,
+    },
+    "HBPH+ - Create Plotly Graph": {
+        "NickName": "Create Plotly Graph",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
         "SubCategory": 5,

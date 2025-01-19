@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""GHCompo Interface: HBPH - Create Rhino Geometry."""
+"""GHCompo Interface: HBPH+ - Create Rhino Geometry."""
 
 from collections import OrderedDict
 

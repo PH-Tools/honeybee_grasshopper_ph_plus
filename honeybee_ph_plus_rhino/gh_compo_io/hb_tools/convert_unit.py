@@ -14,13 +14,14 @@ except ImportError as e:
     raise ImportError("Failed to import honeybee_ph_rhino:\n\t{}".format(e))
 
 try:
-    from ph_units.converter import convert, validate_unit_type, unit_type_dict
+    from ph_units.converter import convert, unit_type_dict, validate_unit_type
     from ph_units.parser import parse_input
 except ImportError as e:
     raise ImportError("Failed to import ph_units:\n\t{}".format(e))
 
 
 class GHCompo_ConvertValueToUnit(object):
+
     def __init__(self, _IGH, _in, *args, **kwargs):
         # type: (gh_io.IGH, str, *Any, **Any) -> None
         self.IGH = _IGH
@@ -32,25 +33,25 @@ class GHCompo_ConvertValueToUnit(object):
         if self._in is None:
             return False
         return True
-    
+
     def find_delimiter(self, _in):
         # type: (str) -> str | None
         # check for 'x to y' or 'x as y' ...
 
-        if ' to ' in _in:
-            return ' to '
-        elif ' as ' in _in:
-            return ' as '
+        if " to " in _in:
+            return " to "
+        elif " as " in _in:
+            return " as "
         else:
             return None
 
     def find_input_string_parts(self, _input):
         # type: (str) -> tuple[str, str | None, str | None]
-        """Return a tuple of the 'input value', 'input unit', and 'target unit' from an input string. 
+        """Return a tuple of the 'input value', 'input unit', and 'target unit' from an input string.
 
         The input string is assumed to use 'as' or 'in' as the separator between the input
         value and the target unit. No cleanup is done on the substring parts returned.
-        
+
         example:
             * "45.6 M to cm" -> (45.6, 'M', 'cm')
             * "12.5 "Btu/hr-ft2-F to W/M2-K" -> (12.5, 'Btu/hr-ft2-F', 'W/M2-K')
@@ -68,7 +69,7 @@ class GHCompo_ConvertValueToUnit(object):
             msg = "\n".join(["Valid unit types:"] + sorted(unit_type_dict.keys()))
             self.IGH.remark(msg)
             return msg
-        
+
         # -- Get the input string parts
         try:
             input_value, input_unit, output_unit = self.find_input_string_parts(self._in)
@@ -77,12 +78,14 @@ class GHCompo_ConvertValueToUnit(object):
             return str(e)
         if input_unit is None or output_unit is None:
             return None
+        elif str(input_value) == "0":
+            return 0
 
         # -- Convert the input value
         result_value = convert(input_value, input_unit, output_unit)
         if result_value is None:
-            return
-        
+            return None
+
         # -- Package the results
         msg = "Converting {:,.3f} from {} to {:,.3f} {}.".format(
             float(input_value), input_unit, float(result_value), output_unit

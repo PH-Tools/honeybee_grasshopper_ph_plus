@@ -81,9 +81,11 @@ class GHCompo_AirTableCreateWindowConstructions(object):
     def create_psi_install_dictionary(self, _records):
         # type: (Optional[List[TableRecord]]) -> Dict[str, float]
         """Create a dictionary of the Psi-Install values."""
-        psi_installs_ = {} # type: Dict[str, float]
+        psi_installs_ = {}  # type: Dict[str, float]
         for record in _records or []:
-            psi_installs_[record.FIELDS['DISPLAY_NAME']] = self.get_float_value_with_warning(record.FIELDS, 'PSI-VALUE [W/MK]')
+            psi_installs_[record.FIELDS["DISPLAY_NAME"]] = (
+                self.get_float_value_with_warning(record.FIELDS, "PSI-VALUE [W/MK]")
+            )
         return psi_installs_
 
     def create_new_hbph_glazing(self, record):
@@ -163,8 +165,8 @@ class GHCompo_AirTableCreateWindowConstructions(object):
             ]
         except KeyError as e:
             raise KeyError(
-                "\nThe record: '{}' is missing the required field '{}'."\
-                "\nRecord FIELDS include only: {}"\
+                "\nThe record: '{}' is missing the required field '{}'."
+                "\nRecord FIELDS include only: {}"
                 "\nPlease check AirTable's field names and ensure that the required field has a valid entry.".format(
                     record.FIELDS.display_name, e, record.FIELDS.keys()
                 )
@@ -209,7 +211,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
     def _get_psi_install_name(self, _record, _side):
         # type: (TableRecord, str) -> str
         """Return the Psi-Install-Name for the Window Unit by side (TOP, LEFT, RIGHT, BOTTOM)"""
-        return _record.FIELDS.get('PSI-INSTALL-{}-NAME'.format(_side), [""])[0]
+        return _record.FIELDS.get("PSI-INSTALL-{}-NAME".format(_side), [""])[0]
 
     def create_new_hbph_window_construction(self, record):
         # type: (TableRecord) -> WindowConstruction
@@ -224,11 +226,18 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         # -- Set the Psi-Install value on the Frame Elements
         if self.psi_installs:
             hbph_frame = hbph_frame.duplicate()
-            hbph_frame.top.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'TOP'), 0.0)
-            hbph_frame.right.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'RIGHT'), 0.0)
-            hbph_frame.bottom.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'BOTTOM'), 0.0)
-            hbph_frame.left.psi_install = self.psi_installs.get(self._get_psi_install_name(record, 'LEFT'), 0.0)
-
+            hbph_frame.top.psi_install = self.psi_installs.get(
+                self._get_psi_install_name(record, "TOP"), 0.0
+            )
+            hbph_frame.right.psi_install = self.psi_installs.get(
+                self._get_psi_install_name(record, "RIGHT"), 0.0
+            )
+            hbph_frame.bottom.psi_install = self.psi_installs.get(
+                self._get_psi_install_name(record, "BOTTOM"), 0.0
+            )
+            hbph_frame.left.psi_install = self.psi_installs.get(
+                self._get_psi_install_name(record, "LEFT"), 0.0
+            )
 
         # # -----------------------------------------------------------------------------
         # -- Build the HB Window Material and Construction
@@ -249,7 +258,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         window_constructions_ = []  # type: List[WindowConstruction]
         if not self.ready:
             return window_constructions_
-        
+
         # -- Build the Ph-Window Glazing Collection
         for record in self.glazing_records:
             hb_ph_glazing = self.create_new_hbph_glazing(record)

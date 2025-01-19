@@ -4,12 +4,12 @@
 """GHCompo Interface: HBPH+ - Get Faces by Name."""
 
 try:
-    from typing import Any, Dict, List, Any
+    from typing import Any, Dict, List
 except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from honeybee import room, face
+    from honeybee import face, room
 except ImportError as e:
     raise ImportError("Failed to import honeybee")
 

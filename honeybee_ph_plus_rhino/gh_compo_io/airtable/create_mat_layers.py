@@ -4,7 +4,17 @@
 """GHCompo Interface: HBPH - Airtable Create Material Layers."""
 
 try:
-    from typing import Any, Dict, Iterator, KeysView, List, Optional, ValuesView, Tuple, ItemsView
+    from typing import (
+        Any,
+        Dict,
+        ItemsView,
+        Iterator,
+        KeysView,
+        List,
+        Optional,
+        Tuple,
+        ValuesView,
+    )
 except ImportError:
     pass  # IronPython 2.7
 
@@ -34,7 +44,10 @@ except ImportError:
     raise ImportError("Failed to import honeybee_ph_utils")
 
 try:
-    from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import TableRecord, TableFields
+    from honeybee_ph_plus_rhino.gh_compo_io.airtable.download_data import (
+        TableFields,
+        TableRecord,
+    )
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 
@@ -142,8 +155,12 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             return float(_layer_data[AT_COLUMN_NAMES["thickness_mm"]])
         except KeyError as e:
             layer_name = self._layer_name(_layer_data)
-            msg = "Failed to get the thickness of the layer: '{}'"\
-                "\nKey: '{}' was not found? Please check the AirTable field names.".format(layer_name, e)
+            msg = (
+                "Failed to get the thickness of the layer: '{}'"
+                "\nKey: '{}' was not found? Please check the AirTable field names.".format(
+                    layer_name, e
+                )
+            )
             raise KeyError(msg)
 
     def _layer_conductivity(self, _layer_material_data):
@@ -153,18 +170,22 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             return float(_layer_material_data[AT_COLUMN_NAMES["conductivity_w_mk"]])
         except KeyError as e:
             layer_name = self._layer_name(_layer_material_data)
-            msg = "Failed to get the conductivity of the layer: '{}'"\
-                "\nKey: '{}' was not found? Please check the AirTable field names.".format(layer_name, e)
+            msg = (
+                "Failed to get the conductivity of the layer: '{}'"
+                "\nKey: '{}' was not found? Please check the AirTable field names.".format(
+                    layer_name, e
+                )
+            )
             raise KeyError(msg)
 
     def _layer_material_color(self, _layer_material_data):
         # type: (TableFields) -> Optional[PhColor]
         """Get the color of the layer from the TableFields dict."""
         try:
-            color_string = _layer_material_data["ARGB_COLOR"] # ie: "255,255,62,143"
+            color_string = _layer_material_data["ARGB_COLOR"]  # ie: "255,255,62,143"
         except KeyError:
-            color_string = "255,255,255,255" # White
-        
+            color_string = "255,255,255,255"  # White
+
         return PhColor.from_argb(*[int(_) for _ in color_string.split(",")])
 
     def create_ep_material(self, _record):
@@ -180,8 +201,8 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             )
             self.IGH.warning(msg)
             return None
-        
-        layer_thickness_mm = self._layer_thickness(layer_data) 
+
+        layer_thickness_mm = self._layer_thickness(layer_data)
         layer_thickness_m = layer_thickness_mm / 1000.00
         layer_name = self._layer_name(layer_data)
 
@@ -203,7 +224,9 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         )
 
         # -- Set the Layer's Color
-        mat_prop_ph = hb_mat.properties.ph # type: EnergyMaterialPhProperties # type: ignore
+        mat_prop_ph = (
+            hb_mat.properties.ph
+        )  # type: EnergyMaterialPhProperties # type: ignore
         mat_prop_ph.ph_color = self._layer_material_color(layer_mat)
 
         return hb_mat

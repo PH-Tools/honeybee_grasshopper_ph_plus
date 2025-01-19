@@ -82,7 +82,7 @@ class GHCompo_GetDesignPHShadingFactors(object):
                 )
                 self.IGH.warning(msg)
                 d = None
-            
+
             # -- Add the aperture's shading factor, if it exists
             if d:
                 winter_shading_factors_.append(d.winter_shading_factor)
@@ -90,5 +90,5 @@ class GHCompo_GetDesignPHShadingFactors(object):
             else:
                 winter_shading_factors_.append(None)
                 summer_shading_factors_.append(None)
-        
+
         return winter_shading_factors_, summer_shading_factors_
