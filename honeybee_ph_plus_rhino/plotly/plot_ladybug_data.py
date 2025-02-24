@@ -37,7 +37,7 @@ def resolve_arguments(_args: list[str]) -> tuple[Path, str, str, str, list[float
         * Path: The HTML save file path.
         * str: The unit type of the data.
     """
-    
+
     num_args = len(_args)
     assert num_args == 6, "Wrong number of arguments. Got {}.".format(num_args)
 
