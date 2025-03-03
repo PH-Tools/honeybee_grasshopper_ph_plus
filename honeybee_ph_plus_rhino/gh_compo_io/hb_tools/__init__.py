@@ -58,3 +58,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_rebuild_rh_geom import (
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.infiltration_from_ach import (
     GHCompo_CalculateInfiltrationFromACH,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.assmbly_import_flixo_mats import (
+    GHCompo_ImportFlixoMaterials,
+)
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.check_shade_mesh import (
+    GHCompo_CheckShadeMesh,
+)
