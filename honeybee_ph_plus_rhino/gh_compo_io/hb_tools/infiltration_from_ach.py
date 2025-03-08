@@ -17,9 +17,9 @@ except:
     pass  #  outside Rhino / Grasshopper
 
 try:
-    from honeybee.room import Room
+    from honeybee.boundarycondition import Ground, Outdoors
     from honeybee.face import Face
-    from honeybee.boundarycondition import Outdoors, Ground
+    from honeybee.room import Room
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee:\n\t{}".format(e))
 
@@ -87,7 +87,7 @@ class GHCompo_CalculateInfiltrationFromACH(object):
             for space in getattr(room.properties, "ph").spaces
         )
         print("Total Net Volume: {:,.2f} [{}]".format(vn50, rh_doc_unit))
-        
+
         # -- Convert to M3
         vn50_m3 = convert(vn50, rh_doc_unit, "M3")
         print("Total Net Volume: {:,.2f} [M3]".format(vn50_m3))
@@ -119,7 +119,7 @@ class GHCompo_CalculateInfiltrationFromACH(object):
             msg = "Failed to convert exposed area: '{}' to M2".format(exposed_area)
             self.IGH.error(msg)
             return None
-        
+
         return exposed_area_m2
 
     def run(self):

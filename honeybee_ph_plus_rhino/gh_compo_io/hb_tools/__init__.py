@@ -1,3 +1,9 @@
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.assmbly_import_flixo_mats import (
+    GHCompo_ImportFlixoMaterials,
+)
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.check_shade_mesh import (
+    GHCompo_CheckShadeMesh,
+)
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.clean_input_breps import (
     GHCompo_CleanInputBreps,
 )
@@ -21,6 +27,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.get_rooms_by_name import (
 )
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.group_connected_faces import (
     GHCompo_GroupConnectedFaces,
+)
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.infiltration_from_ach import (
+    GHCompo_CalculateInfiltrationFromACH,
 )
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.merge_lbt_polygon2ds import (
     GHCompo_MergeLBTPolygon2Ds,
@@ -54,13 +63,4 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_get_design_ph_shading_facto
 )
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_rebuild_rh_geom import (
     GHCompo_RebuildWindowSurfaces,
-)
-from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.infiltration_from_ach import (
-    GHCompo_CalculateInfiltrationFromACH,
-)
-from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.assmbly_import_flixo_mats import (
-    GHCompo_ImportFlixoMaterials,
-)
-from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.check_shade_mesh import (
-    GHCompo_CheckShadeMesh,
 )
