@@ -95,6 +95,7 @@ class GHCompo_ReadPHPPRoomVentilationData(object):
             self.py3_shell_file,
             self.py3_script_file,
             output_file,
+            self.phpp_file,
         )
 
         return output_file

@@ -56,9 +56,14 @@ class GHCompo_ProcessPHPPCSVData(object):
     def ready(self):
         # type: () -> bool
         """Return True if the component is ready to run."""
-        if not self.variant_data_csv or not self.save_folder:
+        if not all([self.variant_data_csv, self.climate_data_csv, self.room_vent_data_csv]):
             self.IGH.warning(
-                "Please provide the source-data CSV-files, and a save-folder location."
+                "Please provide the source-data CSV-files to process."
+            )
+            return False
+        if not self.save_folder:
+            self.IGH.warning(
+                "Please provide a save-folder location."
             )
             return False
         if not self._run:

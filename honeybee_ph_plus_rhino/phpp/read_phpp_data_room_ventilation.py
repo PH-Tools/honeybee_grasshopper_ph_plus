@@ -18,7 +18,7 @@ from PHX.xl import xl_app
 from rich import print
 
 
-def resolve_arguments(_args: list[str]) -> Path:
+def resolve_arguments(_args: list[str]) -> tuple[Path, Path | None]:
     """Get all the script arguments
 
     Arguments:
@@ -28,26 +28,32 @@ def resolve_arguments(_args: list[str]) -> Path:
     Returns:
     --------
         * Path: The path to the CSV output file to use.
+        * Path | None: The path to the PHPP file to use
     """
 
     num_args = len(_args)
-    assert num_args == 2, "Wrong number of arguments. Got {}.".format(num_args)
+    assert num_args == 3, "Wrong number of arguments. Got {}.".format(num_args)
 
-    csv_output_file = Path(str(_args[1]))
-    if not csv_output_file:
+    csv_output_file_ = Path(str(_args[1]))
+    if not csv_output_file_:
         raise Exception("Error: Missing CSV-output file path")
+    
+    if _args[2] == None or _args[2] == "None" or _args[2] == "":
+        phpp_input_file_ = None
+    else:
+        phpp_input_file_ = Path(str(_args[2]))
 
-    return csv_output_file
+    return csv_output_file_, phpp_input_file_
 
 
 if __name__ == "__main__":
     print(f"Running script {__file__}")
 
-    csv_output_file = resolve_arguments(sys.argv)
+    csv_output_file, phpp_input_file = resolve_arguments(sys.argv)
 
     # --- Connect to open instance of XL, Load the correct PHPP Shape file
     # -------------------------------------------------------------------------
-    xl = xl_app.XLConnection(xl_framework=xw, output=print)
+    xl = xl_app.XLConnection(xl_framework=xw, output=print, xl_file_path=phpp_input_file)
     phpp_conn = phpp_app.PHPPConnection(xl)
 
     try:

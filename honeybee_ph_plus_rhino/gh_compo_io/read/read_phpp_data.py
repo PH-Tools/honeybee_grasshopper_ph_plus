@@ -30,8 +30,8 @@ except ImportError as e:
     raise ImportError("\nFailed to import run_subprocess:\n\t{}".format(e))
 
 
-def run(_IGH, _py3_shell_file, _py3_script_file, _output_file):
-    # type: (gh_io.IGH, str, str, str) -> Any
+def run(_IGH, _py3_shell_file, _py3_script_file, _output_file, _phpp_file):
+    # type: (gh_io.IGH, str, str, str, str | None) -> Any
 
     # # -- Run as a Subprocess so we can use Python3, pandas, etc.
     if os.name == "nt":
@@ -46,7 +46,6 @@ def run(_IGH, _py3_shell_file, _py3_script_file, _output_file):
         execution_root = os.path.join(
             hb_folders.python_package_path, "honeybee_ph_plus_rhino"
         )
-
         # -- Build up the commands to run
         commands = [
             _py3_shell_file,  # -------------- The shell script to run
@@ -54,6 +53,7 @@ def run(_IGH, _py3_shell_file, _py3_script_file, _output_file):
             hb_folders.python_exe_path,  # --- The python3-interpreter to use
             _py3_script_file,  # ------------- The python3-script to run
             _output_file,  # ----------------- The output CSV filepath
+            str(_phpp_file),  # ------------------- The input PHPP file
         ]
         stdout, stderr = run_subprocess_from_shell(commands)
 

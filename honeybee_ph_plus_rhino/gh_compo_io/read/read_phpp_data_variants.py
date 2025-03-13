@@ -30,7 +30,7 @@ except ImportError as e:
 class GHCompo_ReadPHPPVariantsData(object):
 
     def __init__(self, _IGH, _folder, _filename, _phpp_file, _run, *args, **kwargs):
-        # type: (gh_io.IGH, str | None, str | None, str | None, bool, *Any, **Any) -> None
+        # type: (gh_io.IGH, str | None, str | None, str, bool, *Any, **Any) -> None
         self.IGH = _IGH
         self.folder = _folder
         self.filename = _filename
@@ -95,6 +95,7 @@ class GHCompo_ReadPHPPVariantsData(object):
             self.py3_shell_file,
             self.py3_script_file,
             output_file,
+            self.phpp_file,
         )
 
         return output_file
