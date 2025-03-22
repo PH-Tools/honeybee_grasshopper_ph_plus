@@ -72,6 +72,7 @@ def clean_variants_df(_variant_df: pd.DataFrame) -> pd.DataFrame:
     # -- Cleanup the Columns
     clean_df = clean_df.drop(clean_df.columns[0], axis=1)
     clean_df = clean_df.drop(clean_df.columns[3], axis=1)
+    clean_df = clean_df.drop(clean_df.columns[2], axis=1)
     clean_df.rename(columns={clean_df.columns[0]: "Datatype"}, inplace=True)
     clean_df.rename(columns={clean_df.columns[1]: "Units"}, inplace=True)
     clean_df.reset_index(drop=True, inplace=True)
@@ -201,6 +202,7 @@ if __name__ == "__main__":
     # variant_data_csv = Path("/Users/em/Dropbox/bldgtyp-00/00_PH_Tools/honeybee_grasshopper_ph_plus/honeybee_ph_plus_rhino/phpp/bt_web/test/phpp_data_variants.csv")
     # climate_data_csv = Path("/Users/em/Dropbox/bldgtyp-00/00_PH_Tools/honeybee_grasshopper_ph_plus/honeybee_ph_plus_rhino/phpp/bt_web/test/phpp_data_climate.csv")
     # room_vent_data_csv = Path("/Users/em/Dropbox/bldgtyp-00/00_PH_Tools/honeybee_grasshopper_ph_plus/honeybee_ph_plus_rhino/phpp/bt_web/test/phpp_data_room_ventilation.csv")
+    # save_folder = Path("/Users/em/Desktop/test")
 
     print(f"Reading Data from: {variant_data_csv}")
     variant_df = clean_variants_df(pd.read_csv(variant_data_csv))
