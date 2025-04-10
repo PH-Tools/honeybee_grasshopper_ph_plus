@@ -267,6 +267,12 @@ COMPONENT_PARAMS = {
         "Category": CATEGORY,
         "SubCategory": 5,
     },
+    "HBPH+ - Create Clipping Plane Set": {
+        "NickName": "Create Clipping Plane Set",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 5,
+    },
     # -- Read PHPP
     "HBPH+ - Read Variants Data from PHPP": {
         "NickName": "Read PHPP Variants Data",

@@ -57,6 +57,13 @@ class CustomCollection(object):
         # type: (str, T) -> Optional[T]
         return self._storage.get(k, default)
 
+    def __contains__(self, k):
+        # type: (str) -> bool
+        return k in self._storage
+    
+    def __len__(self):
+        return len(self._storage)
+
     def __str__(self):
         # type: () -> str
         return '{}: "{}" ({} items)\n{}'.format(

@@ -22,3 +22,6 @@ from honeybee_ph_plus_rhino.gh_compo_io.reporting.build_thermal_bridges import (
 from honeybee_ph_plus_rhino.gh_compo_io.reporting.create_plotly_graph import (
     GHCompo_CreatePlotlyGraph,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.reporting.create_clipping_plane_set import (
+    GHCompo_CreateClippingPlaneSet
+)

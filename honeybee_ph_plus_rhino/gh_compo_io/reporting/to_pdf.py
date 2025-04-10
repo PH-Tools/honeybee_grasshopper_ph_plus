@@ -11,7 +11,7 @@ except:
     from itertools import zip_longest as izip_longest
 
 try:
-    from typing import Any, Iterable, List, Optional, Tuple
+    from typing import Iterable, List, Optional, Tuple
 except ImportError:
     pass  # IronPython 2.7
 
@@ -45,13 +45,18 @@ except ImportError:
     pass  # Outside Grasshopper
 
 try:
-    from honeybee_ph_rhino import gh_io
+    from ph_gh_component_io import gh_io
 except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
+    from honeybee_ph_utils.input_tools import clean_tree_get
+except ImportError:
+    raise ImportError("Failed to import honeybee_ph_utils")
+
+try:
     from honeybee_ph_plus_rhino.gh_compo_io.reporting.annotations import TextAnnotation
-    from honeybee_ph_plus_rhino.gh_compo_io.reporting.build_floor_segments import (
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting.create_clipping_plane_set import (
         ClippingPlaneLocation,
     )
 except ImportError as e:
@@ -62,7 +67,7 @@ def create_default_solid_hatch_pattern(_IGH):
     # type: (gh_io.IGH) -> int
     """Create a new SOLID hatch pattern in the document and return its index."""
     hatch_pattern = rdo.HatchPattern()
-    hatch_pattern.FillType = rdo.HatchPatternFillType.Solid
+    hatch_pattern.FillType = rdo.HatchPatternFillType.Solid # type: ignore
     hatch_pattern.Name = "SOLID"
     try:
         new_index = _IGH.sc.doc.HatchPatterns.Add(hatch_pattern)
@@ -79,7 +84,7 @@ def get_default_solid_hatch_index(_IGH):
     If the SOLID hatch pattern does not exist, create it first.
     """
     for hatch_pattern in _IGH.sc.doc.HatchPatterns:
-        if hatch_pattern.Name == "SOLID":
+        if str(hatch_pattern.Name).upper() == "SOLID":
             return hatch_pattern.Index
     try:
         return create_default_solid_hatch_pattern(_IGH)
@@ -88,8 +93,8 @@ def get_default_solid_hatch_index(_IGH):
         return 0
 
 
-def hatch_from_curve(_IGH, _hatchCurve, _tolerance, _hatch_pattern_index=0):
-    # type: (gh_io.IGH, rg.Curve, float, int) -> rg.Hatch
+def hatch_from_curve(_hatchCurve, _tolerance, _hatch_pattern_index=0):
+    # type: (rg.Curve, float, int) -> rg.Hatch
     return rg.Hatch.Create(
         curve=_hatchCurve,
         hatchPatternIndex=_hatch_pattern_index,
@@ -413,6 +418,8 @@ def remove_bake_layer(_IGH, _layer_name):
     """
 
     with _IGH.context_rh_doc():
+        print("Removing Bake-Layer: {}".format(_layer_name))
+
         # Be sure the temp layer exists
         if _layer_name not in _IGH.rhinoscriptsyntax.LayerNames():
             return
@@ -444,8 +451,6 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
     # Make some lists to hold key parameters
     hatches = []  # type: List[rg.Hatch]
     colors = []  # type: List[Color]
-    guids = []
-    runningVertexCount = 0
     meshColors = mesh.VertexColors
 
     for faceCount, face in enumerate(mesh.Faces):
@@ -512,49 +517,83 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
             hatchExtra = rg.LineCurve(facePointList[0], facePointList[2])
         hatchCurve = rg.Curve.JoinCurves([hatchCurveInit, hatchExtra], _IGH.tolerance)[0]
 
-        # Create the hatch.
-        try:
-            if hatchCurve.IsPlanar():
-                meshFaceHatch = hatch_from_curve(
-                    _IGH, hatchCurve, _IGH.tolerance, _hatch_pattern_index
-                )
-                hatches.append(meshFaceHatch)
-                colors.append(hatchColor)
-            else:
-                # We have to split the quad face into two triangles.
-                hatchCurveInit1 = rg.PolylineCurve(
-                    [facePointList[0], facePointList[1], facePointList[2]]
-                )
-                hatchExtra1 = rg.LineCurve(facePointList[0], facePointList[2])
-                hatchCurve1 = rg.Curve.JoinCurves(
-                    [hatchCurveInit1, hatchExtra1],
-                    _IGH.tolerance,
-                )[0]
-                meshFaceHatch1 = hatch_from_curve(
-                    _IGH, hatchCurve1, _IGH.tolerance, _hatch_pattern_index
-                )
-                hatchCurveInit2 = rg.PolylineCurve(
-                    [facePointList[2], facePointList[3], facePointList[0]]
-                )
-                hatchExtra2 = rg.LineCurve(facePointList[2], facePointList[0])
-                hatchCurve2 = rg.Curve.JoinCurves(
-                    [hatchCurveInit2, hatchExtra2],
-                    _IGH.tolerance,
-                )[0]
-                meshFaceHatch2 = hatch_from_curve(
-                    _IGH, hatchCurve2, _IGH.tolerance, _hatch_pattern_index
-                )
+        # Create the Hatch
+        if hatchCurve.IsPlanar():
+            meshFaceHatch = hatch_from_curve(
+                hatchCurve, _IGH.tolerance, _hatch_pattern_index
+            )
+            hatches.append(meshFaceHatch)
+            colors.append(hatchColor)
+        else:
+            # We have to split the quad face into two triangles.
+            hatchCurveInit1 = rg.PolylineCurve(
+                [facePointList[0], facePointList[1], facePointList[2]]
+            )
+            hatchExtra1 = rg.LineCurve(facePointList[0], facePointList[2])
+            hatchCurve1 = rg.Curve.JoinCurves(
+                [hatchCurveInit1, hatchExtra1],
+                _IGH.tolerance,
+            )[0]
+            meshFaceHatch1 = hatch_from_curve(
+                hatchCurve1, _IGH.tolerance, _hatch_pattern_index
+            )
+            hatchCurveInit2 = rg.PolylineCurve(
+                [facePointList[2], facePointList[3], facePointList[0]]
+            )
+            hatchExtra2 = rg.LineCurve(facePointList[2], facePointList[0])
+            hatchCurve2 = rg.Curve.JoinCurves(
+                [hatchCurveInit2, hatchExtra2],
+                _IGH.tolerance,
+            )[0]
+            meshFaceHatch2 = hatch_from_curve(
+                hatchCurve2, _IGH.tolerance, _hatch_pattern_index
+            )
 
-                hatches.extend([meshFaceHatch1, meshFaceHatch2])
-                colors.extend([hatchColor, hatchColor])
-        except:
-            pass
+            hatches.extend([meshFaceHatch1, meshFaceHatch2])
+            colors.extend([hatchColor, hatchColor])
 
     return hatches, colors
 
 
+def create_geometry_attributes(parent_layer_index, _color, _display_order=0):
+    # type: (int, Color, int) -> rdo.ObjectAttributes
+    """Create a new ObjectAttributes object with the specified color and layer index."""
+    attr = rdo.ObjectAttributes()
+    attr.LayerIndex = parent_layer_index
+    attr.ObjectColor = _color
+    attr.PlotColor = _color
+    attr.ColorSource = rdo.ObjectColorSource.ColorFromObject # type: ignore
+    attr.PlotColorSource = rdo.ObjectPlotColorSource.PlotColorFromObject # type: ignore
+    attr.DisplayOrder = _display_order
+    return attr
+
+
+def bake_mesh(_IGH, _layer_name, _geometry, _draw_order=0):
+    # type: (gh_io.IGH, str, rg.Mesh, int) -> None
+    """Bake a Mesh object into the Rhino Scene."""
+    # -- 
+    layer_table = _IGH.Rhino.RhinoDoc.ActiveDoc.Layers
+    hatch_id = get_default_solid_hatch_index(_IGH)
+    parent_layer_index = rdo.Tables.LayerTable.FindByFullPath( # type: ignore
+        layer_table, _layer_name, True
+    )
+
+    # -- Create the hatches, and Bake them into the Rhino Doc
+    guids = []
+    for hatch, color in zip(*mesh2Hatch(_IGH, _geometry, hatch_id)):
+        attr = create_geometry_attributes(parent_layer_index, color, _draw_order)
+        guids.append(_IGH.Rhino.RhinoDoc.ActiveDoc.Objects.AddHatch(hatch, attr))
+
+    # -- Group the hatches so they are manageable
+    group_ = _IGH.Rhino.RhinoDoc.ActiveDoc.Groups
+    rdo.Tables.GroupTable.Add(group_, guids) # type: ignore
+    _IGH.scriptcontext.doc.Views.Redraw()
+    
+    return None
+
+
 def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
-    # type: (gh_io.IGH, Guid, Optional[rdo.ObjectAttributes], str) -> None
+    # type: (gh_io.IGH, Guid, rdo.ObjectAttributes | None, str) -> None
     """Takes in a geom obj Guid and attributes, then bakes to a Layer
 
     If the Object is a Mesh, will bake that using the Mesh's Vertex Colors. To
@@ -581,38 +620,13 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
     geometry = doc_object.Geometry
 
     with _IGH.context_rh_doc():
-        layer_table = _IGH.Rhino.RhinoDoc.ActiveDoc.Layers  # layer table
-        hatch_id = get_default_solid_hatch_index(_IGH)
-
         if _IGH.rhinoscriptsyntax.IsMesh(geometry):
-            # Find the target layer index
-            parentLayerIndex = rdo.Tables.LayerTable.FindByFullPath(
-                layer_table, _layer_name, True
-            )
-
-            # Create a hatch from the mesh
-            guids = []
-            hatches, colors = mesh2Hatch(_IGH, geometry, hatch_id)
-
-            # Bake the Hatches into the Rhino Doc
-            for count, hatch in enumerate(hatches):
-                attr = rdo.ObjectAttributes()
-                attr.LayerIndex = parentLayerIndex
-                attr.ObjectColor = colors[count]
-                attr.PlotColor = colors[count]
-                attr.ColorSource = rdo.ObjectColorSource.ColorFromObject
-                attr.PlotColorSource = rdo.ObjectPlotColorSource.PlotColorFromObject
-
-                if _attr_obj and _attr_obj.DisplayOrder:
-                    attr.DisplayOrder = _attr_obj.DisplayOrder  # 1 = Front, -1 = Back
-
-                guids.append(_IGH.Rhino.RhinoDoc.ActiveDoc.Objects.AddHatch(hatch, attr))
-
-            # Group the hatches so are manageable
-            groupT = _IGH.Rhino.RhinoDoc.ActiveDoc.Groups
-            rdo.Tables.GroupTable.Add(groupT, guids)
-            _IGH.scriptcontext.doc.Views.Redraw()
-
+            if _attr_obj and _attr_obj.DisplayOrder:
+                draw_order = _attr_obj.DisplayOrder
+            else:
+                draw_order = -1 # +1 = Front, -1 = Back
+            bake_mesh(_IGH, _layer_name, geometry, draw_order)
+            
         elif isinstance(geometry, rg.Curve):
             rhino_geom = _IGH.scriptcontext.doc.Objects.Add(
                 geometry, _attr_obj or doc_object.Attributes
@@ -663,7 +677,7 @@ def bake_annotation_object(
         # Create the txt object
         txt = rg.TextEntity()
         try:
-            txt.Font = rdo.Font("Source Code Pro")
+            txt.Font = rdo.Font("Source Code Pro") # type: ignore
         except:
             pass
         txt.Text = _annotation.text
@@ -780,13 +794,13 @@ def export_single_pdf(_IGH, _file_path, _dpi=300, _raster=True):
     page_height = round(page_height, 2)
     page_width = round(page_width, 2)
 
-    pdf = FileIO.FilePdf.Create()
+    pdf = FileIO.FilePdf.Create() # type: ignore
     size = Size(page_width * _dpi, page_height * _dpi)
     settings = rdp.ViewCaptureSettings(
         _IGH.scriptcontext.doc.Views.ActiveView, size, _dpi
     )
     settings.RasterMode = _raster
-    settings.OutputColor = rdp.ViewCaptureSettings.ColorMode.DisplayColor
+    settings.OutputColor = rdp.ViewCaptureSettings.ColorMode.DisplayColor # type: ignore
     pdf.AddPage(settings)
 
     try:
@@ -929,11 +943,12 @@ def export_pdfs(
             # ----------------------------------------------------------------------------------------------------------
             # -- Add any ClippingPlanes into the scene
             try:
-                for cp in _cp_loc.Branch(branch_num):
+                for cp in clean_tree_get(_cp_loc, branch_num, []):
                     add_clipping_plane(_IGH, cp, cp_layer, dtl_view_objs)
             except ValueError as e:
-                print("Error: {}".format(e))
-                pass
+                msg = "Error Adding Clipping Plane: {}".format(e)
+                print(msg)
+                raise Exception(msg)
 
             # ----------------------------------------------------------------------------------------------------------
             # -- Bake Model-Space Annotations (text in the RH model space)
@@ -974,19 +989,18 @@ def export_pdfs(
                 for layout_annotation in _layout_annotations.Branch(branch_num):
                     bake_annotation_object(_IGH, layout_annotation, label_bake_layer)
             except ValueError as e:
-                print("Error: {}".format(e))
-                pass
-
+                # No Layout Annotations for this Branch-number
+                pass 
+            
             # ----------------------------------------------------------------------------------------------------------
             # # -- Export PDF file
             set_active_view_by_name(_IGH, layout_view_name)
             export_single_pdf(_IGH, _file_paths[branch_num], _raster=_raster)
-        except Exception as e:
-            raise Exception(e)
         finally:
             # ----------------------------------------------------------------------------------------------------------
             # -- Cleanup baked items
             if _remove_baked_items != False:
+                print("Removing Bake-Layers")
                 remove_bake_layer(_IGH, geom_bake_layer)
                 remove_bake_layer(_IGH, label_bake_layer)
                 remove_bake_layer(_IGH, cp_layer)

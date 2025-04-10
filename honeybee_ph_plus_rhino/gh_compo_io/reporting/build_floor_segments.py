@@ -19,7 +19,7 @@ try:
     from Rhino import DocObjects as rdo  # type: ignore
     from Rhino import Geometry as rg  # type: ignore
     from Rhino.DocObjects import ObjectAttributes  # type: ignore
-    from Rhino.Geometry import Brep, Line, Point3d, Vector3d  # type: ignore
+    from Rhino.Geometry import Brep, Line, Point3d  # type: ignore
 except ImportError:
     pass  # Outside Rhino
 
@@ -41,7 +41,7 @@ except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph:\n\t{}".format(e))
 
 try:
-    from honeybee_ph_rhino import gh_io
+    from ph_gh_component_io import gh_io
 except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 
@@ -60,28 +60,11 @@ try:
         TextAnnotation,
         TextAnnotationMaskAttributes,
     )
+    from honeybee_ph_plus_rhino.gh_compo_io.reporting.create_clipping_plane_set import (
+        ClippingPlaneLocation,
+    )
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
-
-
-class ClippingPlaneLocation(object):
-    """Temporary object to store Clipping Plane location and direction data."""
-
-    def __init__(self, _origin, _normal):
-        # type: (Point3d, Vector3d) -> None
-        self.origin = _origin
-        self.normal = _normal
-
-    def __str__(self):
-        return "{}(origin={}, normal={})".format(
-            self.__class__.__name__, self.origin, self.normal
-        )
-
-    def __repr__(self):
-        return str(self)
-
-    def ToString(self):
-        return str(self)
 
 
 # -----------------------------------------------------------------------------

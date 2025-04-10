@@ -4,7 +4,7 @@
 """GHCompo Interface: HBPH - Get From Custom Collection."""
 
 try:
-    from typing import Dict, List
+    from typing import Any
 except ImportError:
     pass  # IronPython 2.7
 
@@ -22,15 +22,25 @@ except:
 
 
 class GHCompo_GetFromCustomCollection(object):
-    def __init__(self, _IGH, _collection, _keys, *args, **kwargs):
-        # type: (gh_io.IGH, CustomCollection, List[str], List, Dict) -> None
+    def __init__(self, _IGH, _collection, _keys, _strict=False, *args, **kwargs):
+        # type: (gh_io.IGH, CustomCollection, list[str], bool, *Any, **Any) -> None
         self.IGH = _IGH
         self.collection = _collection
         self.keys = _keys
+        self.strict = _strict
 
     def run(self):
-        # type: () -> List
+        # type: () -> list
         if not self.collection or not self.keys:
             return []
-
-        return [self.collection.get(key, None) for key in self.keys]
+        
+        if self.strict == True:
+            try:
+                return [self.collection[key] for key in self.keys]
+            except KeyError:
+                self.IGH.error("Key(s): {} not found in collection.".format(
+                    [k for k in self.keys if k not in self.collection])
+                )
+                return []
+        else:
+            return [self.collection.get(key, None) for key in self.keys]

@@ -42,7 +42,7 @@ except ImportError as e:
     raise ImportError("\nFailed to import honeybee_energy_ph:\n\t{}".format(e))
 
 try:
-    from honeybee_ph_rhino import gh_io
+    from ph_gh_component_io import gh_io
 except ImportError:
     raise ImportError("Failed to import honeybee_ph_rhino")
 

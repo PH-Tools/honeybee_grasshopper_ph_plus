@@ -23,9 +23,9 @@ except ImportError as e:
     raise ImportError("\nFailed to import honeybee:\n\t{}".format(e))
 
 try:
-    from honeybee_ph_rhino import gh_io
-except ImportError as e:
-    raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
+    from ph_gh_component_io import gh_io
+except ImportError:
+    raise ImportError("Failed to import honeybee_ph_rhino")
 
 try:
     from honeybee_ph_plus_rhino.gh_compo_io.run_subprocess import run_subprocess
