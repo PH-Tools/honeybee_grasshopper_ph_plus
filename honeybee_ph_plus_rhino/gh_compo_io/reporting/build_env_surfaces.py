@@ -18,8 +18,8 @@ except ImportError:
 
 try:
     from Grasshopper import DataTree  # type: ignore
-    from Grasshopper.Kernel.Data import GH_Path # type: ignore
-    from Rhino.DocObjects import ObjectAttributes # type: ignore
+    from Grasshopper.Kernel.Data import GH_Path  # type: ignore
+    from Rhino.DocObjects import ObjectAttributes  # type: ignore
 except ImportError:
     pass  # Outside Rhino
 

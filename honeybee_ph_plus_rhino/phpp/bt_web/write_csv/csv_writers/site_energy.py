@@ -8,6 +8,8 @@ import pathlib
 
 import pandas as pd
 
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
+
 
 def get_site_energy_as_df(_df_main: pd.DataFrame) -> pd.DataFrame:
     """Return the building's site-energy consumption data in a DataFrame
@@ -30,11 +32,18 @@ def get_site_energy_as_df(_df_main: pd.DataFrame) -> pd.DataFrame:
     Aux Elec	            Aux Elec	            kWh	0	0	0	0	0
     Solar PV                Solar PV                kWh 0   0   0   0   0
     """
-    df1 = _df_main.loc[375:390]
-    df2 = df1.dropna(axis=0, how="all")
-    df3 = df2.set_index("Datatype", drop=False)
 
-    return df3
+    start_row = VARIANTS.site_energy.start_row()
+    end_row = VARIANTS.site_energy.end_row()
+    df1 = _df_main.loc[start_row:end_row]
+
+    # drop the 'CO2E' row
+    df2 = df1.drop(df1[df1["Datatype"] == "SITE ENERGY"].index)
+
+    df3 = df2.dropna(axis=0, how="all")
+    df4 = df3.set_index("Datatype", drop=False)
+
+    return df4
 
 
 def create_csv_SiteEnergy(
@@ -42,6 +51,4 @@ def create_csv_SiteEnergy(
     _output_path: pathlib.Path,
 ) -> None:
     df_site_energy = get_site_energy_as_df(_df_main)
-
-    # -- Export to csv
     df_site_energy.to_csv(_output_path, index=False)

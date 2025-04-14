@@ -60,7 +60,7 @@ class CustomCollection(object):
     def __contains__(self, k):
         # type: (str) -> bool
         return k in self._storage
-    
+
     def __len__(self):
         return len(self._storage)
 

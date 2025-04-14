@@ -23,7 +23,7 @@ def create_csv_radiation(_df_climate: pd.DataFrame, _output_path: pathlib.Path) 
 
     # --------------------------------------------------------------------------
     # Climate: Radiation
-    climateColNames = [
+    climate_col_names = [
         "Jan",
         "Feb",
         "Mar",
@@ -37,7 +37,7 @@ def create_csv_radiation(_df_climate: pd.DataFrame, _output_path: pathlib.Path) 
         "Nov",
         "Dec",
     ]
-    _df_climate.columns = ["Units"] + climateColNames
+    _df_climate.columns = ["Units"] + climate_col_names
 
     # --------------------------------------------------------------------------
     # Pull out the Radiation Data
@@ -53,18 +53,17 @@ def create_csv_radiation(_df_climate: pd.DataFrame, _output_path: pathlib.Path) 
     rad_df2 = rad_df1.T
 
     rad_df3 = rad_df2.drop("Units")
-    rad_df3
 
-    rad_serisConverted = []
-    for eachColName in rad_df3.columns:
+    rad_series_converted = []
+    for each_col_name in rad_df3.columns:
         newSeries = pd.Series(
-            rad_df3[eachColName].values / 10.76391042
+            rad_df3[each_col_name].values / 10.76391042
         )  # kWh/m2---> kWh/ft2
-        rad_serisConverted.append(newSeries)
+        rad_series_converted.append(newSeries)
 
-    rad_df4 = pd.DataFrame(rad_serisConverted).T
+    rad_df4 = pd.DataFrame(rad_series_converted).T
     rad_df4.columns = ["North", "East", "South", "West", "Horizontal"]
-    rad_df4.insert(loc=0, column="Month", value=climateColNames)
+    rad_df4.insert(loc=0, column="Month", value=climate_col_names)
 
     # --------------------------------------------------------------------------
     # Export to csv
@@ -88,7 +87,7 @@ def create_csv_temperatures(
 
     # --------------------------------------------------------------------------
     # Climate: Temps
-    climateColNames = [
+    climate_col_names = [
         "Jan",
         "Feb",
         "Mar",
@@ -109,19 +108,16 @@ def create_csv_temperatures(
         ["Exterior temperature", "Dew point temperature", "Sky temperature"]
     ]
     temps_df2 = temps_df1.T
-    temps_df2
-
     temps_df3 = temps_df2.drop("Units")
-    temps_df3
 
-    temps_serisConverted = []
-    for eachColName in temps_df3.columns:
-        newSeries = pd.Series(temps_df3[eachColName].values * (9 / 5) + 32)  # C-->F
-        temps_serisConverted.append(newSeries)
+    temps_series_converted = []
+    for each_col_name in temps_df3.columns:
+        newSeries = pd.Series(temps_df3[each_col_name].values * (9 / 5) + 32)  # C-->F
+        temps_series_converted.append(newSeries)
 
-    temps_df4 = pd.DataFrame(temps_serisConverted).T
+    temps_df4 = pd.DataFrame(temps_series_converted).T
     temps_df4.columns = temps_df3.columns
-    temps_df4.insert(loc=0, column="Month", value=climateColNames)
+    temps_df4.insert(loc=0, column="Month", value=climate_col_names)
 
     # --------------------------------------------------------------------------
     # Export to csv

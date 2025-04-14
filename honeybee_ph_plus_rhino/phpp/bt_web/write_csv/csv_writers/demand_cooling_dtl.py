@@ -7,6 +7,8 @@ import pathlib
 
 import pandas as pd
 
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
+
 
 def clean_file_name(_filename: str) -> str:
     """Clean an input file name and remove disallowed characters ("/", etc..)"""
@@ -30,14 +32,22 @@ def create_csv_detailed_cooling_demand(
     """
 
     # Create the Detailed Heating Demand CSV
-    demand_cooling_losses_df = _df_main.loc[351:365]
-    demand_cooling_gains_df = _df_main.loc[366:372]
+    demand_cooling_losses_df = _df_main.loc[
+        VARIANTS.cooling_demand["Cooling Demand"]
+        .row : VARIANTS.cooling_demand["Ventilation (Addn'l)"]
+        .row
+    ]
+    demand_cooling_gains_df = _df_main.loc[
+        VARIANTS.cooling_demand["North"]
+        .row : VARIANTS.cooling_demand["Internal Gains"]
+        .row
+    ]
 
     # Get the variant column names (ignore the first two items 'Datatype' and 'Units')
     cols = demand_cooling_losses_df.columns[2:].tolist()
 
     # Get the datatype and units values for both losses and gains
-    dTtpes = pd.concat(
+    d_types = pd.concat(
         [demand_cooling_losses_df["Datatype"], demand_cooling_gains_df["Datatype"]],
         sort=True,
     )
@@ -52,8 +62,12 @@ def create_csv_detailed_cooling_demand(
         vals = [
             "Cooling Demand Limit",
             "kWh",
-            _cert_limits_abs.loc[319][colName],
-            _cert_limits_abs.loc[319][colName],
+            _cert_limits_abs.loc[
+                VARIANTS.certification_limits["Total Cooling Demand Limit"].row
+            ][colName],
+            _cert_limits_abs.loc[
+                VARIANTS.certification_limits["Total Cooling Demand Limit"].row
+            ][colName],
         ]
         newSeries = pd.Series(vals, index=index_temp)
         tempLimits[colName] = newSeries
@@ -73,7 +87,7 @@ def create_csv_detailed_cooling_demand(
     output = {}
     for k, v in losses.items():
         r1 = pd.concat([losses[k], gains[k]], sort=True)
-        r2 = pd.concat([dTtpes, units, r1["Losses"], r1["Gains"]], axis=1)
+        r2 = pd.concat([d_types, units, r1["Losses"], r1["Gains"]], axis=1)
         output[k] = r2.map(lambda x: 0 if pd.isna(x) else x)
 
     # Add the Demand Limits to the main DFs

@@ -67,7 +67,7 @@ def create_default_solid_hatch_pattern(_IGH):
     # type: (gh_io.IGH) -> int
     """Create a new SOLID hatch pattern in the document and return its index."""
     hatch_pattern = rdo.HatchPattern()
-    hatch_pattern.FillType = rdo.HatchPatternFillType.Solid # type: ignore
+    hatch_pattern.FillType = rdo.HatchPatternFillType.Solid  # type: ignore
     hatch_pattern.Name = "SOLID"
     try:
         new_index = _IGH.sc.doc.HatchPatterns.Add(hatch_pattern)
@@ -562,8 +562,8 @@ def create_geometry_attributes(parent_layer_index, _color, _display_order=0):
     attr.LayerIndex = parent_layer_index
     attr.ObjectColor = _color
     attr.PlotColor = _color
-    attr.ColorSource = rdo.ObjectColorSource.ColorFromObject # type: ignore
-    attr.PlotColorSource = rdo.ObjectPlotColorSource.PlotColorFromObject # type: ignore
+    attr.ColorSource = rdo.ObjectColorSource.ColorFromObject  # type: ignore
+    attr.PlotColorSource = rdo.ObjectPlotColorSource.PlotColorFromObject  # type: ignore
     attr.DisplayOrder = _display_order
     return attr
 
@@ -571,10 +571,10 @@ def create_geometry_attributes(parent_layer_index, _color, _display_order=0):
 def bake_mesh(_IGH, _layer_name, _geometry, _draw_order=0):
     # type: (gh_io.IGH, str, rg.Mesh, int) -> None
     """Bake a Mesh object into the Rhino Scene."""
-    # -- 
+    # --
     layer_table = _IGH.Rhino.RhinoDoc.ActiveDoc.Layers
     hatch_id = get_default_solid_hatch_index(_IGH)
-    parent_layer_index = rdo.Tables.LayerTable.FindByFullPath( # type: ignore
+    parent_layer_index = rdo.Tables.LayerTable.FindByFullPath(  # type: ignore
         layer_table, _layer_name, True
     )
 
@@ -586,9 +586,9 @@ def bake_mesh(_IGH, _layer_name, _geometry, _draw_order=0):
 
     # -- Group the hatches so they are manageable
     group_ = _IGH.Rhino.RhinoDoc.ActiveDoc.Groups
-    rdo.Tables.GroupTable.Add(group_, guids) # type: ignore
+    rdo.Tables.GroupTable.Add(group_, guids)  # type: ignore
     _IGH.scriptcontext.doc.Views.Redraw()
-    
+
     return None
 
 
@@ -624,9 +624,9 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
             if _attr_obj and _attr_obj.DisplayOrder:
                 draw_order = _attr_obj.DisplayOrder
             else:
-                draw_order = -1 # +1 = Front, -1 = Back
+                draw_order = -1  # +1 = Front, -1 = Back
             bake_mesh(_IGH, _layer_name, geometry, draw_order)
-            
+
         elif isinstance(geometry, rg.Curve):
             rhino_geom = _IGH.scriptcontext.doc.Objects.Add(
                 geometry, _attr_obj or doc_object.Attributes
@@ -677,7 +677,7 @@ def bake_annotation_object(
         # Create the txt object
         txt = rg.TextEntity()
         try:
-            txt.Font = rdo.Font("Source Code Pro") # type: ignore
+            txt.Font = rdo.Font("Source Code Pro")  # type: ignore
         except:
             pass
         txt.Text = _annotation.text
@@ -794,13 +794,13 @@ def export_single_pdf(_IGH, _file_path, _dpi=300, _raster=True):
     page_height = round(page_height, 2)
     page_width = round(page_width, 2)
 
-    pdf = FileIO.FilePdf.Create() # type: ignore
+    pdf = FileIO.FilePdf.Create()  # type: ignore
     size = Size(page_width * _dpi, page_height * _dpi)
     settings = rdp.ViewCaptureSettings(
         _IGH.scriptcontext.doc.Views.ActiveView, size, _dpi
     )
     settings.RasterMode = _raster
-    settings.OutputColor = rdp.ViewCaptureSettings.ColorMode.DisplayColor # type: ignore
+    settings.OutputColor = rdp.ViewCaptureSettings.ColorMode.DisplayColor  # type: ignore
     pdf.AddPage(settings)
 
     try:
@@ -990,8 +990,8 @@ def export_pdfs(
                     bake_annotation_object(_IGH, layout_annotation, label_bake_layer)
             except ValueError as e:
                 # No Layout Annotations for this Branch-number
-                pass 
-            
+                pass
+
             # ----------------------------------------------------------------------------------------------------------
             # # -- Export PDF file
             set_active_view_by_name(_IGH, layout_view_name)

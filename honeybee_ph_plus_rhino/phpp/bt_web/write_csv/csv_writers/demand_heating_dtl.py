@@ -7,6 +7,8 @@ import pathlib
 
 import pandas as pd
 
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
+
 
 def clean_file_name(_filename: str) -> str:
     """Clean an input file name and remove disallowed characters ("/", etc..)"""
@@ -30,8 +32,16 @@ def create_csv_detailed_heating_demand(
     """
 
     # Create the Detailed Heating Demand CSV
-    demand_heat_losses_df = _df_main.loc[328:340]
-    demand_heat_gains_df = _df_main.loc[341:348]
+    demand_heat_losses_df = _df_main.loc[
+        VARIANTS.heating_demand["Walls (AG)"]
+        .row : VARIANTS.heating_demand["Ventilation"]
+        .row
+    ]
+    demand_heat_gains_df = _df_main.loc[
+        VARIANTS.heating_demand["Heating Demand"]
+        .row : VARIANTS.heating_demand["Internal Gains"]
+        .row
+    ]
 
     # Get the variant column names (ignore the first two items 'Datatype' and 'Units')
     cols = demand_heat_losses_df.columns[2:].tolist()
@@ -51,8 +61,12 @@ def create_csv_detailed_heating_demand(
         vals = [
             "Heating Demand Limit",
             "kWh",
-            _cert_limits_abs.loc[318][colName],
-            _cert_limits_abs.loc[318][colName],
+            _cert_limits_abs.loc[VARIANTS.certification_limits["Heat Demand Limit"].row][
+                colName
+            ],
+            _cert_limits_abs.loc[VARIANTS.certification_limits["Heat Demand Limit"].row][
+                colName
+            ],
         ]
         newSeries = pd.Series(vals, index=index_temp)
         tempLimits[colName] = newSeries

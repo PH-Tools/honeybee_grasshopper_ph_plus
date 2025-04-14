@@ -7,6 +7,8 @@ import pathlib
 
 import pandas as pd
 
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
+
 
 def get_co2e_as_df(
     _df_main: pd.DataFrame,
@@ -32,18 +34,24 @@ def get_co2e_as_df(
     Aux Elec	            Aux Elec	            kgCO2e	0	0	0	0	0
     IPCC Limit               IPCC Limit             kgCO2e  0   0   0   0   0
     """
-    df1 = _df_main.loc[469:484]
-    df2 = df1.dropna(axis=0, how="all")
-    df3 = df2.set_index("Datatype", drop=False)
 
-    return df3
+    start_row = VARIANTS.co2e.start_row()
+    end_row = VARIANTS.co2e.end_row()
+    df1 = _df_main.loc[start_row:end_row]
+
+    # drop the 'CO2E' row
+    df2 = df1.drop(df1[df1["Datatype"] == "CO2E"].index)
+
+    df3 = df2.dropna(axis=0, how="all")
+    df4 = df3.set_index("Datatype", drop=False)
+
+    return df4
 
 
 def create_csv_CO2E(
     _df_main: pd.DataFrame,
     _output_path: pathlib.Path,
 ) -> None:
+    """Get the CO2 Dataframe and export to CSV file."""
     df_co2e = get_co2e_as_df(_df_main)
-
-    # -- Export to csv
     df_co2e.to_csv(_output_path, index=False)

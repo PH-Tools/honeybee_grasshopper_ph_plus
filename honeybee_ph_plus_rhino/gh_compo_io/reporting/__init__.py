@@ -19,9 +19,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.reporting.build_pdf_geom_and_attrs impor
 from honeybee_ph_plus_rhino.gh_compo_io.reporting.build_thermal_bridges import (
     GHCompo_CreateThermalBridges,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.reporting.create_clipping_plane_set import (
+    GHCompo_CreateClippingPlaneSet,
+)
 from honeybee_ph_plus_rhino.gh_compo_io.reporting.create_plotly_graph import (
     GHCompo_CreatePlotlyGraph,
-)
-from honeybee_ph_plus_rhino.gh_compo_io.reporting.create_clipping_plane_set import (
-    GHCompo_CreateClippingPlaneSet
 )

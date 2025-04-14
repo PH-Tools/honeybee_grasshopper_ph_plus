@@ -37,7 +37,7 @@ def resolve_arguments(_args: list[str]) -> tuple[Path, Path | None]:
     csv_output_file_ = Path(str(_args[1]))
     if not csv_output_file_:
         raise Exception("Error: Missing CSV-output file path")
-    
+
     if _args[2] == None or _args[2] == "None" or _args[2] == "":
         phpp_input_file_ = None
     else:

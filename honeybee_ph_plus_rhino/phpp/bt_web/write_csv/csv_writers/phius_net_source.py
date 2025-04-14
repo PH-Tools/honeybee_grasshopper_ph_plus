@@ -7,6 +7,8 @@ import pathlib
 
 import pandas as pd
 
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
+
 
 def create_csv_Phius_net_source_energy(
     _df_main: pd.DataFrame, _cert_limits_abs: pd.DataFrame, _output_path: pathlib.Path
@@ -25,14 +27,23 @@ def create_csv_Phius_net_source_energy(
     """
 
     # Create the PE data csv
-    PE_df1 = _df_main.loc[392:406]
-
+    start_row = VARIANTS.primary_energy.start_row()
+    end_row = VARIANTS.primary_energy.end_row()
+    PE_df1 = _df_main.loc[start_row:end_row]
     PE_df2 = reduce_energy_by_solar(_df_main, PE_df1)
 
     # -- Little bit of cleanup
     PE_df3 = PE_df2.dropna(axis=0, how="all")
-    PE_df4 = PE_df3._append(_cert_limits_abs.loc[326])
 
+    # -- add in the Target Row
+    targets = _cert_limits_abs.loc[
+        VARIANTS.certification_limits["PHIUS Net Source Energy Limit"].row
+    ]
+    if isinstance(targets, pd.Series):
+        targets = targets.to_frame().T
+    PE_df4 = pd.concat([PE_df3, targets], ignore_index=False)
+
+    # -- Output the CSV
     PE_df4.to_csv(_output_path, index=False)
 
 
@@ -51,25 +62,68 @@ def reduce_energy_by_solar(_df_main: pd.DataFrame, _pe_df: pd.DataFrame) -> pd.D
 
     """
 
-    PE_solar_df = _df_main.loc[407:407]
+    solar_row = VARIANTS.primary_energy["Solar PV"].row
+    PE_solar_df = _df_main.loc[solar_row:solar_row]
     PE_solar_data_df = PE_solar_df.iloc[:, -5:]
     PE_solar_data_df = PE_solar_data_df.apply(pd.to_numeric)
     PE_solar_data_df = PE_solar_data_df * 1.8
 
-    # --- Add 'totals' row to each colum
-    totals = _pe_df.sum(axis=0, numeric_only=False)
+    # --- Add 'totals' row to each column
+    """ 
+    _pe_df = 
+        0                Datatype Units  ...    PH Windows Passive House
+        436                    PE   NaN  ...           NaN           NaN
+        437               Heating  kWh   ...  21259.503681  16103.553119
+        438               Cooling  kWh   ...   6129.219363   5729.921122
+        439                   DHW  kWh   ...   9019.073447   8970.247848
+        440           Dishwashing  kWh   ...    312.405472    312.405472
+        441       Clothes Washing  kWh   ...    178.866377    178.866377
+        442        Clothes Drying  kWh   ...     851.54578     851.54578
+        443          Refrigerator  kWh   ...       1157.78       1157.78
+        444               Cooking  kWh   ...   1123.951978   1123.951978
+        445          PHI Lighting  kWh   ...    543.812925    543.812925
+        446    PHI Consumer Elec.  kWh   ...   1674.917838   1674.917838
+        447  PHI Small Appliances  kWh   ...    176.952237    176.952237
+        448   Phius Int. Lighting  kWh   ...           0.0           0.0
+        449   Phius Ext. Lighting  kWh   ...           0.0           0.0
+        450             Phius MEL  kWh   ...           0.0           0.0
+        451              Aux Elec  kWh   ...   2854.750771   2854.750771
+        452              Solar PV  kWh   ...           0.0           0.0
+        453                   NaN   NaN  ...           NaN           NaN
+    """
+    # remove any row where 'Datatype' is NaN
+    pe_df1 = _pe_df.dropna(subset=["Datatype"])
+
+    # drop the 'PE' row
+    pe_df2 = pe_df1.drop(pe_df1[pe_df1["Datatype"] == "PE"].index)
+
+    # -- Sum up the totals for each column
+    totals = pe_df2.sum(axis=0, numeric_only=False)
     totals["Datatype"] = "Totals"
     totals["Units"] = None
-    PE_df2 = _pe_df._append(totals, ignore_index=True)
+    """
+    totals = 
+        Datatype                Totals
+        Units                     None
+        Code Minimum       74307.85775
+        Insulation        68476.059319
+        Airtight + ERV    54316.624202
+        PH Windows        45282.779867
+        Passive House     39678.705466
+        dtype: object
+    """
+
+    # -- Add the totals row to the end of the DataFrame
+    PE_df3 = pd.concat([pe_df2, totals.to_frame().T], ignore_index=True)
 
     # --- Separate out the 'data' columns and the 'datatype' columns
-    PE_datatype_cols_df = PE_df2.iloc[:, :2]
-    PE_df_data = PE_df2.iloc[:, -5:]
+    PE_datatype_cols_df = PE_df3.iloc[:, :2]
+    PE_df_data = PE_df3.iloc[:, -5:]
     PE_df_data = PE_df_data.apply(pd.to_numeric).fillna(0)
 
     totals_data = PE_df_data.iloc[-1]
 
-    # -- Compute the % of total for each of the consumption areass
+    # -- Compute the % of total for each of the consumption areas
     pe_percentage_values_df = pd.DataFrame(PE_df_data.values / totals_data.values)
     pe_percentage_values_df.columns = PE_df_data.columns
 

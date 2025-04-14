@@ -33,13 +33,15 @@ class GHCompo_GetFromCustomCollection(object):
         # type: () -> list
         if not self.collection or not self.keys:
             return []
-        
+
         if self.strict == True:
             try:
                 return [self.collection[key] for key in self.keys]
             except KeyError:
-                self.IGH.error("Key(s): {} not found in collection.".format(
-                    [k for k in self.keys if k not in self.collection])
+                self.IGH.error(
+                    "Key(s): {} not found in collection.".format(
+                        [k for k in self.keys if k not in self.collection]
+                    )
                 )
                 return []
         else:

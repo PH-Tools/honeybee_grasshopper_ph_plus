@@ -7,6 +7,8 @@ import pathlib
 
 import pandas as pd
 
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
+
 
 def create_csv_heating_and_cooling_demand(
     _df_main: pd.DataFrame,
@@ -16,12 +18,18 @@ def create_csv_heating_and_cooling_demand(
 ) -> None:
     # ---------------------------------------------------------------------------
     # Get the Cooling Demand results
-    cooling_dem_df = _df_main.loc[428 + 1]
-    cooling_dem_limit_df = _cert_limits_abs.loc[320 + 1]
+    cooling_dem_df = _df_main.loc[
+        VARIANTS.certification_results["Total Cooling Demand"].row
+    ]
+    cooling_dem_limit_df = _cert_limits_abs.loc[
+        VARIANTS.certification_limits["Total Cooling Demand Limit"].row
+    ]
 
     # Get the Heating Demand results
-    heating_dem_df = _df_main.loc[426 + 1]
-    heating_dem_limit_df = _cert_limits_abs.loc[317 + 1]
+    heating_dem_df = _df_main.loc[VARIANTS.certification_results["Heat Demand"].row]
+    heating_dem_limit_df = _cert_limits_abs.loc[
+        VARIANTS.certification_limits["Heat Demand Limit"].row
+    ]
 
     output_csv(
         [heating_dem_df, cooling_dem_df], _tfa_df, _output_path, heating_dem_limit_df
@@ -35,8 +43,10 @@ def create_csv_heating_demand(
     _output_path: pathlib.Path,
 ) -> None:
     # Get the Heating Demand results
-    heating_dem_df = _df_main.loc[425 + 1]
-    heating_dem_limit_df = _cert_limits_abs.loc[317 + 1]
+    heating_dem_df = _df_main.loc[VARIANTS.certification_results["Heat Demand"].row]
+    heating_dem_limit_df = _cert_limits_abs.loc[
+        VARIANTS.certification_limits["Heat Demand Limit"].row
+    ]
 
     output_csv([heating_dem_df], _tfa_df, _output_path, heating_dem_limit_df)
 
@@ -48,8 +58,12 @@ def create_csv_cooling_demand(
     _output_path: pathlib.Path,
 ) -> None:
     # Get the Cooling Demand results
-    cooling_dem_df = _df_main.loc[428 + 1]
-    cooling_dem_limit_df = _cert_limits_abs.loc[320 + 1]
+    cooling_dem_df = _df_main.loc[
+        VARIANTS.certification_results["Total Cooling Demand"].row
+    ]
+    cooling_dem_limit_df = _cert_limits_abs.loc[
+        VARIANTS.certification_limits["Total Cooling Demand Limit"].row
+    ]
 
     output_csv([cooling_dem_df], _tfa_df, _output_path, cooling_dem_limit_df)
 
@@ -61,8 +75,12 @@ def create_csv_heating_load(
     _output_path: pathlib.Path,
 ) -> None:
     # Get the  Heating Load results
-    heating_load_df = _df_main.loc[429 + 1]
-    heating_load_limit_df = _cert_limits_abs.loc[321 + 1]
+    heating_load_df = _df_main.loc[
+        VARIANTS.certification_results["Total Cooling Demand"].row
+    ]
+    heating_load_limit_df = _cert_limits_abs.loc[
+        VARIANTS.certification_limits["Peak Heat Load Limit"].row
+    ]
 
     output_csv([heating_load_df], _tfa_df, _output_path, heating_load_limit_df)
 
@@ -74,17 +92,21 @@ def create_csv_cooling_load(
     _output_path: pathlib.Path,
 ) -> None:
     # Get the Cooling Load results
-    cooling_load_df = _df_main.loc[430 + 1]
-    cooling_load_limit_df = _cert_limits_abs.loc[322 + 1]
+    cooling_load_df = _df_main.loc[
+        VARIANTS.certification_results["Peak Cooling Load "].row
+    ]
+    cooling_load_limit_df = _cert_limits_abs.loc[
+        VARIANTS.certification_limits["Peak Cooling Load Limit"].row
+    ]
 
     output_csv([cooling_load_df], _tfa_df, _output_path, cooling_load_limit_df)
 
 
 def output_csv(
-    _data: list[pd.Series],
+    _data: list[pd.Series | pd.DataFrame],
     _tfa_df: pd.DataFrame,
     _output_path: pathlib.Path,
-    _limit_df: pd.Series,
+    _limit_df: pd.Series | pd.DataFrame,
 ) -> None:
     """Builds the CSV file based on the Heating/Cooling data given."""
 
@@ -107,5 +129,7 @@ def output_csv(
 
     # ---------------------------------------------------------------------------
     # ---- Output final data to CSV
-    output_df = header_df._append(_limit_df)
+    if isinstance(_limit_df, pd.Series):
+        _limit_df = _limit_df.to_frame().T
+    output_df = pd.concat([header_df, _limit_df])
     output_df.to_csv(_output_path, index=False)

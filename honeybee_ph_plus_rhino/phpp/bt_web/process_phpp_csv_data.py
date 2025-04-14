@@ -18,6 +18,7 @@ import pandas as pd
 from rich import print
 
 from honeybee_ph_plus_rhino.phpp.bt_web._types import PHPPData
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
 from honeybee_ph_plus_rhino.phpp.bt_web.write_csv import generate_csv_files
 
 
@@ -36,8 +37,8 @@ def clean_climate_df(_climate_df: pd.DataFrame) -> pd.DataFrame:
     climate_df_ = climate_df_.iloc[:, 0:13]
 
     # -- Reset the index to be the values from column-0
-    climate_df_.index = climate_df_[climate_df_.columns[0]]
-    #
+    climate_df_.set_index(climate_df_[climate_df_.columns[0]], inplace=True)
+
     # -- Convert to numeric where possible
     climate_df_ = convert_to_numeric(climate_df_)
 
@@ -93,7 +94,7 @@ def clean_variants_df(_variant_df: pd.DataFrame) -> pd.DataFrame:
     return clean_df
 
 
-def get_tfa_as_df(_df_main: pd.DataFrame) -> pd.Series:
+def get_tfa_as_df(_df_main: pd.DataFrame) -> pd.DataFrame:
     """Return the Treated Floor Area (TFA) for each Variant as a pandas.Series
 
     Arguments:
@@ -102,9 +103,9 @@ def get_tfa_as_df(_df_main: pd.DataFrame) -> pd.Series:
 
     Returns:
     --------
-        * (pd.Series): The TFA of each Variant.
+        * (pd.Dataframe): The TFA of each Variant.
     """
-    return _df_main.loc[279]
+    return _df_main.loc[VARIANTS.geometry["TFA"].row]  # type: ignore
 
 
 def get_absolute_certification_limits_as_df(
@@ -122,7 +123,10 @@ def get_absolute_certification_limits_as_df(
     """
 
     # Get all the certification LIMITS in ../m2 values
-    cert_limits_specific = _df_main.loc[318:326]
+    # cert_limits_specific = _df_main.loc[318:326]
+    start_row = VARIANTS.certification_limits.start_row()
+    end_row = VARIANTS.certification_limits.end_row()
+    cert_limits_specific = _df_main.loc[start_row:end_row]
 
     tfa_df = get_tfa_as_df(_df_main)
 
@@ -152,7 +156,7 @@ def get_variant_names_as_series(_df_main: pd.DataFrame) -> pd.Series:
     --------
         * (pd.Series): The Variant Name of each Variant.
     """
-    return _df_main.columns[2::]
+    return pd.Series(_df_main.columns[2::])
 
 
 def resolve_arguments(_args: list[str]) -> tuple[Path, Path, Path, Path]:

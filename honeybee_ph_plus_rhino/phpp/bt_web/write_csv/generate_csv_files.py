@@ -26,9 +26,6 @@ from honeybee_ph_plus_rhino.phpp.bt_web.write_csv.csv_writers.heating_and_coolin
     create_csv_heating_demand,
     create_csv_heating_load,
 )
-from honeybee_ph_plus_rhino.phpp.bt_web.write_csv.csv_writers.phi_primary_energy_renewable import (
-    create_csv_Phi_primary_energy_renewable,
-)
 
 
 def create_csv_files(_csv_file_path: Path, _phpp_data: PHPPData) -> None:
@@ -85,11 +82,6 @@ def create_csv_files(_csv_file_path: Path, _phpp_data: PHPPData) -> None:
     create_csv_SiteEnergy(
         _phpp_data.df_variants,
         _csv_file_path / "energy_Site.csv",
-    )
-    create_csv_Phi_primary_energy_renewable(
-        _phpp_data.df_variants,
-        _phpp_data.df_certification_limits,
-        _csv_file_path / "energy_PER.csv",
     )
 
     # --- CO2 Emissions

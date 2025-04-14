@@ -3,10 +3,13 @@
 
 """Export Building-Data Tabel CSV file from the Main PHPP DataFrme"""
 
+import pathlib
+
 import pandas as pd
 
+from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
+
 pd.options.mode.chained_assignment = None  # default='warn'
-import pathlib
 
 
 def create_csv_bldg_basic_data_table(
@@ -25,11 +28,23 @@ def create_csv_bldg_basic_data_table(
     """
 
     # Building Data Basics from Main PHPP DataFrame
-    bldg_df = _df_main.loc[279:287]
+    # bldg_df = _df_main.loc[279:287]
+    start_row = VARIANTS.geometry.start_row()
+    end_row = VARIANTS.geometry.end_row()
+    bldg_df = _df_main.loc[start_row:end_row]
 
     # --------------------------------------------------------------------------
     # TFA
-    tfa_1 = bldg_df.loc[279]
+    tfa_1 = bldg_df.loc[VARIANTS.geometry["TFA"].row]
+    """
+        Datatype                 TFA
+        Units                    NaN
+        Code Minimum      558.313778
+        Insulation        558.313778
+        Airtight + ERV    558.313778
+        PH Windows        558.313778
+        Passive House     558.313778
+    """
     tfa_2 = []
     for each in tfa_1:
         try:
@@ -45,7 +60,8 @@ def create_csv_bldg_basic_data_table(
 
     # --------------------------------------------------------------------------
     # Vn50 Volume
-    vol_1 = bldg_df.loc[281]
+    # vol_1 = bldg_df.loc[281]
+    vol_1 = bldg_df.loc[VARIANTS.geometry["Vn50"].row]
     vol_2 = []
     for each in vol_1:
         try:
@@ -61,22 +77,23 @@ def create_csv_bldg_basic_data_table(
 
     # --------------------------------------------------------------------------
     # Total Exterior Surface
-    extSrfc_1 = bldg_df.loc[282]
-    extSrfc_2 = []
-    for each in extSrfc_1:
+    # extSrfc_1 = bldg_df.loc[282]
+    ext_surface_1 = bldg_df.loc[VARIANTS.geometry["Building Envelope Area"].row]
+    ext_surface_2 = []
+    for each in ext_surface_1:
         try:
-            extSrfc_2.append(each * 10.76391042)
+            ext_surface_2.append(each * 10.76391042)
         except:
             if each == "m2":
-                extSrfc_2.append("ft2")
+                ext_surface_2.append("ft2")
             else:
-                extSrfc_2.append(each)
-    extSrfc_3 = pd.Series(extSrfc_2, index=[bldg_df.columns])
+                ext_surface_2.append(each)
+    extSrfc_3 = pd.Series(ext_surface_2, index=[bldg_df.columns])
 
     # --------------------------------------------------------------------------
     # Srfc / Vol Ratio
     srfc_vol_ratio = []
-    for i, each in enumerate(extSrfc_2):
+    for i, each in enumerate(ext_surface_2):
         try:
             srfc_vol_ratio.append(each / tfa_2[i])
         except:
@@ -101,11 +118,14 @@ def create_csv_bldg_basic_data_table(
 
     # --------------------------------------------------------------------------
     # Window Areas by Orientation
-    windowAeas_df = bldg_df.loc[283:287].T
+    # window_areas_df = bldg_df.loc[283:287].T
+    start_row = VARIANTS.geometry["Window Area (North)"].row
+    end_row = VARIANTS.geometry["Window Area (Horiz)"].row
+    window_areas_df = bldg_df.loc[start_row:end_row].T
     temp = []
-    for colName in windowAeas_df:
+    for col_name in window_areas_df:
         orientation = []
-        for item in windowAeas_df[colName].values:
+        for item in window_areas_df[col_name].values:
             try:
                 orientation.append(item * 10.76391042)
             except:
@@ -113,17 +133,17 @@ def create_csv_bldg_basic_data_table(
                     orientation.append("ft2")
                 else:
                     orientation.append(item)
-        newSeries = pd.Series(orientation, index=[windowAeas_df.index])
+        newSeries = pd.Series(orientation, index=[window_areas_df.index])
         temp.append(newSeries)
 
-    windowAeas_df2 = pd.DataFrame(temp)
+    window_areas_df2 = pd.DataFrame(temp)
 
     # --------------------------------------------------------------------------
     # Combine together into a single DF
     demand_results_df1 = pd.concat(
         [tfa_3, vol_3, extSrfc_3, srfc_vol_ratio2, av_ratio2], axis=1
     )
-    demand_results_df2 = pd.concat([demand_results_df1.T, windowAeas_df2])
+    demand_results_df2 = pd.concat([demand_results_df1.T, window_areas_df2])
     demand_results_df3 = demand_results_df2.reset_index(drop=True)
 
     # --------------------------------------------------------------------------
