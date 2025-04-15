@@ -71,17 +71,17 @@ class GHCompo_ReadPHPPVariantsData(object):
     def get_csv_output_file_path(self):
         # type: () -> str
         """The path to the CSV file to write the data to."""
-        if self.folder is not None and self.filename is not None:
-            if not os.path.exists(self.folder):
-                os.makedirs(self.folder)
-            if not self.filename.endswith(".csv"):
-                self.filename = "{}.csv".format(self.filename)
-            return os.path.join(self.folder, self.filename)
-        else:
-            file_name = "phpp_data_variants_{}.csv".format(
+        filename = self.filename or "phpp_data_variants_{}.csv".format(
                 datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             )
-            return os.path.join(hb_folders.default_simulation_folder, file_name)
+        if not filename.endswith(".csv"):
+                filename = "{}.csv".format(filename)
+        
+        folder = self.folder or hb_folders.default_simulation_folder
+        if not os.path.exists(folder):
+                os.makedirs(folder)
+        
+        return os.path.join(folder, filename)
 
     def run(self):
         # type: () -> Any
