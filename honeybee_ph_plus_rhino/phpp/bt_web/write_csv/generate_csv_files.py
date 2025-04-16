@@ -18,6 +18,7 @@ from honeybee_ph_plus_rhino.phpp.bt_web.write_csv.csv_writers import (
     create_csv_SiteEnergy,
     create_csv_temperatures,
     create_csv_variant_table,
+    create_csv_PER,
 )
 from honeybee_ph_plus_rhino.phpp.bt_web.write_csv.csv_writers.heating_and_cooling import (
     create_csv_cooling_demand,
@@ -88,6 +89,11 @@ def create_csv_files(_csv_file_path: Path, _phpp_data: PHPPData) -> None:
     create_csv_CO2E(
         _phpp_data.df_variants,
         _csv_file_path / "energy_TonsCO2.csv",
+    )
+    # --- PER
+    create_csv_PER(
+        _phpp_data.df_variants,
+        _csv_file_path / "energy_PER.csv",
     )
 
     # --- Get the Model Variants info

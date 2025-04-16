@@ -392,6 +392,36 @@ class CO2e(Section):
         super().__init__(get_start_offset)
 
 
+class PrimaryEnergyRenewable(Section):
+
+    FIELDS = [
+        "PER",
+        "Heating",
+        "Cooling",
+        "DHW",
+        "Dishwashing",
+        "Clothes Washing",
+        "Clothes Drying",
+        "Refrigerator",
+        "Cooking",
+        "PHI Lighting",
+        "PHI Consumer Elec.",
+        "PHI Small Appliances",
+        "Phius Int. Lighting",
+        "Phius Ext. Lighting",
+        "Phius MEL",
+        "Aux Elec",
+        "Solar PV",
+        " ",
+    ]
+
+    def __init__(self, get_start_offset: Callable[[], int] = lambda: 0):
+        super().__init__(get_start_offset)
+
+
+
+
+
 # ---------------------------------------------------------------------------------------
 
 
@@ -411,6 +441,7 @@ class Variants:
         self.certification_compliant = CertificationCompliant(self.r_values.end_row)
         self.peak_loads = PeakLoads(self.certification_compliant.end_row)
         self.co2e = CO2e(self.peak_loads.end_row)
+        self.primary_energy_renewable = PrimaryEnergyRenewable(self.co2e.end_row)
 
     def __repr__(self):
         return f"{self.__class__.__name__}"
@@ -432,3 +463,4 @@ VARIANTS = Variants()
 # print(f"> certification_compliant: {VARIANTS.certification_compliant.start_row()} - {VARIANTS.certification_compliant.end_row()}")
 # print(f"> peak_loads: {VARIANTS.peak_loads.start_row()} - {VARIANTS.peak_loads.end_row()}")
 # print(f"> co2e: {VARIANTS.co2e.start_row()} - {VARIANTS.co2e.end_row()}")
+# print(f"> primary_energy_renewable: {VARIANTS.primary_energy_renewable.start_row()} - {VARIANTS.primary_energy_renewable.end_row()}")
