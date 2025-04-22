@@ -13,23 +13,75 @@ from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def create_csv_variant_table(
-    _df_main: pd.DataFrame,
-    _variant_names: pd.Series,
-    _file_path: pathlib.Path,
-) -> None:
-    """Create the comprehensive Variant Data Table with bits from all over the place.
-
-    Arguments:
-    ----------
-        * _df_vent (pd.DataFrame): The PHPP Ventilation DataFrame.
-        * _variant_names (pd.Series): A Series with all the Variant Names.
-        * _output_path (pathlib.Path): The CSV output file path.
-
-    Returns:
-    --------
-        * None
+def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """
+    _variants_data = 
+                                            Datatype  ...            EnerPHit (by Component)
+        break                               ENVELOPE  ...                                   
+        329                                     Wall  ...                               15.0
+        330                        Wall (Crawlspace)  ...                                5.0
+        331                                     Roof  ...                               38.0
+        332                       Floor (Crawlspace)  ...                               22.0
+        333                       Floor (Bay Window)  ...                               22.0
+        339    Thermal Bridge Allowance (% increase)  ...                                0.2
+        340        Volumetric Air Leakage Rate (n50)  ...                                1.0
+        341          Envelope Air Leakage Rate (q50)  ...                           0.030093
+        342               Window U-value (Installed)  ...                           0.232476
+        343                              Window SHGC  ...                               0.23
+        break                                SYSTEMS  ...                                   
+        0                         Ventilation System  ...  1-Balanced PH ventilation with HR
+        1             Ventilation Unit HR Efficiency  ...                           0.727491
+        2             Ventilation Unit ER Efficiency  ...                               0.68
+        3                       System HR Efficiency  ...                           0.727491
+        4                  Cold Air Duct Length (ea)  ...                          16.404199
+        5         Cold Air Duct Insulation Thickness  ...                           2.047244
+        6                             Heating System  ...                       Heat pump(s)
+        7                             Cooling System  ...                    Elec. Heat Pump
+        8                                 DHW System  ...                       Heat pump(s)
+        9                                             ...                                   
+        10                                            ...                                   
+        11                                            ...                                   
+        break                                RESULTS  ...                                   
+        0                   Certification Compliant?  ...                                 No
+        1                       Total Primary Energy  ...                       21846.612257
+        2                          Total Site Energy  ...                        8402.543176
+        3                                Heat Demand  ...                        1140.901369
+        4                                Heat Demand  ...                           9.732269
+        5                             Cooling Demand  ...                          1608.3779
+        6                       Total Cooling Demand  ...                              13.72
+        7                                 PEAK LOADS  ...                                   
+        8                             Peak Heat Load  ...                        7075.533373
+        9                 Peak Sensible Cooling Load  ...                        5814.733993
+        10                  Peak Latent Cooling Load  ...                         975.231978
+        11                                            ...                                   
+        [37 rows x 7 columns]
+    """
+
+    # Look for the 'break' in the index, use that to delineate the 'section' of the DataFrame
+    sections: dict[str, pd.DataFrame] = {}
+    current_section = ""
+    for index, row in _variants_data.iterrows():
+        if row["Datatype"] == "":
+            continue
+        
+        if index == "break":
+            current_section = str(row["Datatype"]).upper().strip().replace(" ", "_")
+            if current_section not in sections:
+                sections[current_section] = pd.DataFrame()
+        else:
+            # --  If the row is a header, skip it
+            if row["Datatype"].isupper():
+                continue
+            
+            # --  Add the row to the current section
+            sections[current_section] = pd.concat(
+                [sections[current_section], row.to_frame().T], ignore_index=True
+            )
+            sections[current_section].reset_index(drop=True, inplace=True)
+
+    return sections
+
+def clean_variant_table_data(_df_main: pd.DataFrame, _variant_names: pd.Series) -> pd.DataFrame:
     # Certification Yes/No
     cert_df1 = _df_main.loc[
         VARIANTS.certification_compliant["Certification Compliant?"].row
@@ -117,20 +169,20 @@ def create_csv_variant_table(
     sys_df2 = sys_df1.drop(sys_df1[sys_df1["Datatype"] == "SYSTEMS"].index)
 
     # Re-set the units for duct
-    ductLen_s1 = (
+    duct_len_s1 = (
         sys_df2.loc[VARIANTS.systems["Cold Air Duct Length (ea)"].row][_variant_names]
         * 3.280839895
     )
-    ductLen_s2 = pd.Series(
+    duct_len_s2 = pd.Series(
         ["Cold Air Duct Length (ea)", "ft"], index=["Datatype", "Units"]
     )
-    ductLen_s3 = pd.concat([ductLen_s2, ductLen_s1])
+    duct_len_s3 = pd.concat([duct_len_s2, duct_len_s1])
 
     sys_df3 = sys_df2.copy(deep=True)
-    sys_df3.loc[VARIANTS.systems["Cold Air Duct Length (ea)"].row] = ductLen_s3
+    sys_df3.loc[VARIANTS.systems["Cold Air Duct Length (ea)"].row] = duct_len_s3
 
     # Insulation
-    ductInsul_s1 = (
+    duct_insul_s1 = (
         sys_df3.loc[VARIANTS.systems["Cold Air Duct Insulation Thickness"].row][
             _variant_names
         ]
@@ -139,7 +191,7 @@ def create_csv_variant_table(
     ductInsul_s2 = pd.Series(
         ["Cold Air Duct Insulation Thickness", "inches"], index=["Datatype", "Units"]
     )
-    ductInsul_s3 = pd.concat([ductInsul_s2, ductInsul_s1])
+    ductInsul_s3 = pd.concat([ductInsul_s2, duct_insul_s1])
 
     sys_df4 = sys_df3.copy(deep=True)
     sys_df4.loc[VARIANTS.systems["Cold Air Duct Insulation Thickness"].row] = ductInsul_s3
@@ -157,11 +209,37 @@ def create_csv_variant_table(
 
     # --------------------------------------------------------------------------
     # -- Build the final df in the right order
-    variantsData_df = pd.concat(
+    variants_data_df1 = pd.concat(
         [brk_env, env_results_df2, brk_sys, sys_df5, brk_results, key_results_df]
     )
-    variantsData_df2 = variantsData_df.fillna("")
+    variants_data_df2 = variants_data_df1.fillna("")
+    return variants_data_df2
+
+def create_csv_variant_table(
+    _df_main: pd.DataFrame,
+    _variant_names: pd.Series,
+    _file_path: pathlib.Path,
+) -> None:
+    """Create the comprehensive Variant Data Table with bits from all over the place.
+
+    Arguments:
+    ----------
+        * _df_vent (pd.DataFrame): The PHPP Ventilation DataFrame.
+        * _variant_names (pd.Series): A Series with all the Variant Names.
+        * _output_path (pathlib.Path): The CSV output file path.
+
+    Returns:
+    --------
+        * None
+    """
 
     # --------------------------------------------------------------------------
-    # Export to csv
-    variantsData_df2.to_csv(_file_path, index=False)
+    # Export the full table to csv
+    variants_data_complete = clean_variant_table_data(_df_main,_variant_names)
+    variants_data_complete.to_csv(_file_path, index=False)
+
+    # --------------------------------------------------------------------------
+    # Break up the Table into 'sections'
+    for section_name, section_df in split_table_into_sections(variants_data_complete).items():
+        section_file_path = _file_path.parent / f"{_file_path.stem}_{section_name}.csv"
+        section_df.to_csv(section_file_path, index=False)
