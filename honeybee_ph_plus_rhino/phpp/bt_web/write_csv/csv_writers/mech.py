@@ -68,14 +68,14 @@ def create_csv_fresh_air_flowrates(
         * rm_vent_df2["Reduction Factor 1"].values
         * unitFactor_flow
     )
-    flowRate_Trans_High = (
-        rm_vent_df2["V_Transmission"].values
-        * rm_vent_df2["Reduction Factor 1"].values
-        * unitFactor_flow
-    )
-    cols = ["V_Sup_High", "V_Eta_High", "V_Trans_High"]
+    # flowRate_Trans_High = (
+    #     rm_vent_df2["V_Transmission"].values
+    #     * rm_vent_df2["Reduction Factor 1"].values
+    #     * unitFactor_flow
+    # )
+    cols = ["V_Sup_High", "V_Eta_High"]
     flows_high_df = pd.DataFrame(
-        [flowRate_Sup_High, flowRate_Eta_High, flowRate_Trans_High], index=cols
+        [flowRate_Sup_High, flowRate_Eta_High], index=cols
     ).T
 
     flowRate_Sup_Med = (
@@ -88,14 +88,14 @@ def create_csv_fresh_air_flowrates(
         * rm_vent_df2["Reduction Factor 2"].values
         * unitFactor_flow
     )
-    flowRate_Trans_Med = (
-        rm_vent_df2["V_Transmission"].values
-        * rm_vent_df2["Reduction Factor 2"].values
-        * unitFactor_flow
-    )
-    cols = ["V_Sup_Med", "V_Eta_Med", "V_Trans_Med"]
+    # flowRate_Trans_Med = (
+    #     rm_vent_df2["V_Transmission"].values
+    #     * rm_vent_df2["Reduction Factor 2"].values
+    #     * unitFactor_flow
+    # )
+    cols = ["V_Sup_Med", "V_Eta_Med"]
     flows_med_df = pd.DataFrame(
-        [flowRate_Sup_Med, flowRate_Eta_Med, flowRate_Trans_Med], index=cols
+        [flowRate_Sup_Med, flowRate_Eta_Med], index=cols
     ).T
 
     flowRate_Sup_Low = (
@@ -108,14 +108,14 @@ def create_csv_fresh_air_flowrates(
         * rm_vent_df2["Reduction Factor 3"].values
         * unitFactor_flow
     )
-    flowRate_Trans_Low = (
-        rm_vent_df2["V_Transmission"].values
-        * rm_vent_df2["Reduction Factor 3"].values
-        * unitFactor_flow
-    )
-    cols = ["V_Sup_Low", "V_Eta_Low", "V_Trans_Low"]
+    # flowRate_Trans_Low = (
+    #     rm_vent_df2["V_Transmission"].values
+    #     * rm_vent_df2["Reduction Factor 3"].values
+    #     * unitFactor_flow
+    # )
+    cols = ["V_Sup_Low", "V_Eta_Low"]
     flows_low_df = pd.DataFrame(
-        [flowRate_Sup_Low, flowRate_Eta_Low, flowRate_Trans_Low], index=cols
+        [flowRate_Sup_Low, flowRate_Eta_Low], index=cols
     ).T
 
     # Create the air flows DF

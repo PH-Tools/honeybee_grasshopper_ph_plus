@@ -12,9 +12,35 @@ from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
+def row_has_data(row: pd.Series) -> bool:
+    """Check if the 'data' (everything except 'Datatype') in the row is blank.
+
+    Arguments:
+    ----------
+        * pd.Series: The row to check.
+
+    Returns:
+    --------
+        * bool: True if the row has data, False if it is blank.
+    """
+    # Exclude the 'Datatype' column and check if any value is non-empty
+    return row.drop(labels="Datatype").astype(str).str.strip().ne("").any()
+
 
 def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """
+    Split the DataFrame into sections based on rows where 'Datatype' is a section header.
+
+    Arguments:
+    ----------
+        * _variants_data (pd.DataFrame): The input DataFrame containing the variant data.
+
+    Returns:
+    --------
+        * dict[str, pd.DataFrame]: A dictionary where keys are section names and values are DataFrames for each section.
+
+    Example DataFrame Input:
+    --------
     _variants_data = 
                                             Datatype  ...            EnerPHit (by Component)
         break                               ENVELOPE  ...                                   
@@ -61,16 +87,17 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
     sections: dict[str, pd.DataFrame] = {}
     current_section = ""
     for index, row in _variants_data.iterrows():
+        # If it is a blank row, skip it
         if row["Datatype"] == "":
             continue
         
+        # If it is a break, set the current section to the new section
         if index == "break":
             current_section = str(row["Datatype"]).upper().strip().replace(" ", "_")
             if current_section not in sections:
                 sections[current_section] = pd.DataFrame()
         else:
-            # --  If the row is a header, skip it
-            if row["Datatype"].isupper():
+            if not row_has_data(row):
                 continue
             
             # --  Add the row to the current section
