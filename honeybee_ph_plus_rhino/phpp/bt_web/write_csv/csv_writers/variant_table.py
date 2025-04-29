@@ -108,6 +108,7 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
 
     return sections
 
+
 def clean_variant_table_data(_df_main: pd.DataFrame, _variant_names: pd.Series) -> pd.DataFrame:
     # Certification Yes/No
     cert_df1 = _df_main.loc[
@@ -165,11 +166,13 @@ def clean_variant_table_data(_df_main: pd.DataFrame, _variant_names: pd.Series) 
     env_start_row = VARIANTS.envelope.start_row()
     env_end_row = VARIANTS.envelope.end_row()
     env_df1 = _df_main.loc[env_start_row:env_end_row]
-    env_df1a = pd.DataFrame(env_df1)
+    env_df1 = pd.DataFrame(env_df1)
     new_datatype_column = (
         env_df1["Datatype"].str.replace("_", " ").str.replace("Generic ", "")
     )
-    env_df1a["Datatype"] = new_datatype_column
+    # Remove any rows that have 'Datatype' == '-'
+    env_df1 = env_df1[env_df1["Datatype"] != "-"]
+    env_df1["Datatype"] = new_datatype_column
 
     # Convert in the envelope leakage rate
     q50_ip1 = (
@@ -241,6 +244,7 @@ def clean_variant_table_data(_df_main: pd.DataFrame, _variant_names: pd.Series) 
     )
     variants_data_df2 = variants_data_df1.fillna("")
     return variants_data_df2
+
 
 def create_csv_variant_table(
     _df_main: pd.DataFrame,

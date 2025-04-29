@@ -56,65 +56,100 @@ def create_csv_bldg_basic_data_table(
                 tfa_2.append("Floor Area*")
             else:
                 tfa_2.append(each)
-    tfa_3 = pd.Series(tfa_2, index=[bldg_df.columns])
+    tfa = pd.Series(tfa_2, index=[bldg_df.columns])
 
     # --------------------------------------------------------------------------
     # Vn50 Volume
     # vol_1 = bldg_df.loc[281]
-    vol_1 = bldg_df.loc[VARIANTS.geometry["Vn50"].row]
-    vol_2 = []
-    for each in vol_1:
+    vn50_vol_1 = bldg_df.loc[VARIANTS.geometry["Vn50"].row]
+    vn50_vol_2 = []
+    for each in vn50_vol_1:
         try:
-            vol_2.append(each * 35.31466672)
+            vn50_vol_2.append(each * 35.31466672)
         except:
             if each == "m3":
-                vol_2.append("ft3")
+                vn50_vol_2.append("ft3")
             elif each == "Vn50":
-                vol_2.append("Interior Net Volume")
+                vn50_vol_2.append("Interior Net Volume")
             else:
-                vol_2.append(each)
-    vol_3 = pd.Series(vol_2, index=[bldg_df.columns])
+                vn50_vol_2.append(each)
+    vn50_volume = pd.Series(vn50_vol_2, index=[bldg_df.columns])
+
+
+    # --------------------------------------------------------------------------
+    # Gross Volume
+    gross_vol_1 = bldg_df.loc[VARIANTS.geometry["Gross Volume"].row]
+    gross_vol_2 = []
+    for each in gross_vol_1:
+        try:
+            gross_vol_2.append(each * 35.31466672)
+        except:
+            if each == "m3":
+                gross_vol_2.append("ft3")
+            elif each == "Vn50":
+                gross_vol_2.append("Interior Net Volume")
+            else:
+                gross_vol_2.append(each)
+    gross_volume = pd.Series(gross_vol_2, index=[bldg_df.columns])
+
+
 
     # --------------------------------------------------------------------------
     # Total Exterior Surface
     # extSrfc_1 = bldg_df.loc[282]
-    ext_surface_1 = bldg_df.loc[VARIANTS.geometry["Building Envelope Area"].row]
-    ext_surface_2 = []
-    for each in ext_surface_1:
+    ext_surface_area_1 = bldg_df.loc[VARIANTS.geometry["Building Envelope Area"].row]
+    ext_surface_area_2 = []
+    for each in ext_surface_area_1:
         try:
-            ext_surface_2.append(each * 10.76391042)
+            ext_surface_area_2.append(each * 10.76391042)
         except:
             if each == "m2":
-                ext_surface_2.append("ft2")
+                ext_surface_area_2.append("ft2")
             else:
-                ext_surface_2.append(each)
-    extSrfc_3 = pd.Series(ext_surface_2, index=[bldg_df.columns])
+                ext_surface_area_2.append(each)
+    ext_surface_area = pd.Series(ext_surface_area_2, index=[bldg_df.columns])
+
 
     # --------------------------------------------------------------------------
-    # Srfc / Vol Ratio
-    srfc_vol_ratio = []
-    for i, each in enumerate(ext_surface_2):
+    # Exterior Surface / Floor-Area Ratio
+    srfc_to_floor_area_ratio = []
+    for i, each in enumerate(ext_surface_area_2):
         try:
-            srfc_vol_ratio.append(each / tfa_2[i])
+            srfc_to_floor_area_ratio.append(each / tfa_2[i])
         except:
             if each == "ft2":
-                srfc_vol_ratio.append("-")
+                srfc_to_floor_area_ratio.append("-")
             else:
-                srfc_vol_ratio.append("Ext. Surface Area / Floor Area Ratio")
-    srfc_vol_ratio2 = pd.Series(srfc_vol_ratio, index=[bldg_df.columns])
+                srfc_to_floor_area_ratio.append("Ext. Surface Area / Floor Area")
+    ext_srfc_floor_area_ratio_2 = pd.Series(srfc_to_floor_area_ratio, index=[bldg_df.columns])
+
 
     # --------------------------------------------------------------------------
-    # A/V Ratio
-    av_ratio = []
+    # Exterior Surface / Gross-Volume Ratio
+    srfc_to_volume_ratio = []
+    for i, each in enumerate(ext_surface_area_2):
+        try:
+            srfc_to_volume_ratio.append(each / gross_vol_2[i])
+        except:
+            if each == "ft2":
+                srfc_to_volume_ratio.append("-")
+            else:
+                srfc_to_volume_ratio.append("Ext. Surface Area / Gross Volume")
+    ext_srfc_to_gross_volume_ratio_2 = pd.Series(srfc_to_volume_ratio, index=[bldg_df.columns])
+
+
+    # --------------------------------------------------------------------------
+    # Floor-Area / Gross-Volume Ratio
+    floor_area_to_volume_ratio = []
     for i, each in enumerate(tfa_2):
         try:
-            av_ratio.append(each / vol_2[i])
+            floor_area_to_volume_ratio.append(each / gross_vol_2[i])
         except:
             if each == "ft2":
-                av_ratio.append("-")
+                floor_area_to_volume_ratio.append("-")
             else:
-                av_ratio.append("Floor Area / Volume Ratio")
-    av_ratio2 = pd.Series(av_ratio, index=[bldg_df.columns])
+                floor_area_to_volume_ratio.append("Floor Area / Gross Volume")
+    floor_area_to_gross_volume_ratio_2 = pd.Series(floor_area_to_volume_ratio, index=[bldg_df.columns])
 
     # --------------------------------------------------------------------------
     # Window Areas by Orientation
@@ -141,7 +176,16 @@ def create_csv_bldg_basic_data_table(
     # --------------------------------------------------------------------------
     # Combine together into a single DF
     demand_results_df1 = pd.concat(
-        [tfa_3, vol_3, extSrfc_3, srfc_vol_ratio2, av_ratio2], axis=1
+        [
+            tfa,
+            ext_surface_area,
+            vn50_volume,
+            gross_volume,
+            ext_srfc_floor_area_ratio_2,
+            ext_srfc_to_gross_volume_ratio_2,
+            floor_area_to_gross_volume_ratio_2,
+        ],
+        axis=1
     )
     demand_results_df2 = pd.concat([demand_results_df1.T, window_areas_df2])
     demand_results_df3 = demand_results_df2.reset_index(drop=True)

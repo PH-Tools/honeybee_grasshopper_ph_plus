@@ -35,8 +35,8 @@ def get_per_as_df(
         Solar PV	            kWh 	0	        0	        0	0	0
     """
 
-    start_row = VARIANTS.co2e.start_row()
-    end_row = VARIANTS.co2e.end_row()
+    start_row = VARIANTS.primary_energy_renewable.start_row()
+    end_row = VARIANTS.primary_energy_renewable.end_row()
     df1 = _df_main.loc[start_row:end_row]
 
     # drop the 'CO2E' row
@@ -53,5 +53,5 @@ def create_csv_PER(
     _output_path: pathlib.Path,
 ) -> None:
     """Get the CO2 Dataframe and export to CSV file."""
-    df_co2e = get_per_as_df(_df_main)
-    df_co2e.to_csv(_output_path, index=False)
+    df_per = get_per_as_df(_df_main)
+    df_per.to_csv(_output_path, index=False)
