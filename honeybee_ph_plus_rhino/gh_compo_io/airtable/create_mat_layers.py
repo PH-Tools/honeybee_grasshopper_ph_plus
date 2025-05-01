@@ -55,8 +55,10 @@ except ImportError as e:
 AT_COLUMN_NAMES = {
     "name": "DISPLAY_NAME",
     "material": "LAYER MATERIAL",
-    "thickness_mm": "LAYER THICKNESS [MM]",
-    "conductivity_w_mk": "CONDUCTIVITY_W_MK",
+    "thickness": "LAYER THICKNESS [MM]",
+    "conductivity": "CONDUCTIVITY_W_MK",
+    "density": "DENSITY_KG_M3",
+    "specific_heat_capacity": "SPECIFIC_HEAT_CAPACITY_J_KG_K",
     "data": "DATA_SHEET",
     "notes": "NOTES",
     "link": "LINK",
@@ -148,11 +150,11 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             self.IGH.warning(msg)
             return "__unnamed__"
 
-    def _layer_thickness(self, _layer_data):
+    def _layer_thickness_mm(self, _layer_data):
         # type: (TableFields) -> float
-        """Get the thickness of the layer from the TableFields dict."""
+        """Get the thickness (MM) of the layer from the TableFields dict."""
         try:
-            return float(_layer_data[AT_COLUMN_NAMES["thickness_mm"]])
+            return float(_layer_data[AT_COLUMN_NAMES["thickness"]])
         except KeyError as e:
             layer_name = self._layer_name(_layer_data)
             msg = (
@@ -163,11 +165,11 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             )
             raise KeyError(msg)
 
-    def _layer_conductivity(self, _layer_material_data):
+    def _layer_conductivity_w_mk(self, _layer_material_data):
         # type: (TableFields) -> float
-        """Get the conductivity of the layer from the TableFields dict."""
+        """Get the conductivity (W/mk) of the layer from the TableFields dict."""
         try:
-            return float(_layer_material_data[AT_COLUMN_NAMES["conductivity_w_mk"]])
+            return float(_layer_material_data[AT_COLUMN_NAMES["conductivity"]])
         except KeyError as e:
             layer_name = self._layer_name(_layer_material_data)
             msg = (
@@ -178,7 +180,23 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             )
             raise KeyError(msg)
 
-    def _layer_material_color(self, _layer_material_data):
+    def _layer_density_kg_m3(self, _layer_material_data):
+        # type: (TableFields) -> float
+        """Get the density (kg-m3) of the layer from the TableFields dict."""
+        try:
+            return float(_layer_material_data[AT_COLUMN_NAMES["density"]])
+        except KeyError:
+            return self.DENSITY
+            
+    def _layer_specific_heat_capacity_J_kg_K(self, _layer_material_data):
+        # type: (TableFields) -> float
+        """Get the Specific-Heat-Capacity (J/kg-k) of the layer from the TableFields dict."""
+        try:
+            return float(_layer_material_data[AT_COLUMN_NAMES["specific_heat_capacity"]])
+        except KeyError:
+            return self.SPEC_HEAT
+        
+    def _layer_material_color_argb(self, _layer_material_data):
         # type: (TableFields) -> Optional[PhColor]
         """Get the color of the layer from the TableFields dict."""
         try:
@@ -202,7 +220,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             self.IGH.warning(msg)
             return None
 
-        layer_thickness_mm = self._layer_thickness(layer_data)
+        layer_thickness_mm = self._layer_thickness_mm(layer_data)
         layer_thickness_m = layer_thickness_mm / 1000.00
         layer_name = self._layer_name(layer_data)
 
@@ -214,9 +232,9 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         hb_mat = EnergyMaterial(
             clean_ep_string(self.clean_name(layer_name)),
             layer_thickness_m,
-            self._layer_conductivity(layer_mat),
-            self.DENSITY,
-            self.SPEC_HEAT,
+            self._layer_conductivity_w_mk(layer_mat),
+            self._layer_density_kg_m3(layer_mat),
+            self._layer_specific_heat_capacity_J_kg_K(layer_mat),
             self.ROUGHNESS,
             self.THERM_ABS,
             self.SOL_ABS,
@@ -224,10 +242,8 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         )
 
         # -- Set the Layer's Color
-        mat_prop_ph = (
-            hb_mat.properties.ph
-        )  # type: EnergyMaterialPhProperties # type: ignore
-        mat_prop_ph.ph_color = self._layer_material_color(layer_mat)
+        mat_prop_ph = getattr(hb_mat.properties, "ph")# type: EnergyMaterialPhProperties
+        mat_prop_ph.ph_color = self._layer_material_color_argb(layer_mat)
 
         return hb_mat
 
