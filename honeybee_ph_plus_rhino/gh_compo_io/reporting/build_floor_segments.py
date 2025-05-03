@@ -99,36 +99,40 @@ def color_by_Vent(_flr_seg, _space):
         return Color.FromArgb(255, 235, 235, 235)  # No Vent Flow
 
 
-def text_by_TFA(_space, _units="SI"):
-    # type: (space.Space, str) -> str
+def text_by_TFA(_space, _IGH, _units="SI"):
+    # type: (space.Space, gh_io.IGH, str) -> str
     """Return the space data in a formatted block."""
+
+    rhdoc_len_units = _IGH.get_rhino_unit_system_name()
+    rhdoc_area_units = _IGH.get_rhino_areas_unit_name()
+    rhdoc_vol_units = _IGH.get_rhino_volume_unit_name()
 
     if str(_units).upper().strip() == "IP":
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} ft2".format(convert(_space.floor_area, "M2", "FT2")),
+            "GROSS AREA: {:.01f} ft2".format(convert(_space.floor_area, rhdoc_area_units, "FT2")),
             "WEIGHTED AREA: {:.01f} ft2".format(
-                convert(_space.weighted_floor_area, "M2", "FT2")
+                convert(_space.weighted_floor_area, rhdoc_area_units, "FT2")
             ),
-            "Vn50: {:.01f} ft3".format(convert(_space.net_volume, "M3", "FT3")),
-            "CLG HEIGHT: {:.01f} ft".format(convert(_space.avg_clear_height, "M", "FT")),
+            "Vn50: {:.01f} ft3".format(convert(_space.net_volume, rhdoc_vol_units, "FT3")),
+            "CLG HEIGHT: {:.01f} ft".format(convert(_space.avg_clear_height, rhdoc_len_units, "FT")),
         ]
     else:
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} m2".format(_space.floor_area),
-            "WEIGHTED AREA: {:.01f} m2".format(_space.weighted_floor_area),
-            "Vn50: {:.01f} m3".format(_space.net_volume),
-            "CLG HEIGHT: {:.01f} m".format(_space.avg_clear_height),
+            "GROSS AREA: {:.01f} m2".format(convert(_space.floor_area, rhdoc_area_units, "M2")),
+            "WEIGHTED AREA: {:.01f} m2".format(convert(_space.weighted_floor_area, rhdoc_area_units, "M2")),
+            "Vn50: {:.01f} m3".format(convert(_space.net_volume, rhdoc_vol_units, "M3")),
+            "CLG HEIGHT: {:.01f} m".format(convert(_space.avg_clear_height, rhdoc_len_units, "M")),
         ]
 
     return "\n".join(txt)
 
 
-def text_by_Vent(_space, _units="SI"):
-    # type: (space.Space, str) -> str
+def text_by_Vent(_space, _IGH, _units="SI"):
+    # type: (space.Space, gh_io.IGH, str) -> str
     """Return the space data in a formatted block."""
     space_prop_ph = getattr(_space.properties, "ph")  # type: SpacePhProperties
 
@@ -140,12 +144,16 @@ def text_by_Vent(_space, _units="SI"):
         except:
             return "-"
 
+    rhdoc_len_units = _IGH.get_rhino_unit_system_name()
+    rhdoc_area_units = _IGH.get_rhino_areas_unit_name()
+    rhdoc_vol_units = _IGH.get_rhino_volume_unit_name()
+
     if str(_units).upper().strip() == "IP":
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} ft2".format(convert(_space.floor_area, "M2", "FT2")),
-            "NET AREA: {:.01f} ft2".format(convert(_space.net_floor_area, "M2", "FT2")),
+            "GROSS AREA: {:.01f} ft2".format(convert(_space.floor_area, rhdoc_area_units, "FT2")),
+            "NET AREA: {:.01f} ft2".format(convert(_space.net_floor_area, rhdoc_area_units, "FT2")),
             "SUP: {} cfm".format(format_vent_rate(space_prop_ph._v_sup or 0.0, "CFM")),
             "ETA: {} cfm".format(format_vent_rate(space_prop_ph._v_eta or 0.0, "CFM")),
             "TRAN: {} cfm".format(format_vent_rate(space_prop_ph._v_tran or 0.0, "CFM")),
@@ -154,8 +162,8 @@ def text_by_Vent(_space, _units="SI"):
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} m2".format(_space.floor_area),
-            "NET AREA: {:.01f} m2".format(_space.net_floor_area),
+            "GROSS AREA: {:.01f} m2".format(convert(_space.floor_area, rhdoc_area_units, "M2")),
+            "NET AREA: {:.01f} m2".format(convert(_space.net_floor_area, rhdoc_area_units, "M2")),
             "SUP: {} m3/hr".format(
                 format_vent_rate(space_prop_ph._v_sup or 0.0, "M3/HR")
             ),
@@ -474,7 +482,7 @@ class GHCompo_CreateFloorSegmentPDFGeometry(object):
                 # -- Add the text Annotation object
                 txt_annotation = TextAnnotation(
                     self.IGH,
-                    _text=self.text(space, self.units),
+                    _text=self.text(space, self.IGH, self.units),
                     _size=self.flr_anno_txt_size,
                     _location=anno_cp,
                     _format="{}",

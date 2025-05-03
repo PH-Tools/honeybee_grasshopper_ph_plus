@@ -25,13 +25,13 @@ TFA/iCFA or Fresh-air ventilation data. This component will read through the
 Honeybee-Model and pull out relevant data and prepare it for export using
 the "HBPH - Export PDFs" component.
 -
-EM June 25, 2024
+EM May 3, 2025
     Args:
         _hb_model: (honeybee.model.Model) The honeybee Model to use as the source.
         
         _type: (int) Input either -
-            - 1 (TFA / iCFA) [default]
-            - 2 (Ventilation)
+            - "1-TFA / iCFA" (default)
+            - "2-Ventilation"
         
         _units_: (str) Default=SI. Units type to output. Input either -
             - "SI" (default)
@@ -57,8 +57,16 @@ import rhinoscriptsyntax as rs
 import ghpythonlib.components as ghc
 import Grasshopper as gh
 
-from honeybee_ph_rhino import gh_io
-from honeybee_ph_plus_rhino import gh_compo_io
+try:
+    from ph_gh_component_io import gh_io
+except ImportError as e:
+    raise ImportError('\nFailed to import ph_gh_component_io:\n\t{}'.format(e))
+
+try:
+    from honeybee_ph_plus_rhino import gh_compo_io
+except ImportError as e:
+    raise ImportError('\nFailed to import honeybee_ph_plus_rhino:\n\t{}'.format(e))
+
 
 # ------------------------------------------------------------------------------
 import honeybee_ph_plus_rhino._component_info_
