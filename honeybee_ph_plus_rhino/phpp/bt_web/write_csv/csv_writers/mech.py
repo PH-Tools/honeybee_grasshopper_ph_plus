@@ -74,9 +74,7 @@ def create_csv_fresh_air_flowrates(
     #     * unitFactor_flow
     # )
     cols = ["V_Sup_High", "V_Eta_High"]
-    flows_high_df = pd.DataFrame(
-        [flowRate_Sup_High, flowRate_Eta_High], index=cols
-    ).T
+    flows_high_df = pd.DataFrame([flowRate_Sup_High, flowRate_Eta_High], index=cols).T
 
     flowRate_Sup_Med = (
         rm_vent_df2["V_Supply"].values
@@ -94,9 +92,7 @@ def create_csv_fresh_air_flowrates(
     #     * unitFactor_flow
     # )
     cols = ["V_Sup_Med", "V_Eta_Med"]
-    flows_med_df = pd.DataFrame(
-        [flowRate_Sup_Med, flowRate_Eta_Med], index=cols
-    ).T
+    flows_med_df = pd.DataFrame([flowRate_Sup_Med, flowRate_Eta_Med], index=cols).T
 
     flowRate_Sup_Low = (
         rm_vent_df2["V_Supply"].values
@@ -114,9 +110,7 @@ def create_csv_fresh_air_flowrates(
     #     * unitFactor_flow
     # )
     cols = ["V_Sup_Low", "V_Eta_Low"]
-    flows_low_df = pd.DataFrame(
-        [flowRate_Sup_Low, flowRate_Eta_Low], index=cols
-    ).T
+    flows_low_df = pd.DataFrame([flowRate_Sup_Low, flowRate_Eta_Low], index=cols).T
 
     # Create the air flows DF
     roomAirFlows = pd.concat(

@@ -75,7 +75,6 @@ def create_csv_bldg_basic_data_table(
                 vn50_vol_2.append(each)
     vn50_volume = pd.Series(vn50_vol_2, index=[bldg_df.columns])
 
-
     # --------------------------------------------------------------------------
     # Gross Volume
     gross_vol_1 = bldg_df.loc[VARIANTS.geometry["Gross Volume"].row]
@@ -92,8 +91,6 @@ def create_csv_bldg_basic_data_table(
                 gross_vol_2.append(each)
     gross_volume = pd.Series(gross_vol_2, index=[bldg_df.columns])
 
-
-
     # --------------------------------------------------------------------------
     # Total Exterior Surface
     # extSrfc_1 = bldg_df.loc[282]
@@ -109,7 +106,6 @@ def create_csv_bldg_basic_data_table(
                 ext_surface_area_2.append(each)
     ext_surface_area = pd.Series(ext_surface_area_2, index=[bldg_df.columns])
 
-
     # --------------------------------------------------------------------------
     # Exterior Surface / Floor-Area Ratio
     srfc_to_floor_area_ratio = []
@@ -121,8 +117,9 @@ def create_csv_bldg_basic_data_table(
                 srfc_to_floor_area_ratio.append("-")
             else:
                 srfc_to_floor_area_ratio.append("Ext. Surface Area / Floor Area")
-    ext_srfc_floor_area_ratio_2 = pd.Series(srfc_to_floor_area_ratio, index=[bldg_df.columns])
-
+    ext_srfc_floor_area_ratio_2 = pd.Series(
+        srfc_to_floor_area_ratio, index=[bldg_df.columns]
+    )
 
     # --------------------------------------------------------------------------
     # Exterior Surface / Gross-Volume Ratio
@@ -135,8 +132,9 @@ def create_csv_bldg_basic_data_table(
                 srfc_to_volume_ratio.append("-")
             else:
                 srfc_to_volume_ratio.append("Ext. Surface Area / Gross Volume")
-    ext_srfc_to_gross_volume_ratio_2 = pd.Series(srfc_to_volume_ratio, index=[bldg_df.columns])
-
+    ext_srfc_to_gross_volume_ratio_2 = pd.Series(
+        srfc_to_volume_ratio, index=[bldg_df.columns]
+    )
 
     # --------------------------------------------------------------------------
     # Floor-Area / Gross-Volume Ratio
@@ -149,7 +147,9 @@ def create_csv_bldg_basic_data_table(
                 floor_area_to_volume_ratio.append("-")
             else:
                 floor_area_to_volume_ratio.append("Floor Area / Gross Volume")
-    floor_area_to_gross_volume_ratio_2 = pd.Series(floor_area_to_volume_ratio, index=[bldg_df.columns])
+    floor_area_to_gross_volume_ratio_2 = pd.Series(
+        floor_area_to_volume_ratio, index=[bldg_df.columns]
+    )
 
     # --------------------------------------------------------------------------
     # Window Areas by Orientation
@@ -185,7 +185,7 @@ def create_csv_bldg_basic_data_table(
             ext_srfc_to_gross_volume_ratio_2,
             floor_area_to_gross_volume_ratio_2,
         ],
-        axis=1
+        axis=1,
     )
     demand_results_df2 = pd.concat([demand_results_df1.T, window_areas_df2])
     demand_results_df3 = demand_results_df2.reset_index(drop=True)

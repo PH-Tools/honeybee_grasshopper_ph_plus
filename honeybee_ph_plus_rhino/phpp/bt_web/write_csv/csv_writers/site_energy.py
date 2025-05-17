@@ -6,7 +6,7 @@
 
 import pathlib
 
-import pandas as pd 
+import pandas as pd
 
 from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
 

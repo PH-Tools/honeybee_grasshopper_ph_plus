@@ -52,6 +52,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.sql_get_report_variable_names i
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.sql_get_table_names import (
     GHCompo_SQLGetTableNames,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.steel_stud_construction import (
+    GHCompo_CreateSteelStudConstruction,
+)
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_create_geom import (
     GHCompo_CreateWindowRhinoGeometry,
 )

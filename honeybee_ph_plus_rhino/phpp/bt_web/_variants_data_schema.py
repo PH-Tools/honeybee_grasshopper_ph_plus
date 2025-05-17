@@ -424,9 +424,6 @@ class PrimaryEnergyRenewable(Section):
         super().__init__(get_start_offset)
 
 
-
-
-
 # ---------------------------------------------------------------------------------------
 
 

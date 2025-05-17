@@ -15,24 +15,24 @@ def get_per_as_df(
 ) -> pd.DataFrame:
     """Return the building's CO2-equiv data in a DataFrame
 
-        Datatype	            Units	As-Drawn	Improve Windows	Improve ERV	Improve Insulation
-        PER								
-        Heating	                kWh 	16286.79025	1430.906468	676.5609175	494.9069071	463.7467669
-        Cooling	                kWh 	2380.885426	1657.507446	1466.63343	1426.324006	1418.086504
-        DHW	                    kWh 	5622.978259	1242.170419	1238.788739	1238.47162	1238.128901
-        Dishwashing	            kWh 	127.0511193	127.0511193	127.0511193	127.0511193	127.0511193
-        Clothes Washing	        kWh 	73.314782	73.314782	73.314782	73.314782	73.314782
-        Clothes Drying	        kWh 	345.3406855	345.3406855	345.3406855	345.3406855	345.3406855
-        Refrigerator	        kWh 	556.625	556.625	556.625	556.625	556.625
-        Cooking	                kWh 	452.2800048	452.2800048	452.2800048	452.2800048	452.2800048
-        PHI Lighting	        kWh 	218.8311575	218.8311575	218.8311575	218.8311575	218.8311575
-        PHI Consumer Elec.	    kWh 	688.8250343	688.8250343	688.8250343	688.8250343	688.8250343
-        PHI Small Appliances	kWh 	76.83563061	76.83563061	76.83563061	76.83563061	76.83563061
-        Phius Int. Lighting	    kWh     0	        0	        0	0	0
-        Phius Ext. Lighting	    kWh 	0	        0	        0	0	0
-        Phius MEL	            kWh 	0	        0	        0	0	0
-        Aux Elec	            kWh 	897.254343	725.1749736	638.1539768	638.1539768	638.1539768
-        Solar PV	            kWh 	0	        0	        0	0	0
+    Datatype	            Units	As-Drawn	Improve Windows	Improve ERV	Improve Insulation
+    PER
+    Heating	                kWh 	16286.79025	1430.906468	676.5609175	494.9069071	463.7467669
+    Cooling	                kWh 	2380.885426	1657.507446	1466.63343	1426.324006	1418.086504
+    DHW	                    kWh 	5622.978259	1242.170419	1238.788739	1238.47162	1238.128901
+    Dishwashing	            kWh 	127.0511193	127.0511193	127.0511193	127.0511193	127.0511193
+    Clothes Washing	        kWh 	73.314782	73.314782	73.314782	73.314782	73.314782
+    Clothes Drying	        kWh 	345.3406855	345.3406855	345.3406855	345.3406855	345.3406855
+    Refrigerator	        kWh 	556.625	556.625	556.625	556.625	556.625
+    Cooking	                kWh 	452.2800048	452.2800048	452.2800048	452.2800048	452.2800048
+    PHI Lighting	        kWh 	218.8311575	218.8311575	218.8311575	218.8311575	218.8311575
+    PHI Consumer Elec.	    kWh 	688.8250343	688.8250343	688.8250343	688.8250343	688.8250343
+    PHI Small Appliances	kWh 	76.83563061	76.83563061	76.83563061	76.83563061	76.83563061
+    Phius Int. Lighting	    kWh     0	        0	        0	0	0
+    Phius Ext. Lighting	    kWh 	0	        0	        0	0	0
+    Phius MEL	            kWh 	0	        0	        0	0	0
+    Aux Elec	            kWh 	897.254343	725.1749736	638.1539768	638.1539768	638.1539768
+    Solar PV	            kWh 	0	        0	        0	0	0
     """
 
     start_row = VARIANTS.primary_energy_renewable.start_row()

@@ -187,7 +187,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             return float(_layer_material_data[AT_COLUMN_NAMES["density"]])
         except KeyError:
             return self.DENSITY
-            
+
     def _layer_specific_heat_capacity_J_kg_K(self, _layer_material_data):
         # type: (TableFields) -> float
         """Get the Specific-Heat-Capacity (J/kg-k) of the layer from the TableFields dict."""
@@ -195,7 +195,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             return float(_layer_material_data[AT_COLUMN_NAMES["specific_heat_capacity"]])
         except KeyError:
             return self.SPEC_HEAT
-        
+
     def _layer_material_color_argb(self, _layer_material_data):
         # type: (TableFields) -> Optional[PhColor]
         """Get the color of the layer from the TableFields dict."""
@@ -242,7 +242,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         )
 
         # -- Set the Layer's Color
-        mat_prop_ph = getattr(hb_mat.properties, "ph")# type: EnergyMaterialPhProperties
+        mat_prop_ph = getattr(hb_mat.properties, "ph")  # type: EnergyMaterialPhProperties
         mat_prop_ph.ph_color = self._layer_material_color_argb(layer_mat)
 
         return hb_mat

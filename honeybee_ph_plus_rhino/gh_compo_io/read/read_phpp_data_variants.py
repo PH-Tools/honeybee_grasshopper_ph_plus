@@ -72,15 +72,15 @@ class GHCompo_ReadPHPPVariantsData(object):
         # type: () -> str
         """The path to the CSV file to write the data to."""
         filename = self.filename or "phpp_data_variants_{}.csv".format(
-                datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-            )
+            datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        )
         if not filename.endswith(".csv"):
-                filename = "{}.csv".format(filename)
-        
+            filename = "{}.csv".format(filename)
+
         folder = self.folder or hb_folders.default_simulation_folder
         if not os.path.exists(folder):
-                os.makedirs(folder)
-        
+            os.makedirs(folder)
+
         return os.path.join(folder, filename)
 
     def run(self):

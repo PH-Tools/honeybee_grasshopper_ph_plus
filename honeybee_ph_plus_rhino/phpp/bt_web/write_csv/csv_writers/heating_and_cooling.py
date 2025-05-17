@@ -75,9 +75,7 @@ def create_csv_heating_load(
     _output_path: pathlib.Path,
 ) -> None:
     # Get the  Heating Load results
-    heating_load_df = _df_main.loc[
-        VARIANTS.certification_results["Peak Heat Load"].row
-    ]
+    heating_load_df = _df_main.loc[VARIANTS.certification_results["Peak Heat Load"].row]
     heating_load_limit_df = _cert_limits_abs.loc[
         VARIANTS.certification_limits["Peak Heat Load Limit"].row
     ]

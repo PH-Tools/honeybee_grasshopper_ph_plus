@@ -12,6 +12,7 @@ from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
+
 def row_has_data(row: pd.Series) -> bool:
     """Check if the 'data' (everything except 'Datatype') in the row is blank.
 
@@ -41,9 +42,9 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
 
     Example DataFrame Input:
     --------
-    _variants_data = 
+    _variants_data =
                                             Datatype  ...            EnerPHit (by Component)
-        break                               ENVELOPE  ...                                   
+        break                               ENVELOPE  ...
         329                                     Wall  ...                               15.0
         330                        Wall (Crawlspace)  ...                                5.0
         331                                     Roof  ...                               38.0
@@ -54,7 +55,7 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
         341          Envelope Air Leakage Rate (q50)  ...                           0.030093
         342               Window U-value (Installed)  ...                           0.232476
         343                              Window SHGC  ...                               0.23
-        break                                SYSTEMS  ...                                   
+        break                                SYSTEMS  ...
         0                         Ventilation System  ...  1-Balanced PH ventilation with HR
         1             Ventilation Unit HR Efficiency  ...                           0.727491
         2             Ventilation Unit ER Efficiency  ...                               0.68
@@ -64,10 +65,10 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
         6                             Heating System  ...                       Heat pump(s)
         7                             Cooling System  ...                    Elec. Heat Pump
         8                                 DHW System  ...                       Heat pump(s)
-        9                                             ...                                   
-        10                                            ...                                   
-        11                                            ...                                   
-        break                                RESULTS  ...                                   
+        9                                             ...
+        10                                            ...
+        11                                            ...
+        break                                RESULTS  ...
         0                   Certification Compliant?  ...                                 No
         1                       Total Primary Energy  ...                       21846.612257
         2                          Total Site Energy  ...                        8402.543176
@@ -75,11 +76,11 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
         4                                Heat Demand  ...                           9.732269
         5                             Cooling Demand  ...                          1608.3779
         6                       Total Cooling Demand  ...                              13.72
-        7                                 PEAK LOADS  ...                                   
+        7                                 PEAK LOADS  ...
         8                             Peak Heat Load  ...                        7075.533373
         9                 Peak Sensible Cooling Load  ...                        5814.733993
         10                  Peak Latent Cooling Load  ...                         975.231978
-        11                                            ...                                   
+        11                                            ...
         [37 rows x 7 columns]
     """
 
@@ -90,7 +91,7 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
         # If it is a blank row, skip it
         if row["Datatype"] == "":
             continue
-        
+
         # If it is a break, set the current section to the new section
         if index == "break":
             current_section = str(row["Datatype"]).upper().strip().replace(" ", "_")
@@ -99,7 +100,7 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
         else:
             if not row_has_data(row):
                 continue
-            
+
             # --  Add the row to the current section
             sections[current_section] = pd.concat(
                 [sections[current_section], row.to_frame().T], ignore_index=True
@@ -109,7 +110,9 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
     return sections
 
 
-def clean_variant_table_data(_df_main: pd.DataFrame, _variant_names: pd.Series) -> pd.DataFrame:
+def clean_variant_table_data(
+    _df_main: pd.DataFrame, _variant_names: pd.Series
+) -> pd.DataFrame:
     # Certification Yes/No
     cert_df1 = _df_main.loc[
         VARIANTS.certification_compliant["Certification Compliant?"].row
@@ -266,11 +269,13 @@ def create_csv_variant_table(
 
     # --------------------------------------------------------------------------
     # Export the full table to csv
-    variants_data_complete = clean_variant_table_data(_df_main,_variant_names)
+    variants_data_complete = clean_variant_table_data(_df_main, _variant_names)
     variants_data_complete.to_csv(_file_path, index=False)
 
     # --------------------------------------------------------------------------
     # Break up the Table into 'sections'
-    for section_name, section_df in split_table_into_sections(variants_data_complete).items():
+    for section_name, section_df in split_table_into_sections(
+        variants_data_complete
+    ).items():
         section_file_path = _file_path.parent / f"{_file_path.stem}_{section_name}.csv"
         section_df.to_csv(section_file_path, index=False)
