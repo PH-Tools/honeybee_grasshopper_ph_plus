@@ -232,6 +232,16 @@ class GHCompo_CreateSteelStudConstruction(object):
         return depth
 
     @property
+    def stud_depth_m(self):
+        # type: () -> float
+        """Returns the stud depth in meters."""
+        if not self.stud_depth_mm:
+            depth = self.stud_layer_insulation.thickness
+        else:
+            depth = self.stud_depth_mm / 1000
+        return depth
+
+    @property
     def steel_conductivity(self):
         # type: () -> float
         """Returns the steel conductivity in BTU/HR-FT-F."""
@@ -244,7 +254,7 @@ class GHCompo_CreateSteelStudConstruction(object):
     def get_stud_layer_u_value(self):
         # type: () -> float
         """Calculate the U-Value of the stud layer using the 'calculate_stud_cavity_effective_u_value' function."""
-        
+
         print("- " * 20)
         print("MATERIAL LAYERS:")
         print("R-se=R-{:.2f}".format(self.R_SE))
@@ -297,7 +307,7 @@ class GHCompo_CreateSteelStudConstruction(object):
             raise Exception("Error converting {} t o W/m2-K".format(u_IP))
 
         conductivity_W_mk = u_SI * (
-            self.stud_depth_mm or self.stud_layer_insulation.thickness
+            self.stud_depth_m or self.stud_layer_insulation.thickness
         )
         print("Stud-Layer lambda: {:.3f} W/m-K".format(conductivity_W_mk))
 
