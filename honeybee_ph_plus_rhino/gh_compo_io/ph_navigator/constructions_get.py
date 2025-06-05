@@ -56,7 +56,7 @@ class GHCompo_PHNavGetConstructions(object):
         # type: () -> str
         """Get the URL for the PH-Navigator API."""
         # URL for the PH-Navigator API
-        _url = "{}/assembly/get_assemblies_as_hb_json/{}".format(
+        _url = "{}/assembly/get-assemblies-as-hbjson/{}".format(
             self._url_base or self.URL_BASE, self.PROJECT_NUMBER
         )
 
@@ -88,23 +88,30 @@ class GHCompo_PHNavGetConstructions(object):
         return client
 
     def download_hb_constructions_json(self):
-        # type: () -> list[dict]
+        # type: () -> dict[str, dict]
         """Download HB-Constructions from PH-Navigator.
 
         Since PH-Navigator limits the number of records that can be downloaded
         in a single request, this method will download all records in the table
         by making multiple requests using the 'offset' query parameter.
         """
-        hb_constructions = []  # type: list[dict]
+        hb_constructions = {}  # type: dict[str, dict]
         offset = "0"
 
         while offset != None:
             client = self.get_web_client(offset)
             response = client.DownloadString(self.url)
             data = json.loads(response)  # type: dict
+            """
+            data.hb_constructions = {
+                "Assembly 1: {....},
+                "Assembly 2: {....},
+                ...
+            }
+            """
 
             # Ensure 'hb_constructions' is properly deserialized
-            d = data.get("hb_constructions", [])
+            d = data.get("hb_constructions", {})
             if isinstance(d, str):  # If it's a string, deserialize it
                 try:
                     d = json.loads(d)
@@ -112,7 +119,7 @@ class GHCompo_PHNavGetConstructions(object):
                     self.IGH.error("Failed to parse 'hb_constructions': {}".format(e))
                     d = []
 
-            hb_constructions.extend(d)
+            hb_constructions.update(d)
             offset = data.get("offset", None)
 
         return hb_constructions
@@ -130,4 +137,4 @@ class GHCompo_PHNavGetConstructions(object):
             self.IGH.error(msg)
             return None
 
-        return [OpaqueConstruction.from_dict(_) for _ in hb_constructions_json_]
+        return [OpaqueConstruction.from_dict(_) for _ in hb_constructions_json_.values()]

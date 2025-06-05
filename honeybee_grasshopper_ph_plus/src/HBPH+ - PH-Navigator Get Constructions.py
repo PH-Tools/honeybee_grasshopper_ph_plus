@@ -20,13 +20,13 @@
 # @license GPL-3.0+ <http://spdx.org/licenses/GPL-3.0+>
 #
 """
-Download Constructons from the PH-Navigator website. This will download the data and attempt 
+Download all of the Constructons from the PH-Navigator website. This will download the data and attempt 
 to build a new Honeybee OpaqueConstruction for each Assembly in the project.
 -
 EM May 20, 2025
     Args:
 
-        _project_numner: (int) The project numner (ie: '2305') to get the Construction of.
+        _project_number: (int) The project number (ie: '2305') to get the Constructions for.
          
         _download: (bool) Set True to download the data from the specified project.
             
