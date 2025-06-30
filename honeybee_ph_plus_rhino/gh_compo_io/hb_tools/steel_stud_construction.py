@@ -81,10 +81,10 @@ def clean_construction_name(_name):
 class GHCompo_CreateSteelStudConstruction(object):
 
     stud_depth_mm = ghio_validators.UnitMM("stud_depth_mm")
-    stud_spacing_mm = ghio_validators.UnitMM("stud_spacing_mm")
-    stud_thickness_mm = ghio_validators.UnitMM("stud_thickness_mm")
-    stud_flange_width_mm = ghio_validators.UnitMM("stud_flange_width_mm")
-    steel_conductivity_W_m_K = ghio_validators.UnitW_MK("steel_conductivity_W_m_K")
+    stud_spacing_mm = ghio_validators.UnitMM("stud_spacing_mm", default=406.4)
+    stud_thickness_mm = ghio_validators.UnitMM("stud_thickness_mm", default=1.0922)
+    stud_flange_width_mm = ghio_validators.UnitMM("stud_flange_width_mm", default=41.275)
+    steel_conductivity_W_m_K = ghio_validators.UnitW_MK("steel_conductivity_W_m_K", default=495.0)
     R_SE = 0.17  # hr-ft2-F/Btu
     R_SI = 0.68  # hr-ft2-F/Btu
 
@@ -192,9 +192,7 @@ class GHCompo_CreateSteelStudConstruction(object):
         # type: () -> StudSpacingInches
         """Returns a StudSpacingInches enum object."""
 
-        stud_spacing_inches = convert(self.stud_spacing_mm, "MM", "INCH")
-        if not stud_spacing_inches:
-            stud_spacing_inches = 16.0
+        stud_spacing_inches = convert(self.stud_spacing_mm, "MM", "INCH") or 16.0
 
         # Find the nearest stud spacing in inches
         ALLOWED = [int(_) for _ in StudSpacingInches.allowed]
@@ -205,9 +203,8 @@ class GHCompo_CreateSteelStudConstruction(object):
         # type: () -> StudThicknessMil
         """Returns a StudThicknessMil enum object."""
 
-        stud_thickness_mil = convert(self.stud_thickness_mm, "MM", "MIL")
-        if not stud_thickness_mil:
-            stud_thickness_mil = 43.0
+        stud_thickness_mil = convert(self.stud_thickness_mm, "MM", "MIL") or 43.0
+
         # Find the nearest stud thickness in mils
         ALLOWED = [int(_) for _ in StudThicknessMil.allowed]
         return StudThicknessMil(min(ALLOWED, key=lambda x: abs(x - stud_thickness_mil)))
@@ -334,11 +331,14 @@ class GHCompo_CreateSteelStudConstruction(object):
         # pull it back out later on when / if we need it (reporting, etc.)
         # We won't worry about storing the stud material itself, or stud spacing
         # since that is already used to calculate the Heterogeneous U-Value
+        existing_prop_ph = getattr(
+            self.stud_layer_insulation.properties, "ph"
+        )  # type: EnergyMaterialPhProperties
         new_prop_ph = getattr(
             new_eq_stud_layer_material.properties, "ph"
         )  # type: EnergyMaterialPhProperties
-        new_prop_ph.ph_color = self.stud_layer_insulation.properties.ph.ph_color  # type: ignore
-        new_prop_ph.divisions.is_a_steel_stud_cavity = True
+        new_prop_ph.ph_color = existing_prop_ph.ph_color
+        new_prop_ph.divisions.steel_stud_spacing_mm = self.stud_spacing_mm
         new_prop_ph.divisions.set_row_heights([1])
         new_prop_ph.divisions.set_column_widths([1])
         new_prop_ph.divisions.set_cell_material(0, 0, self.stud_layer_insulation)
