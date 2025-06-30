@@ -78,6 +78,14 @@ class GHCompo_AirTableCreateWindowConstructions(object):
             return False
         return True
 
+    def get_unit_name(self, _window_unit_data):
+        # type: (TableFields) -> str
+        """Return the display name of the window unit."""
+        try:
+            return str(_window_unit_data.construction_name)
+        except AttributeError:
+            return str(_window_unit_data.display_name)
+
     def create_psi_install_dictionary(self, _records):
         # type: (Optional[List[TableRecord]]) -> Dict[str, float]
         """Create a dictionary of the Psi-Install values."""
@@ -146,22 +154,23 @@ class GHCompo_AirTableCreateWindowConstructions(object):
     def create_new_hbph_window_frame(self, record):
         # type: (TableRecord) -> PhWindowFrame
         """Create a new Honeybee Window Frame from a TableRecord."""
-        frame_data = record.FIELDS
+        window_unit_data = record.FIELDS
+        hbph_display_name = self.get_unit_name(window_unit_data)
 
-        hbph_frame_type = PhWindowFrame(frame_data.display_name)
-        hbph_frame_type.display_name = frame_data.display_name
+        hbph_frame_type = PhWindowFrame(hbph_display_name)
+        hbph_frame_type.display_name = hbph_display_name
         try:
             hbph_frame_type.top = self.hbph_frame_elements[
-                frame_data["FRAME ELEMENT NAME: TOP"][0]
+                window_unit_data["FRAME ELEMENT NAME: TOP"][0]
             ]
             hbph_frame_type.right = self.hbph_frame_elements[
-                frame_data["FRAME ELEMENT NAME: RIGHT"][0]
+                window_unit_data["FRAME ELEMENT NAME: RIGHT"][0]
             ]
             hbph_frame_type.bottom = self.hbph_frame_elements[
-                frame_data["FRAME ELEMENT NAME: BOTTOM"][0]
+                window_unit_data["FRAME ELEMENT NAME: BOTTOM"][0]
             ]
             hbph_frame_type.left = self.hbph_frame_elements[
-                frame_data["FRAME ELEMENT NAME: LEFT"][0]
+                window_unit_data["FRAME ELEMENT NAME: LEFT"][0]
             ]
         except KeyError as e:
             raise KeyError(
@@ -216,11 +225,11 @@ class GHCompo_AirTableCreateWindowConstructions(object):
     def create_new_hbph_window_construction(self, record):
         # type: (TableRecord) -> WindowConstruction
         """Return the new HB Window Construction"""
-        window_data = record.FIELDS
-        hbph_display_name = str(window_data.display_name)
+        window_unit_data = record.FIELDS
+        hbph_display_name = self.get_unit_name(window_unit_data)
 
-        hbph_frame = self._get_frame_type(hbph_display_name, window_data)
-        hbph_glazing = self._get_glazing_type(window_data)
+        hbph_frame = self._get_frame_type(hbph_display_name, window_unit_data)
+        hbph_glazing = self._get_glazing_type(window_unit_data)
 
         # # -----------------------------------------------------------------------------
         # -- Set the Psi-Install value on the Frame Elements

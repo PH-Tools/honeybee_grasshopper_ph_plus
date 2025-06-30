@@ -4,6 +4,7 @@
 """GHCompo Interface: HBPH+ - Create Window Types."""
 
 from collections import OrderedDict, defaultdict
+from copy import copy
 
 try:
     from itertools import izip  # type: ignore
@@ -16,7 +17,7 @@ except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from Rhino.Geometry import Brep, LineCurve, Plane, Vector3d  # type: ignore
+    from Rhino.Geometry import Brep, LineCurve, Plane, Vector3d, Point3d  # type: ignore
 except ImportError:
     pass  # Outside Rhino
 
@@ -106,6 +107,11 @@ class WindowUnitType(object):
         pl = self.IGH.ghc.ConstructPlane(start_pt, self.x_vector, self.y_vector)
         return pl
 
+    def build_origin_point(self, _base_curve):
+        # type: (LineCurve) -> Point3d
+        """Get the origin point of the base curve."""
+        return self.build_origin_plane(_base_curve).Origin
+
     def build_srfc_base_crv(self, _width, _origin_plane):
         # type: (float, Plane) -> LineCurve
         pt_1 = _origin_plane.Origin
@@ -135,35 +141,33 @@ class WindowUnitType(object):
 
         # -- Walk through each column, and each row in each column
         for col_element_lists in self.elements_by_column(self.elements):
-            # 2) Build the base-curve for the Column's elements
-            width = col_element_lists[0].width
-            base_curve = self.build_srfc_base_crv(width, origin_plane)
+            column_elements_origin_plane = copy(origin_plane) # type: Plane
 
             for row_element in self.elements_by_row(col_element_lists):
-                el_id_data = {}
-                # -- Extrude the surface
-                height = row_element.height
+                # 2) Build the Window Element Surface
+                base_curve = self.build_srfc_base_crv(row_element.width, column_elements_origin_plane)
                 surfaces_.append(
                     self.IGH.ghc.Extrude(
-                        base_curve, self.IGH.ghc.Amplitude(self.y_vector, height)
+                        base_curve, self.IGH.ghc.Amplitude(self.y_vector, row_element.height)
                     )
                 )
 
                 # 2.b)-- Keep track of the id-data for the surface
                 el_name = row_element.get_display_name()
+                el_id_data = {}
                 el_id_data["type_name"] = self.type_name
                 el_id_data["row"] = row_element.row
                 el_id_data["col"] = row_element.col
                 id_data_[el_name] = el_id_data
 
-                # 3) Move the base curve up
-                base_curve = self.IGH.ghc.Move(
-                    base_curve, self.IGH.ghc.Amplitude(self.y_vector, height)
+                # 3) -- Move the origin plane 'up' to the next row
+                column_elements_origin_plane = self.IGH.ghc.Move(
+                    column_elements_origin_plane, self.IGH.ghc.Amplitude(self.y_vector, row_element.height)
                 ).geometry
 
-            # 4) Move the origin plane over to the next column
+            # 4) -- Move the origin plane 'over' to the next column
             origin_plane = self.IGH.ghc.Move(
-                origin_plane, self.IGH.ghc.Amplitude(self.x_vector, width)
+                origin_plane, self.IGH.ghc.Amplitude(self.x_vector, col_element_lists[0].width)
             ).geometry
 
         return surfaces_, id_data_
