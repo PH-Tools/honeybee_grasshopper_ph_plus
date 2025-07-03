@@ -132,9 +132,12 @@ def clean_variant_table_data(
     se_start_row = VARIANTS.site_energy.start_row()
     se_end_row = VARIANTS.site_energy.end_row()
     se_df1 = _df_main.loc[se_start_row:se_end_row]
-    se_df2 = se_df1[_variant_names].sum()
-    se_df3 = pd.Series(["Total Site Energy", "kWh/yr"], index=["Datatype", "Units"])
-    se_df4 = pd.concat([se_df3, se_df2])
+    # Drop the 'Solar PV' record if it exists
+    if "Solar PV" in se_df1["Datatype"].values:
+        se_df2 = se_df1[se_df1["Datatype"] != "Solar PV"]
+    se_df3 = se_df2[_variant_names].sum()
+    se_df4 = pd.Series(["Total Site Energy", "kWh/yr"], index=["Datatype", "Units"])
+    se_df5 = pd.concat([se_df4, se_df3])
 
     # TFA
     tfa_df = _df_main.loc[VARIANTS.geometry["TFA"].row]
@@ -151,7 +154,7 @@ def clean_variant_table_data(
     cd_df4 = pd.concat([cd_df3, cd_df2])
 
     demand_results_df1 = pd.concat(
-        [cert_df1, pe_df4, se_df4, hd_df4, hd_df1, cd_df4, cd_df1], axis=1
+        [cert_df1, pe_df4, se_df5, hd_df4, hd_df1, cd_df4, cd_df1], axis=1
     )
     demand_results_df2 = demand_results_df1.T
 
