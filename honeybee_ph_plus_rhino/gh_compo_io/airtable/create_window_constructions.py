@@ -9,6 +9,11 @@ except ImportError:
     pass  # IronPython 2.7
 
 try:
+    from honeybee.typing import clean_ep_string
+except ImportError as e:
+    raise ImportError("\nFailed to import honeybee:\n\t{}".format(e))
+
+try:
     from honeybee_energy.construction.window import WindowConstruction
     from honeybee_energy.material.glazing import EnergyWindowMaterialSimpleGlazSys
 except ImportError as e:
@@ -82,9 +87,11 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         # type: (TableFields) -> str
         """Return the display name of the window unit."""
         try:
-            return str(_window_unit_data.construction_name)
+            name = _window_unit_data.construction_name or str(_window_unit_data.display_name).strip()
         except AttributeError:
-            return str(_window_unit_data.display_name)
+            name = str(_window_unit_data.display_name).strip()
+
+        return clean_ep_string(name)
 
     def create_psi_install_dictionary(self, _records):
         # type: (Optional[List[TableRecord]]) -> Dict[str, float]
@@ -227,6 +234,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         """Return the new HB Window Construction"""
         window_unit_data = record.FIELDS
         hbph_display_name = self.get_unit_name(window_unit_data)
+        # print("hbph_display_name=", hbph_display_name)
 
         hbph_frame = self._get_frame_type(hbph_display_name, window_unit_data)
         hbph_glazing = self._get_glazing_type(window_unit_data)
