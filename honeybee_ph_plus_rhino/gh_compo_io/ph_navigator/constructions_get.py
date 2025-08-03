@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""GHCompo Interface: HBPH - Airtable Download Table Data."""
+"""GHCompo Interface: HBPH - PH-Navigator Get Constructions."""
 
 import json
 
@@ -102,6 +102,7 @@ class GHCompo_PHNavGetConstructions(object):
             client = self.get_web_client(offset)
             response = client.DownloadString(self.url)
             data = json.loads(response)  # type: dict
+            print(type(data), data)
             """
             data.hb_constructions = {
                 "Assembly 1: {....},
@@ -112,6 +113,7 @@ class GHCompo_PHNavGetConstructions(object):
 
             # Ensure 'hb_constructions' is properly deserialized
             d = data.get("hb_constructions", {})
+            print(d)
             if isinstance(d, str):  # If it's a string, deserialize it
                 try:
                     d = json.loads(d)
