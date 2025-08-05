@@ -12,7 +12,7 @@ except ImportError:
     izip = zip
 
 try:
-    from typing import Any, Dict, List, Tuple
+    from typing import Any
 except ImportError:
     pass  # Python 3
 
@@ -22,14 +22,14 @@ except ImportError:
     pass  # Outside Rhino
 
 try:
-    from honeybee_ph_rhino import gh_io
+    from ph_gh_component_io import gh_io
 except ImportError as e:
-    raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
+    raise ImportError("\nFailed to import ph_gh_component_io:\n\t{}".format(e))
 
 try:
     from honeybee_ph_plus_rhino.gh_compo_io.hb_tools import win_create_types
 except ImportError as e:
-    raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
+    raise ImportError("\nFailed to import honeybee_ph_plus_rhino:\n\t{}".format(e))
 
 
 class GHCompo_CreateWindowRhinoGeometry(object):
@@ -38,7 +38,7 @@ class GHCompo_CreateWindowRhinoGeometry(object):
     def __init__(
         self, _IGH, _win_baselines, _win_names, _win_collection, *args, **kwargs
     ):
-        # type: (gh_io.IGH, List[LineCurve], List[str], Dict[str, win_create_types.WindowUnitType], *Any, **Any) -> None
+        # type: (gh_io.IGH, list[LineCurve], list[str], dict[str, win_create_types.WindowUnitType], *Any, **Any) -> None
         self.IGH = _IGH
         self.win_collection = _win_collection
         self.win_baselines = _win_baselines
@@ -58,7 +58,7 @@ class GHCompo_CreateWindowRhinoGeometry(object):
             raise Exception(msg)
 
     def create_names(self, _id_data):
-        # type: (OrderedDict[int, Dict[str, Any]]) -> List[str]
+        # type: (OrderedDict[int, dict[str, Any]]) -> list[str]
         """Create names for the window surfaces."""
         names = []
         for id, data in _id_data.items():
@@ -78,7 +78,7 @@ class GHCompo_CreateWindowRhinoGeometry(object):
         return names
 
     def run(self):
-        # type: () -> Tuple[List[Brep], List[str]]
+        # type: () -> tuple[list[Brep], list[str]]
         """Return a list of window surfaces and their names."""
         self.check_input()
 

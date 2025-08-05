@@ -84,7 +84,9 @@ class GHCompo_CreateSteelStudConstruction(object):
     stud_spacing_mm = ghio_validators.UnitMM("stud_spacing_mm", default=406.4)
     stud_thickness_mm = ghio_validators.UnitMM("stud_thickness_mm", default=1.0922)
     stud_flange_width_mm = ghio_validators.UnitMM("stud_flange_width_mm", default=41.275)
-    steel_conductivity_W_m_K = ghio_validators.UnitW_MK("steel_conductivity_W_m_K", default=495.0)
+    steel_conductivity_W_m_K = ghio_validators.UnitW_MK(
+        "steel_conductivity_W_m_K", default=495.0
+    )
     R_SE = 0.17  # hr-ft2-F/Btu
     R_SI = 0.68  # hr-ft2-F/Btu
 

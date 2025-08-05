@@ -11,9 +11,9 @@ except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from System import Object # type: ignore
-    from Grasshopper import DataTree # type: ignore
-    from Grasshopper.Kernel.Data import GH_Path # type: ignore
+    from Grasshopper import DataTree  # type: ignore
+    from Grasshopper.Kernel.Data import GH_Path  # type: ignore
+    from System import Object  # type: ignore
 except ImportError:
     raise ImportError("Failed to import Grasshopper libraries")
 
@@ -52,17 +52,23 @@ class GHCompo_GetCoPlanarFaceGroups(object):
     def tolerance(self):
         # type: () -> float
         return self._tolerance or self.IGH.ghdoc.ModelAbsoluteTolerance
-    
+
     @property
     def angle_tolerance_deg(self):
         # type: () -> float
-        return math.radians(self._angle_tolerance_deg or self.IGH.ghdoc.ModelAngleToleranceDegrees)
+        return math.radians(
+            self._angle_tolerance_deg or self.IGH.ghdoc.ModelAngleToleranceDegrees
+        )
 
     def run(self):
         # type: () -> DataTree[list[Face | Shade]]
 
-        output= DataTree[Object]()
-        for i, group in enumerate(sort_hb_faces_by_co_planar(self.faces, self.tolerance, self.angle_tolerance_deg)):
+        output = DataTree[Object]()
+        for i, group in enumerate(
+            sort_hb_faces_by_co_planar(
+                self.faces, self.tolerance, self.angle_tolerance_deg
+            )
+        ):
             output.AddRange(group, GH_Path(i))
-        
+
         return output

@@ -12,20 +12,24 @@ except ImportError:
     izip = zip  # Python 3
 
 try:
-    from typing import Any, Dict, List, Tuple
+    from typing import Any
 except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from Rhino.Geometry import Brep, LineCurve, Plane, Vector3d, Point3d  # type: ignore
+    from Rhino.Geometry import Brep, LineCurve, Plane, Point3d, Vector3d  # type: ignore
 except ImportError:
     pass  # Outside Rhino
 
 try:
-    from honeybee_ph_rhino import gh_io
     from honeybee_ph_rhino.gh_compo_io import ghio_validators
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
+
+try:
+    from ph_gh_component_io import gh_io
+except ImportError as e:
+    raise ImportError("\nFailed to import ph_gh_component_io:\n\t{}".format(e))
 
 
 class WindowElement(object):
@@ -46,15 +50,18 @@ class WindowElement(object):
         return "{}{}".format(self.col, self.row)
 
     def __str__(self):
-        return "{}()".format(self.__class__.__name__)
-
-    def __repr__(self):
+        # type: () -> str
         return "{}( width={}, height={}, col={}, row={} )".format(
             self.__class__.__name__, self.width, self.height, self.col, self.row
         )
 
+    def __repr__(self):
+        # type: () -> str
+        return str(self)
+
     def ToString(self):
-        return repr(self)
+        # type: () -> str
+        return str(self)
 
 
 class WindowUnitType(object):
@@ -65,10 +72,11 @@ class WindowUnitType(object):
         self.IGH = _IGH
         self.type_name = _type_name
         self.spacer = _spacer
-        self.elements = []
+        self.elements = []  # type: list[WindowElement]
 
-    def elements_by_column(self, _elements):
-        # type: (List[WindowElement]) -> List[List[WindowElement]]
+    @staticmethod
+    def elements_by_column(_elements):
+        # type: (list[WindowElement]) -> list[list[WindowElement]]
         """Return a list with lists of WindowElements sorted by their column"""
         # -- Sort the WindowElements by their column name
         d = defaultdict(list)
@@ -81,8 +89,9 @@ class WindowUnitType(object):
             output.append(d[k])
         return output
 
-    def elements_by_row(self, _elements):
-        # type: (List[WindowElement]) -> List[WindowElement]
+    @staticmethod
+    def elements_by_row(_elements):
+        # type: (list[WindowElement]) -> list[WindowElement]
         """Return a lists of WindowElements sorted by their row."""
         return sorted(_elements, key=lambda e: e.row)
 
@@ -120,8 +129,35 @@ class WindowUnitType(object):
         pt_2 = self.IGH.ghc.Move(pt_1, move_vector).geometry
         return self.IGH.ghc.Line(pt_1, pt_2)
 
+    def get_cumulative_row_heights(self):
+        # type: () -> list[float]
+        """Returns a list of the cumulative row-heights starting from 0. ie: [0.0, 3.4, 5.6]"""
+
+        row_heights_dict = defaultdict(list)
+        for element in self.elements:
+            row_heights_dict[element.row].append(element.height)
+
+        row_heights_ = [0.0]  # starting position
+        for k in sorted(row_heights_dict.keys()):
+            row_heights_.append(row_heights_[k] + min(row_heights_dict[k]))
+        # print("Cumulative Row Heights: {}".format(row_heights_))
+        return row_heights_
+
+    def get_cumulative_col_widths(self):
+        # type: () -> list[float]
+        """Returns a list of the cumulative column-widths starting from 0. ie: [0.0, 3.4, 5.6]"""
+
+        col_widths_dict = defaultdict(list)
+        for element in self.elements:
+            col_widths_dict[element.col].append(element.width)
+        col_widths_ = [0.0]  # starting position
+        for k in sorted(col_widths_dict.keys()):
+            col_widths_.append(col_widths_[k] + min(col_widths_dict[k]))
+        # print("Cumulative Column Widths: {}".format(col_widths_))
+        return col_widths_
+
     def build(self, _base_curve):
-        # type: (LineCurve) -> Tuple[List[Brep], OrderedDict[int, Dict[str, Any]]]
+        # type: (LineCurve) -> tuple[list[Brep], OrderedDict[int, dict[str, Any]]]
         """Create the window's Rhino geometry based on the Elements."""
         surfaces_ = []
         id_data_ = OrderedDict()
@@ -140,19 +176,42 @@ class WindowUnitType(object):
             raise Exception(msg)
 
         # -- Walk through each column, and each row in each column
-        for col_element_lists in self.elements_by_column(self.elements):
-            column_elements_origin_plane = copy(origin_plane) # type: Plane
+        cum_row_heights_ = self.get_cumulative_row_heights()
+        cum_col_widths_ = self.get_cumulative_col_widths()
+        for i, col_element_lists in enumerate(self.elements_by_column(self.elements)):
+            column_elements_origin_plane = copy(origin_plane)  # type: Plane
+
+            # 1) -- Move the origin plane 'over' to the next column
+            column_elements_origin_plane = self.IGH.ghc.Move(
+                column_elements_origin_plane,
+                self.IGH.ghc.Amplitude(self.x_vector, cum_col_widths_[i]),
+            ).geometry
 
             for row_element in self.elements_by_row(col_element_lists):
-                # 2) Build the Window Element Surface
-                base_curve = self.build_srfc_base_crv(row_element.width, column_elements_origin_plane)
+                row_elements_origin_plane = copy(
+                    column_elements_origin_plane
+                )  # type: Plane
+
+                # 2) -- Move the origin plane 'up' to the starting row position
+                row_elements_origin_plane = self.IGH.ghc.Move(
+                    row_elements_origin_plane,
+                    self.IGH.ghc.Amplitude(
+                        self.y_vector, cum_row_heights_[row_element.row]
+                    ),
+                ).geometry
+
+                # 3) Build the Window Element Surface
+                base_curve = self.build_srfc_base_crv(
+                    row_element.width, row_elements_origin_plane
+                )
                 surfaces_.append(
                     self.IGH.ghc.Extrude(
-                        base_curve, self.IGH.ghc.Amplitude(self.y_vector, row_element.height)
+                        base_curve,
+                        self.IGH.ghc.Amplitude(self.y_vector, row_element.height),
                     )
                 )
 
-                # 2.b)-- Keep track of the id-data for the surface
+                # 3.b)-- Keep track of the id-data for the surface
                 el_name = row_element.get_display_name()
                 el_id_data = {}
                 el_id_data["type_name"] = self.type_name
@@ -160,33 +219,25 @@ class WindowUnitType(object):
                 el_id_data["col"] = row_element.col
                 id_data_[el_name] = el_id_data
 
-                # 3) -- Move the origin plane 'up' to the next row
-                column_elements_origin_plane = self.IGH.ghc.Move(
-                    column_elements_origin_plane, self.IGH.ghc.Amplitude(self.y_vector, row_element.height)
-                ).geometry
-
-            # 4) -- Move the origin plane 'over' to the next column
-            origin_plane = self.IGH.ghc.Move(
-                origin_plane, self.IGH.ghc.Amplitude(self.x_vector, col_element_lists[0].width)
-            ).geometry
-
         return surfaces_, id_data_
 
     def __str__(self):
-        return "{}()".format(self.__class__.__name__)
-
-    def __repr__(self):
+        # type: () -> str
         return "{}(type_name={}, elements={})".format(
             self.__class__.__name__, self.type_name, self.elements
         )
 
+    def __repr__(self):
+        # type: () -> str
+        return str(self)
+
     def ToString(self):
-        return repr(self)
+        return str(self)
 
 
 class GHCompo_CreateWindowUnitTypes(object):
     def __init__(self, _IGH, _type_names, _widths, _heights, _pos_cols, _pos_rows):
-        # type: (gh_io.IGH, List[str], List[float], List[float], List[int], List[int]) -> None
+        # type: (gh_io.IGH, list[str], list[float], list[float], list[int], list[int]) -> None
         self.IGH = _IGH
         self.type_names = _type_names
         self.widths = _widths
@@ -195,7 +246,7 @@ class GHCompo_CreateWindowUnitTypes(object):
         self.pos_rows = _pos_rows
 
     def run(self):
-        # type: () -> List[WindowUnitType]
+        # type: () -> list[WindowUnitType]
 
         # ------------------------------------------------------------------------------
         # -- Sort all the input data and group by 'Type Name'

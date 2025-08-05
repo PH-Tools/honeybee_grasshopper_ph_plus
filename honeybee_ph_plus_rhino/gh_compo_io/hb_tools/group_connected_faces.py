@@ -39,8 +39,8 @@ class GHCompo_GroupConnectedFaces(object):
         # type: (gh_io.IGH, DataTree[face.Face], float | None, float | None, *Any, **Any) -> None
         self.IGH = _IGH
         self.hb_faces = _hb_faces or []
-        self._tolerance = _tolerance 
-        self._angle_tolerance_degrees = _angle_tolerance_degrees 
+        self._tolerance = _tolerance
+        self._angle_tolerance_degrees = _angle_tolerance_degrees
 
     @property
     def tolerance(self):
@@ -57,9 +57,9 @@ class GHCompo_GroupConnectedFaces(object):
     def run(self):
         # type: () -> list[face.Face3D]
         hb_faces_ = DataTree[Object]()
-        for i, b in enumerate(self.hb_faces.Branches): # type: ignore
-            for j, group in enumerate(face_tools.group_hb_faces(
-                b, self.tolerance, self.angle_tolerance_degrees
-            )):
-                hb_faces_.AddRange(group, GH_Path(i, j)) # type: ignore
+        for i, b in enumerate(self.hb_faces.Branches):  # type: ignore
+            for j, group in enumerate(
+                face_tools.group_hb_faces(b, self.tolerance, self.angle_tolerance_degrees)
+            ):
+                hb_faces_.AddRange(group, GH_Path(i, j))  # type: ignore
         return hb_faces_

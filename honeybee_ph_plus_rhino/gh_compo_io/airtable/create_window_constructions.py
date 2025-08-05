@@ -87,7 +87,10 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         # type: (TableFields) -> str
         """Return the display name of the window unit."""
         try:
-            name = _window_unit_data.construction_name or str(_window_unit_data.display_name).strip()
+            name = (
+                _window_unit_data.construction_name
+                or str(_window_unit_data.display_name).strip()
+            )
         except AttributeError:
             name = str(_window_unit_data.display_name).strip()
 
