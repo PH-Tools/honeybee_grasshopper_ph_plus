@@ -19,6 +19,9 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.generate_polygon2d_from_faces i
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.get_brep_subface_mats import (
     GHCompo_GetSubFaceMaterials,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.get_coplanar_face_groups import (
+    GHCompo_GetCoPlanarFaceGroups,
+)
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.get_faces_by_name import (
     GHCompo_GetFacesByName,
 )
@@ -66,7 +69,4 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_get_design_ph_shading_facto
 )
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_rebuild_rh_geom import (
     GHCompo_RebuildWindowSurfaces,
-)
-from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.get_coplanar_face_groups import (
-    GHCompo_GetCoPlanarFaceGroups
 )

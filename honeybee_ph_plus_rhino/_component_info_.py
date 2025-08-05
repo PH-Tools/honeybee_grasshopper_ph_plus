@@ -5,7 +5,7 @@
 These are called when the component is instantiated within the Grasshopper canvas.
 """
 
-RELEASE_VERSION = "Honeybee-PH+ v1.02.15"
+RELEASE_VERSION = "Honeybee-PH+ v1.03.01"
 CATEGORY = "HB-PH+"
 SUB_CATEGORIES = {
     0: "00 | Utils",
@@ -220,6 +220,13 @@ COMPONENT_PARAMS = {
     },
     "HBPH+ - Airtable Create Window Constructions": {
         "NickName": "Airtable Window Constructions",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 4,
+    },
+    # -- PH-Navigator
+    "HBPH+ - PH-Navigator Get Window Types": {
+        "NickName": "PH-Navigator Get Window-Types",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
         "SubCategory": 4,
