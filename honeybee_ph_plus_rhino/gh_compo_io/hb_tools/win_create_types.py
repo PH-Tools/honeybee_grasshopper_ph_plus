@@ -40,10 +40,10 @@ class WindowElement(object):
 
     def __init__(self, _width, _height, _col, _row):
         # type: (float, float, int, int) -> None
-        self.width = _width
-        self.height = _height
-        self.col = _col
-        self.row = _row
+        self.width = float(_width)
+        self.height = float(_height)
+        self.col = int(_col)
+        self.row = int(_row)
 
     def get_display_name(self):
         # type: () -> str
@@ -135,7 +135,7 @@ class WindowUnitType(object):
 
         row_heights_dict = defaultdict(list)
         for element in self.elements:
-            row_heights_dict[element.row].append(element.height)
+            row_heights_dict[int(element.row)].append(float(element.height))
 
         row_heights_ = [0.0]  # starting position
         for k in sorted(row_heights_dict.keys()):
@@ -149,7 +149,8 @@ class WindowUnitType(object):
 
         col_widths_dict = defaultdict(list)
         for element in self.elements:
-            col_widths_dict[element.col].append(element.width)
+            col_widths_dict[int(element.col)].append(float(element.width))
+
         col_widths_ = [0.0]  # starting position
         for k in sorted(col_widths_dict.keys()):
             col_widths_.append(col_widths_[k] + min(col_widths_dict[k]))
