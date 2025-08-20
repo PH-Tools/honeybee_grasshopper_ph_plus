@@ -31,17 +31,21 @@ try:
 except ImportError as e:
     raise ImportError("\nFailed to import ph_gh_component_io:\n\t{}".format(e))
 
+try:
+    from ph_units.converter import convert
+except ImportError as e:
+    raise ImportError("\nFailed to import ph_units:\n\t{}".format(e))
 
 class WindowElement(object):
     """A Dataclass for a single Window 'Element' (sash) which can be added to a WindowType."""
 
-    width = ghio_validators.UnitM("width")
-    height = ghio_validators.UnitM("height")
+    width_m = ghio_validators.UnitM("width_m")
+    height_m = ghio_validators.UnitM("height_m")
 
-    def __init__(self, _width, _height, _col, _row):
+    def __init__(self, _width_m, _height_m, _col, _row):
         # type: (float, float, int, int) -> None
-        self.width = float(_width)
-        self.height = float(_height)
+        self.width_m = float(_width_m)
+        self.height_m = float(_height_m)
         self.col = int(_col)
         self.row = int(_row)
 
@@ -51,8 +55,8 @@ class WindowElement(object):
 
     def __str__(self):
         # type: () -> str
-        return "{}( width={}, height={}, col={}, row={} )".format(
-            self.__class__.__name__, self.width, self.height, self.col, self.row
+        return "{}( width_m={}, height_m={}, col={}, row={} )".format(
+            self.__class__.__name__, self.width_m, self.height_m, self.col, self.row
         )
 
     def __repr__(self):
@@ -67,11 +71,11 @@ class WindowElement(object):
 class WindowUnitType(object):
     """A Class to organize a single Window 'Type' with all its WindowElements."""
 
-    def __init__(self, _IGH, _type_name, _spacer=0.0):
+    def __init__(self, _IGH, _type_name, _spacer_m=0.0):
         # type: (gh_io.IGH, str, float) -> None
         self.IGH = _IGH
         self.type_name = _type_name
-        self.spacer = _spacer
+        self.spacer_m = _spacer_m
         self.elements = []  # type: list[WindowElement]
 
     @staticmethod
@@ -121,21 +125,24 @@ class WindowUnitType(object):
         """Get the origin point of the base curve."""
         return self.build_origin_plane(_base_curve).Origin
 
-    def build_srfc_base_crv(self, _width, _origin_plane):
-        # type: (float, Plane) -> LineCurve
+    def build_srfc_base_crv(self, _width_m, _origin_plane, _doc_units):
+        # type: (float, Plane, str) -> LineCurve
+        """Build the surface base curve for the window (in Rhino doc units)."""
+
         pt_1 = _origin_plane.Origin
-        move_width = _width - self.spacer
-        move_vector = self.IGH.ghc.Amplitude(self.x_vector, move_width)
+        move_width_m = _width_m - self.spacer_m
+        move_width_in_doc_units = convert(move_width_m, "M", _doc_units)
+        move_vector = self.IGH.ghc.Amplitude(self.x_vector, move_width_in_doc_units)
         pt_2 = self.IGH.ghc.Move(pt_1, move_vector).geometry
         return self.IGH.ghc.Line(pt_1, pt_2)
 
-    def get_cumulative_row_heights(self):
+    def get_cumulative_row_heights_m(self):
         # type: () -> list[float]
         """Returns a list of the cumulative row-heights starting from 0. ie: [0.0, 3.4, 5.6]"""
 
         row_heights_dict = defaultdict(list)
         for element in self.elements:
-            row_heights_dict[int(element.row)].append(float(element.height))
+            row_heights_dict[int(element.row)].append(float(element.height_m))
 
         row_heights_ = [0.0]  # starting position
         for k in sorted(row_heights_dict.keys()):
@@ -143,13 +150,13 @@ class WindowUnitType(object):
         # print("Cumulative Row Heights: {}".format(row_heights_))
         return row_heights_
 
-    def get_cumulative_col_widths(self):
+    def get_cumulative_col_widths_m(self):
         # type: () -> list[float]
         """Returns a list of the cumulative column-widths starting from 0. ie: [0.0, 3.4, 5.6]"""
 
         col_widths_dict = defaultdict(list)
         for element in self.elements:
-            col_widths_dict[int(element.col)].append(float(element.width))
+            col_widths_dict[int(element.col)].append(float(element.width_m))
 
         col_widths_ = [0.0]  # starting position
         for k in sorted(col_widths_dict.keys()):
@@ -160,10 +167,8 @@ class WindowUnitType(object):
     def build(self, _base_curve):
         # type: (LineCurve) -> tuple[list[Brep], OrderedDict[int, dict[str, Any]]]
         """Create the window's Rhino geometry based on the Elements."""
-        surfaces_ = []
-        id_data_ = OrderedDict()
 
-        # 1)  Get the Base Plane and create a starting origin plane from it
+        # 1) -- Get the Base-Plane and create a starting origin plane from it
         self.base_curve = _base_curve
         origin_plane = self.build_origin_plane(_base_curve)
         if not origin_plane:
@@ -176,16 +181,22 @@ class WindowUnitType(object):
             )
             raise Exception(msg)
 
-        # -- Walk through each column, and each row in each column
-        cum_row_heights_ = self.get_cumulative_row_heights()
-        cum_col_widths_ = self.get_cumulative_col_widths()
+        # 2) -- Walk through each column, and each row in each column
+        cum_row_heights_m_ = self.get_cumulative_row_heights_m()
+        cum_col_widths_m_ = self.get_cumulative_col_widths_m()
+
+        # 3) -- Create the surfaces and ID data
+        surfaces_ = []
+        id_data_ = OrderedDict()
+        rh_doc_units = self.IGH.get_rhino_unit_system_name()
         for i, col_element_lists in enumerate(self.elements_by_column(self.elements)):
             column_elements_origin_plane = copy(origin_plane)  # type: Plane
 
             # 1) -- Move the origin plane 'over' to the next column
+            col_width_in_doc_units = convert(cum_col_widths_m_[i], "M", rh_doc_units)
             column_elements_origin_plane = self.IGH.ghc.Move(
                 column_elements_origin_plane,
-                self.IGH.ghc.Amplitude(self.x_vector, cum_col_widths_[i]),
+                self.IGH.ghc.Amplitude(self.x_vector, col_width_in_doc_units),
             ).geometry
 
             for row_element in self.elements_by_row(col_element_lists):
@@ -194,25 +205,27 @@ class WindowUnitType(object):
                 )  # type: Plane
 
                 # 2) -- Move the origin plane 'up' to the starting row position
+                row_height_in_doc_units = convert(cum_row_heights_m_[row_element.row], "M", rh_doc_units)
                 row_elements_origin_plane = self.IGH.ghc.Move(
                     row_elements_origin_plane,
                     self.IGH.ghc.Amplitude(
-                        self.y_vector, cum_row_heights_[row_element.row]
+                        self.y_vector, row_height_in_doc_units
                     ),
                 ).geometry
 
                 # 3) Build the Window Element Surface
                 base_curve = self.build_srfc_base_crv(
-                    row_element.width, row_elements_origin_plane
+                    row_element.width_m, row_elements_origin_plane, rh_doc_units
                 )
+                row_element_height_in_doc_units = convert(row_element.height_m, "M", rh_doc_units)
                 surfaces_.append(
                     self.IGH.ghc.Extrude(
                         base_curve,
-                        self.IGH.ghc.Amplitude(self.y_vector, row_element.height),
+                        self.IGH.ghc.Amplitude(self.y_vector, row_element_height_in_doc_units),
                     )
                 )
 
-                # 3.b)-- Keep track of the id-data for the surface
+                # 4)-- Keep track of the id-data for the surface
                 el_name = row_element.get_display_name()
                 el_id_data = {}
                 el_id_data["type_name"] = self.type_name
@@ -241,8 +254,8 @@ class GHCompo_CreateWindowUnitTypes(object):
         # type: (gh_io.IGH, list[str], list[float], list[float], list[int], list[int]) -> None
         self.IGH = _IGH
         self.type_names = _type_names
-        self.widths = _widths
-        self.heights = _heights
+        self.widths = [convert(w, self.IGH.get_rhino_unit_system_name(), "M") or 1.0 for w in _widths]
+        self.heights = [convert(h, self.IGH.get_rhino_unit_system_name(), "M") or 1.0 for h in _heights]
         self.pos_cols = _pos_cols
         self.pos_rows = _pos_rows
 
