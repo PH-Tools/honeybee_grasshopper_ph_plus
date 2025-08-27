@@ -108,15 +108,15 @@ class FrameType(object):
     """Schema for frame-type data from PH-Navigator."""
 
     def __init__(
-        self, _name, _width_mm, _u_value_w_m2k, _psi_glazing, _psi_install, _chi_value
+        self, _name, _width_mm, _u_value_w_m2k, _psi_g_w_mk, _psi_install_w_mk, _chi_value_w_k
     ):
         # type: (str, float, float, float, float, float) -> None
         self.name = _name
         self.width_mm = _width_mm
         self.u_value_w_m2k = _u_value_w_m2k
-        self.psi_glazing = _psi_glazing
-        self.psi_install = _psi_install
-        self.chi_value = _chi_value
+        self.psi_g_w_mk = _psi_g_w_mk
+        self.psi_install_w_mk = _psi_install_w_mk
+        self.chi_value_w_k = _chi_value_w_k
 
     @classmethod
     def from_dict(cls, _data_dict):
@@ -124,11 +124,11 @@ class FrameType(object):
         """Create a FrameType object from a dictionary."""
         return cls(
             _name=_data_dict.get("name", ""),
-            _width_mm=float(_data_dict.get("width_mm", 0.0)),
-            _u_value_w_m2k=float(_data_dict.get("u_value_w_m2k", 0.0)),
-            _psi_glazing=float(_data_dict.get("psi_glazing", 0.0)),
-            _psi_install=float(_data_dict.get("psi_install", 0.0)),
-            _chi_value=float(_data_dict.get("chi_value", 0.0)),
+            _width_mm=float(_data_dict.get("width_mm", 0.100)),
+            _u_value_w_m2k=float(_data_dict.get("u_value_w_m2k", 1.0)),
+            _psi_g_w_mk=float(_data_dict.get("psi_g_w_mk", 0.04)),
+            _psi_install_w_mk=float(_data_dict.get("psi_install_w_mk", 0.04)),
+            _chi_value_w_k=float(_data_dict.get("chi_value", 0.0)),
         )
 
     @property
@@ -148,9 +148,9 @@ class FrameType(object):
             _name=self.name,
             _width_mm=self.width_mm,
             _u_value_w_m2k=self.u_value_w_m2k,
-            _psi_glazing=self.psi_glazing,
-            _psi_install=self.psi_install,
-            _chi_value=self.chi_value,
+            _psi_g_w_mk=self.psi_g_w_mk,
+            _psi_install_w_mk=self.psi_install_w_mk,
+            _chi_value_w_k=self.chi_value_w_k,
         )
 
     def __str__(self):
@@ -160,9 +160,9 @@ class FrameType(object):
             self.name,
             self.width_mm,
             self.u_value_w_m2k,
-            self.psi_glazing,
-            self.psi_install,
-            self.chi_value,
+            self.psi_g_w_mk,
+            self.psi_install_w_mk,
+            self.chi_value_w_k,
         )
 
     def __repr__(self):

@@ -82,7 +82,7 @@ def create_hbph_glazing_types(_aperture_types):
     return glazing_types_
 
 
-def create_new_hbph_frame_element(_aperture_types):
+def create_new_hbph_frame_elements(_aperture_types):
     # type: (list[ApertureTypeData]) -> dict[str, PhWindowFrameElement]
     """Create a collection of the HoneybeePH Frame-Element-Types from the PH-Navigator Aperture Types."""
 
@@ -100,9 +100,9 @@ def create_new_hbph_frame_element(_aperture_types):
                 hbph_frame_element.display_name = frame_data.frame_type.name
                 hbph_frame_element.width = frame_data.frame_type.width_m
                 hbph_frame_element.u_factor = frame_data.frame_type.u_value_w_m2k
-                hbph_frame_element.psi_glazing = frame_data.frame_type.psi_glazing
-                hbph_frame_element.psi_install = frame_data.frame_type.psi_install
-                hbph_frame_element.chi_value = frame_data.frame_type.chi_value
+                hbph_frame_element.psi_glazing = frame_data.frame_type.psi_g_w_mk
+                hbph_frame_element.psi_install = frame_data.frame_type.psi_install_w_mk
+                hbph_frame_element.chi_value = frame_data.frame_type.chi_value_w_k
 
                 frame_element_types_[hbph_frame_element.display_name] = hbph_frame_element
 
@@ -331,7 +331,7 @@ class GHCompo_PHNavGetWindowTypes(object):
 
         # Build all of the Types needed to create the HoneybeePH Window Types
         glazing_types_dict = create_hbph_glazing_types(aperture_types)
-        frame_element_types_dict = create_new_hbph_frame_element(aperture_types)
+        frame_element_types_dict = create_new_hbph_frame_elements(aperture_types)
         frame_types_dict = create_new_hbph_frames(
             aperture_types, frame_element_types_dict
         )
