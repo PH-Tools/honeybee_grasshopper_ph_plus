@@ -242,9 +242,11 @@ def _group_hb_rooms_by_story(_hb_model):
 
     # -- If the model is missing 'Story' data, sort by floor Z-location
     if not all(hb_room.story for hb_room in _hb_model.rooms):
+        print("Not all Rooms have a 'Story' assigned. Sorting by Z-location.")
         return _sort_rooms_by_z_location(_hb_model)
 
     # -- If model has Story data, just use that instead.
+    print("Grouping Rooms by their 'Story'.")
     rooms_grouped_by_story = defaultdict(list)
     for hb_room in _hb_model.rooms:
         try:
@@ -257,6 +259,8 @@ def _group_hb_rooms_by_story(_hb_model):
     for k in sorted(rooms_grouped_by_story.keys()):
         sorted_rooms_grouped_by_story[k] = rooms_grouped_by_story[k]
 
+    print("Found {} Stories.".format(len(sorted_rooms_grouped_by_story)))
+    print("Stories: {}".format(sorted_rooms_grouped_by_story.keys()))
     return sorted_rooms_grouped_by_story
 
 

@@ -63,6 +63,16 @@ except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_rhino:\n\t{}".format(e))
 
 
+class HatchFromCurveError(Exception):
+    """Raised when a Curve cannot be converted to a Hatch."""
+
+    def __init__(self, crv):
+        self.message = "Error: Could not create a Hatch from the input curve: {}".format(
+            crv
+        )
+        super(HatchFromCurveError, self).__init__(self.message)
+
+
 def create_default_solid_hatch_pattern(_IGH):
     # type: (gh_io.IGH) -> int
     """Create a new SOLID hatch pattern in the document and return its index."""
@@ -95,13 +105,16 @@ def get_default_solid_hatch_index(_IGH):
 
 def hatch_from_curve(_hatchCurve, _tolerance, _hatch_pattern_index=0):
     # type: (rg.Curve, float, int) -> rg.Hatch
-    return rg.Hatch.Create(
+    hatch = rg.Hatch.Create(
         curve=_hatchCurve,
         hatchPatternIndex=_hatch_pattern_index,
         rotationRadians=0,
         scale=0,
         tolerance=_tolerance,
-    )[0]
+    )
+    if len(hatch) == 0:
+        raise HatchFromCurveError(_hatchCurve)
+    return hatch[0]
 
 
 def _clean_filename(_input_str):
@@ -516,7 +529,6 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
         else:
             hatchExtra = rg.LineCurve(facePointList[0], facePointList[2])
         hatchCurve = rg.Curve.JoinCurves([hatchCurveInit, hatchExtra], _IGH.tolerance)[0]
-
         # Create the Hatch
         if hatchCurve.IsPlanar():
             meshFaceHatch = hatch_from_curve(
@@ -526,31 +538,36 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
             colors.append(hatchColor)
         else:
             # We have to split the quad face into two triangles.
-            hatchCurveInit1 = rg.PolylineCurve(
-                [facePointList[0], facePointList[1], facePointList[2]]
-            )
-            hatchExtra1 = rg.LineCurve(facePointList[0], facePointList[2])
-            hatchCurve1 = rg.Curve.JoinCurves(
-                [hatchCurveInit1, hatchExtra1],
-                _IGH.tolerance,
-            )[0]
-            meshFaceHatch1 = hatch_from_curve(
-                hatchCurve1, _IGH.tolerance, _hatch_pattern_index
-            )
-            hatchCurveInit2 = rg.PolylineCurve(
-                [facePointList[2], facePointList[3], facePointList[0]]
-            )
-            hatchExtra2 = rg.LineCurve(facePointList[2], facePointList[0])
-            hatchCurve2 = rg.Curve.JoinCurves(
-                [hatchCurveInit2, hatchExtra2],
-                _IGH.tolerance,
-            )[0]
-            meshFaceHatch2 = hatch_from_curve(
-                hatchCurve2, _IGH.tolerance, _hatch_pattern_index
-            )
-
-            hatches.extend([meshFaceHatch1, meshFaceHatch2])
-            colors.extend([hatchColor, hatchColor])
+            try:
+                hatchCurveInit1 = rg.PolylineCurve(
+                    [facePointList[0], facePointList[1], facePointList[2]]
+                )
+                hatchExtra1 = rg.LineCurve(facePointList[0], facePointList[2])
+                hatchCurve1 = rg.Curve.JoinCurves(
+                    [hatchCurveInit1, hatchExtra1],
+                    _IGH.tolerance,
+                )[0]
+                meshFaceHatch1 = hatch_from_curve(
+                    hatchCurve1, _IGH.tolerance, _hatch_pattern_index
+                )
+                hatchCurveInit2 = rg.PolylineCurve(
+                    [facePointList[2], facePointList[3], facePointList[0]]
+                )
+                hatchExtra2 = rg.LineCurve(facePointList[2], facePointList[0])
+                hatchCurve2 = rg.Curve.JoinCurves(
+                    [hatchCurveInit2, hatchExtra2],
+                    _IGH.tolerance,
+                )[0]
+                meshFaceHatch2 = hatch_from_curve(
+                    hatchCurve2, _IGH.tolerance, _hatch_pattern_index
+                )
+                hatches.extend([meshFaceHatch1, meshFaceHatch2])
+                colors.extend([hatchColor, hatchColor])
+            except HatchFromCurveError as e:
+                msg = "Warning: Could not create hatch for a Non-Planar mesh face. Skipping that face."
+                print(e)
+                print(msg)
+                _IGH.warning(msg)
 
     return hatches, colors
 
@@ -571,6 +588,7 @@ def create_geometry_attributes(parent_layer_index, _color, _display_order=0):
 def bake_mesh(_IGH, _layer_name, _geometry, _draw_order=0):
     # type: (gh_io.IGH, str, rg.Mesh, int) -> None
     """Bake a Mesh object into the Rhino Scene."""
+
     # --
     layer_table = _IGH.Rhino.RhinoDoc.ActiveDoc.Layers
     hatch_id = get_default_solid_hatch_index(_IGH)

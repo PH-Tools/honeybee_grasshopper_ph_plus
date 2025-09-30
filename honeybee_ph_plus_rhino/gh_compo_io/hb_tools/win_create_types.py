@@ -36,6 +36,22 @@ try:
 except ImportError as e:
     raise ImportError("\nFailed to import ph_units:\n\t{}".format(e))
 
+
+class BuildOriginPlaneError(Exception):
+    """Custom Error for the Window Builder."""
+
+    def __init__(self, _start_pt, _end_pt):
+        # type: (Point3d, Point3d) -> None
+        self.message = (
+            "Error: Something went wrong building the Origin-Planes for "
+            "the window with base-curve with Start-Point: {} and End-Point: {}. Note this window builder ONLY works for vertical "
+            "planar windows. Skylights or windows on sloped surfaces are not supported.".format(
+                _start_pt, _end_pt
+            )
+        )
+        super().__init__(self.message)
+
+
 class WindowElement(object):
     """A Dataclass for a single Window 'Element' (sash) which can be added to a WindowType."""
 
@@ -118,6 +134,9 @@ class WindowUnitType(object):
         # type: (LineCurve) -> Plane
         start_pt, end_pt = self.IGH.ghc.EndPoints(_base_curve)
         pl = self.IGH.ghc.ConstructPlane(start_pt, self.x_vector, self.y_vector)
+        if not pl:
+            raise BuildOriginPlaneError(start_pt, end_pt, )
+
         return pl
 
     def build_origin_point(self, _base_curve):
@@ -171,15 +190,6 @@ class WindowUnitType(object):
         # 1) -- Get the Base-Plane and create a starting origin plane from it
         self.base_curve = _base_curve
         origin_plane = self.build_origin_plane(_base_curve)
-        if not origin_plane:
-            msg = (
-                "Error: Something went wrong building the Origin-Planes for "
-                "the window with base-curve: {}. Note this window builder ONLY works for vertical "
-                "planar windows. Skylights or windows on sloped surfaces are not supported".format(
-                    _base_curve
-                )
-            )
-            raise Exception(msg)
 
         # 2) -- Walk through each column, and each row in each column
         cum_row_heights_m_ = self.get_cumulative_row_heights_m()
@@ -205,23 +215,27 @@ class WindowUnitType(object):
                 )  # type: Plane
 
                 # 2) -- Move the origin plane 'up' to the starting row position
-                row_height_in_doc_units = convert(cum_row_heights_m_[row_element.row], "M", rh_doc_units)
+                row_height_in_doc_units = convert(
+                    cum_row_heights_m_[row_element.row], "M", rh_doc_units
+                )
                 row_elements_origin_plane = self.IGH.ghc.Move(
                     row_elements_origin_plane,
-                    self.IGH.ghc.Amplitude(
-                        self.y_vector, row_height_in_doc_units
-                    ),
+                    self.IGH.ghc.Amplitude(self.y_vector, row_height_in_doc_units),
                 ).geometry
 
                 # 3) Build the Window Element Surface
                 base_curve = self.build_srfc_base_crv(
                     row_element.width_m, row_elements_origin_plane, rh_doc_units
                 )
-                row_element_height_in_doc_units = convert(row_element.height_m, "M", rh_doc_units)
+                row_element_height_in_doc_units = convert(
+                    row_element.height_m, "M", rh_doc_units
+                )
                 surfaces_.append(
                     self.IGH.ghc.Extrude(
                         base_curve,
-                        self.IGH.ghc.Amplitude(self.y_vector, row_element_height_in_doc_units),
+                        self.IGH.ghc.Amplitude(
+                            self.y_vector, row_element_height_in_doc_units
+                        ),
                     )
                 )
 
@@ -254,8 +268,13 @@ class GHCompo_CreateWindowUnitTypes(object):
         # type: (gh_io.IGH, list[str], list[float], list[float], list[int], list[int]) -> None
         self.IGH = _IGH
         self.type_names = _type_names
-        self.widths = [convert(w, self.IGH.get_rhino_unit_system_name(), "M") or 1.0 for w in _widths]
-        self.heights = [convert(h, self.IGH.get_rhino_unit_system_name(), "M") or 1.0 for h in _heights]
+        self.widths = [
+            convert(w, self.IGH.get_rhino_unit_system_name(), "M") or 1.0 for w in _widths
+        ]
+        self.heights = [
+            convert(h, self.IGH.get_rhino_unit_system_name(), "M") or 1.0
+            for h in _heights
+        ]
         self.pos_cols = _pos_cols
         self.pos_rows = _pos_rows
 

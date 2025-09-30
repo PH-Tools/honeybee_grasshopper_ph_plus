@@ -108,7 +108,13 @@ class FrameType(object):
     """Schema for frame-type data from PH-Navigator."""
 
     def __init__(
-        self, _name, _width_mm, _u_value_w_m2k, _psi_g_w_mk, _psi_install_w_mk, _chi_value_w_k
+        self,
+        _name,
+        _width_mm,
+        _u_value_w_m2k,
+        _psi_g_w_mk,
+        _psi_install_w_mk,
+        _chi_value_w_k,
     ):
         # type: (str, float, float, float, float, float) -> None
         self.name = _name
