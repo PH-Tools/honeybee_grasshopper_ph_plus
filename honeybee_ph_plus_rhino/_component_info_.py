@@ -5,7 +5,7 @@
 These are called when the component is instantiated within the Grasshopper canvas.
 """
 
-RELEASE_VERSION = "Honeybee-PH+ v1.03.04"
+RELEASE_VERSION = "Honeybee-PH+ v1.04.01"
 CATEGORY = "HB-PH+"
 SUB_CATEGORIES = {
     0: "00 | Utils",
@@ -31,6 +31,12 @@ COMPONENT_PARAMS = {
     },
     "HBPH+ - Get From Custom Collection": {
         "NickName": "Get From Collection",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 1,
+    },
+    "HBPH+ - Set Item In Custom Collection": {
+        "NickName": "Set Item In Collection",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
         "SubCategory": 1,
@@ -195,6 +201,12 @@ COMPONENT_PARAMS = {
     },
     "HBPH+ - Get Coplanar Face Groups": {
         "NickName": "Get Coplanar Face Groups",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 3,
+    },
+    "HBPH+ - Apply Fastener Correction": {
+        "NickName": "Fastener Correction",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
         "SubCategory": 3,

@@ -70,3 +70,6 @@ from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_get_design_ph_shading_facto
 from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.win_rebuild_rh_geom import (
     GHCompo_RebuildWindowSurfaces,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.hb_tools.fastener_correction import (
+    GHCompo_AddFastenersToConstruction,
+)
