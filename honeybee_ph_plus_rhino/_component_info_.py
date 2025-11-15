@@ -5,7 +5,7 @@
 These are called when the component is instantiated within the Grasshopper canvas.
 """
 
-RELEASE_VERSION = "Honeybee-PH+ v1.04.01"
+RELEASE_VERSION = "Honeybee-PH+ v1.04.02"
 CATEGORY = "HB-PH+"
 SUB_CATEGORIES = {
     0: "00 | Utils",
@@ -306,6 +306,18 @@ COMPONENT_PARAMS = {
     },
     "HBPH+ - Create Clipping Plane Set": {
         "NickName": "Create Clipping Plane Set",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 5,
+    },
+    "HBPH+ - Create ERV Duct Model Objects": {
+        "NickName": "Create ERV Duct Model Objects",
+        "Message": RELEASE_VERSION,
+        "Category": CATEGORY,
+        "SubCategory": 5,
+    },
+    "HBPH+ - Create Model Simple Wireframe": {
+        "NickName": "Create Model Simple Wireframe",
         "Message": RELEASE_VERSION,
         "Category": CATEGORY,
         "SubCategory": 5,
