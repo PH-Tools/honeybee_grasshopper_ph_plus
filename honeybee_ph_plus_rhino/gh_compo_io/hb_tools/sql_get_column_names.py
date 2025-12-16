@@ -27,9 +27,7 @@ except ImportError as e:
     pass  # raise ImportError("\nFailed to import run_subprocess:\n\t{}".format(e))
 
 
-ColumnData = namedtuple(
-    "ColumnData", ["index", "name", "type", "not_null", "default", "primary_key"]
-)
+ColumnData = namedtuple("ColumnData", ["index", "name", "type", "not_null", "default", "primary_key"])
 
 
 class GHCompo_SQLGetColumnNames(object):

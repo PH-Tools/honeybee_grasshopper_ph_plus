@@ -46,9 +46,7 @@ class GHCompo_GetSubFaceMaterials(object):
                 self.IGH.Rhino.Geometry.ComponentIndexType.BrepFace, face.FaceIndex
             )
             brep_obj = self.IGH.Rhino.RhinoDoc.ActiveDoc.Objects.FindId(_brep_guid)
-            mat_name = self.IGH.Rhino.DocObjects.RhinoObject.GetMaterial(
-                brep_obj, compo_index
-            ).Name
+            mat_name = self.IGH.Rhino.DocObjects.RhinoObject.GetMaterial(brep_obj, compo_index).Name
             names_.append(mat_name)
 
         return geo_, names_

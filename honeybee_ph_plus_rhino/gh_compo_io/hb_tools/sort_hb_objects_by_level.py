@@ -41,9 +41,7 @@ class StepDomain(object):
     @staticmethod
     def _parse_input(_input):
         # type: (str) -> Tuple[float, float]
-        match = re.search(
-            r"(\d+\.\d+)?\s*To\s*(\d+\.\d+)?", _input.upper(), re.IGNORECASE
-        )
+        match = re.search(r"(\d+\.\d+)?\s*To\s*(\d+\.\d+)?", _input.upper(), re.IGNORECASE)
         if match:
             _min = float(match.group(1).strip())
             _max = float(match.group(2).strip())
@@ -161,11 +159,7 @@ class GHCompo_SortHbObjectsByLevel(object):
         try:
             return _hb_object.min.z
         except:
-            raise ValueError(
-                "Unsupported Honeybee Object type. Got: {}?".format(
-                    type(_hb_object).__name__
-                )
-            )
+            raise ValueError("Unsupported Honeybee Object type. Got: {}?".format(type(_hb_object).__name__))
 
     def get_dict_key(self, _z_height):
         # type: (float) -> str
@@ -176,9 +170,7 @@ class GHCompo_SortHbObjectsByLevel(object):
         if self.groups:
             # -- If the user has specified a number of groups, return
             # -- the key for the first group that is larger than it's Z-height
-            sorted_keys = sorted(
-                self.hb_objects_by_level.keys(), key=lambda k: float(k), reverse=True
-            )
+            sorted_keys = sorted(self.hb_objects_by_level.keys(), key=lambda k: float(k), reverse=True)
             for k in sorted_keys:
                 if float(_z_height) >= float(k):
                     return k
@@ -205,8 +197,6 @@ class GHCompo_SortHbObjectsByLevel(object):
 
         # -- Package up for output
         hb_objects_ = DataTree[Object]()
-        for i, k in enumerate(
-            sorted(self.hb_objects_by_level.keys(), key=lambda n: float(n))
-        ):
+        for i, k in enumerate(sorted(self.hb_objects_by_level.keys(), key=lambda n: float(n))):
             hb_objects_.AddRange([_ for _ in self.hb_objects_by_level[k]], GH_Path(i))
         return hb_objects_, self.steps(hb_objects_)

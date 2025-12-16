@@ -97,9 +97,7 @@ class GHCompo_RebuildWindowSurfaces(object):
         old_centroid = self.IGH.ghc.Area(_surface_guid).centroid
 
         # -- Build the new Geometry
-        new_perimeter = self.IGH.ghc.Rectangle(
-            plane, self.get_width(_i), self.get_height(_i), RADIUS
-        ).rectangle
+        new_perimeter = self.IGH.ghc.Rectangle(plane, self.get_width(_i), self.get_height(_i), RADIUS).rectangle
         new_surface = self.IGH.ghc.BoundarySurfaces(new_perimeter)
 
         # -- Align new geom to old geom

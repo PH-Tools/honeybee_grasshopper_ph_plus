@@ -60,13 +60,7 @@ class GHCompo_SQLGetTableNames(object):
     def clean_table_name(_str):
         # type: (str) -> str
         """Clean the table name."""
-        return (
-            _str.strip()
-            .replace("'", "")
-            .replace('"', "")
-            .replace("[", "")
-            .replace("]", "")
-        )
+        return _str.strip().replace("'", "").replace('"', "").replace("[", "").replace("]", "")
 
     def process_stderr(self, stderr):
         # type: (bytes) -> None

@@ -86,9 +86,7 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
         for i, _face3D in enumerate(self.lbt_face3Ds):
             starting_polygons_.Add(
                 self.IGH.ghc.BoundarySurfaces(
-                    self.IGH.ghc.PolyLine(
-                        (Point3d(v.x, v.y, v.z) for v in _face3D.vertices), True
-                    )
+                    self.IGH.ghc.PolyLine((Point3d(v.x, v.y, v.z) for v in _face3D.vertices), True)
                 ),
                 GH_Path(i),
             )
@@ -101,11 +99,7 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
         rhino_breps_ = DataTree[Brep]()
         for i, p in enumerate(polygons_in_ref_space_):
             rhino_breps_.Add(
-                self.IGH.ghc.BoundarySurfaces(
-                    self.IGH.ghc.PolyLine(
-                        (Point3d(v.x, v.y, 0) for v in p.vertices), True
-                    )
-                ),
+                self.IGH.ghc.BoundarySurfaces(self.IGH.ghc.PolyLine((Point3d(v.x, v.y, 0) for v in p.vertices), True)),
                 GH_Path(i),
             )
 
@@ -127,9 +121,7 @@ class GHCompo_GeneratePolygon2DFromHBFaces(object):
         translated_polygon2Ds = []  # type: List[Polygon2D]
         for face3D_poly_2D, face3D_plane in zip(self.lbt_poly2Ds, self.lbt_face3D_planes):
             translated_polygon2Ds.append(
-                polygon2d_tools.translate_polygon2D(
-                    face3D_poly_2D, face3D_plane, self.reference_plane, self.tolerance
-                )
+                polygon2d_tools.translate_polygon2D(face3D_poly_2D, face3D_plane, self.reference_plane, self.tolerance)
             )
 
         # ---------------------------------------------------------------------

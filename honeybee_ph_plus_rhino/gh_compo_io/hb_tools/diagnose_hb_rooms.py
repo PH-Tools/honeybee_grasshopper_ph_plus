@@ -75,10 +75,7 @@ class GHCompo_DiagnoseBadHBRoomGeometry(object):
                     GH_Path(i),
                 )
                 error_rooms_naked_edges_.AddRange(
-                    [
-                        self.IGH.ghc.Pipe(from_linesegment3d(l), self.radius, 0)
-                        for l in room.geometry.naked_edges
-                    ],
+                    [self.IGH.ghc.Pipe(from_linesegment3d(l), self.radius, 0) for l in room.geometry.naked_edges],
                     GH_Path(i),
                 )
 

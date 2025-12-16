@@ -39,9 +39,7 @@ class GHCompo_MergeLBTPolygon2Ds(object):
         --------
             List[Polygon2D]: A list of the merged LBT-Polygon2Ds
         """
-        merged_polygon_2d = polygon2d_tools.merge_polygon_2ds(
-            self.lbt_polygon2ds, self.tolerance
-        )
+        merged_polygon_2d = polygon2d_tools.merge_polygon_2ds(self.lbt_polygon2ds, self.tolerance)
 
         if len(merged_polygon_2d) > 1:
             self.IGH.warning("Warning: Merge resulted in more than one polygon.")

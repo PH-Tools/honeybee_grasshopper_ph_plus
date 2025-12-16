@@ -71,11 +71,7 @@ def clean_construction_name(_name):
     # type: (str | None) -> str
     """Clean the construction name and return a valid EnergyPlus string."""
 
-    return (
-        clean_and_id_ep_string("SteelStudConstruction")
-        if _name is None
-        else clean_ep_string(_name)
-    )
+    return clean_and_id_ep_string("SteelStudConstruction") if _name is None else clean_ep_string(_name)
 
 
 class GHCompo_CreateSteelStudConstruction(object):
@@ -84,9 +80,7 @@ class GHCompo_CreateSteelStudConstruction(object):
     stud_spacing_mm = ghio_validators.UnitMM("stud_spacing_mm", default=406.4)
     stud_thickness_mm = ghio_validators.UnitMM("stud_thickness_mm", default=1.0922)
     stud_flange_width_mm = ghio_validators.UnitMM("stud_flange_width_mm", default=41.275)
-    steel_conductivity_W_m_K = ghio_validators.UnitW_MK(
-        "steel_conductivity_W_m_K", default=495.0
-    )
+    steel_conductivity_W_m_K = ghio_validators.UnitW_MK("steel_conductivity_W_m_K", default=495.0)
     R_SE = 0.17  # hr-ft2-F/Btu
     R_SI = 0.68  # hr-ft2-F/Btu
 
@@ -114,9 +108,9 @@ class GHCompo_CreateSteelStudConstruction(object):
         self.ext_insulations = [get_hb_material(m) for m in _ext_insulations]
         self.ext_sheathings = [get_hb_material(m) for m in _ext_sheathings]
 
-        self.stud_layer_insulation = get_hb_material(
-            _stud_layer_insulation
-        ) or get_air_cavity_material(_stud_thickness_mm or 88.9)
+        self.stud_layer_insulation = get_hb_material(_stud_layer_insulation) or get_air_cavity_material(
+            _stud_thickness_mm or 88.9
+        )
         self.stud_depth_mm = _stud_depth_mm
         self.stud_spacing_mm = _stud_spacing_mm
         self.stud_thickness_mm = _stud_thickness_mm
@@ -171,9 +165,7 @@ class GHCompo_CreateSteelStudConstruction(object):
     def r_IP_value_stud_cavity_insulation(self):
         # type: () -> float
         """Returns the R-Value of the stud cavity insulation in IP units."""
-        return (
-            convert(self.stud_layer_insulation.r_value, "M2-K/W", "HR-FT2-F/BTU") or 0.0
-        )
+        return convert(self.stud_layer_insulation.r_value, "M2-K/W", "HR-FT2-F/BTU") or 0.0
 
     @property
     def r_IP_value_int_sheathing(self):
@@ -260,11 +252,7 @@ class GHCompo_CreateSteelStudConstruction(object):
         print("r_IP_value_ext_cladding=R-{:.2f}".format(self.r_IP_value_ext_cladding))
         print("r_IP_value_ext_insulation=R-{:.2f}".format(self.r_IP_value_ext_insulation))
         print("r_IP_value_ext_sheathing=R-{:.2f}".format(self.r_IP_value_ext_sheathing))
-        print(
-            "r_IP_value_stud_cavity_insulation=R-{:.2f}".format(
-                self.r_IP_value_stud_cavity_insulation
-            )
-        )
+        print("r_IP_value_stud_cavity_insulation=R-{:.2f}".format(self.r_IP_value_stud_cavity_insulation))
         print("r_IP_value_int_sheathing=R-{:.2f}".format(self.r_IP_value_int_sheathing))
         print("R-si=R-{:.2f}".format(self.R_SI))
         print("- " * 20)
@@ -295,9 +283,7 @@ class GHCompo_CreateSteelStudConstruction(object):
         print("RESULTS:")
         print("Stud-layer U-Value (IP): {:.3f} Btu/hr-ft2-F".format(u_IP))
         print("Stud-layer R-Value (IP): {:.2f} hr-ft2-F/Btu".format(1 / u_IP))
-        percent_reduction = (
-            self.r_IP_value_stud_cavity_insulation - 1 / u_IP
-        ) / self.r_IP_value_stud_cavity_insulation
+        percent_reduction = (self.r_IP_value_stud_cavity_insulation - 1 / u_IP) / self.r_IP_value_stud_cavity_insulation
         print("Stud-layer: {:.1f} % reduction in R-Value".format(percent_reduction * 100))
 
         u_SI = convert(u_IP, "BTU/HR-FT2-F", "W/M2-K")
@@ -305,9 +291,7 @@ class GHCompo_CreateSteelStudConstruction(object):
         if not u_SI:
             raise Exception("Error converting {} t o W/m2-K".format(u_IP))
 
-        conductivity_W_mk = u_SI * (
-            self.stud_depth_m or self.stud_layer_insulation.thickness
-        )
+        conductivity_W_mk = u_SI * (self.stud_depth_m or self.stud_layer_insulation.thickness)
         print("Stud-Layer lambda: {:.3f} W/m-K".format(conductivity_W_mk))
 
         return conductivity_W_mk
@@ -333,12 +317,8 @@ class GHCompo_CreateSteelStudConstruction(object):
         # pull it back out later on when / if we need it (reporting, etc.)
         # We won't worry about storing the stud material itself, or stud spacing
         # since that is already used to calculate the Heterogeneous U-Value
-        existing_prop_ph = getattr(
-            self.stud_layer_insulation.properties, "ph"
-        )  # type: EnergyMaterialPhProperties
-        new_prop_ph = getattr(
-            new_eq_stud_layer_material.properties, "ph"
-        )  # type: EnergyMaterialPhProperties
+        existing_prop_ph = getattr(self.stud_layer_insulation.properties, "ph")  # type: EnergyMaterialPhProperties
+        new_prop_ph = getattr(new_eq_stud_layer_material.properties, "ph")  # type: EnergyMaterialPhProperties
         new_prop_ph.ph_color = existing_prop_ph.ph_color
         new_prop_ph.divisions.steel_stud_spacing_mm = self.stud_spacing_mm
         new_prop_ph.divisions.set_row_heights([1])
@@ -360,9 +340,7 @@ class GHCompo_CreateSteelStudConstruction(object):
         # type: () -> OpaqueConstruction | None
         """Return a new 'Steel-Stud' Honeybee-Energy Construction."""
 
-        constr = OpaqueConstruction(
-            self.construction_name, self.get_construction_materials()
-        )
+        constr = OpaqueConstruction(self.construction_name, self.get_construction_materials())
         constr.display_name = self.construction_name
 
         return constr

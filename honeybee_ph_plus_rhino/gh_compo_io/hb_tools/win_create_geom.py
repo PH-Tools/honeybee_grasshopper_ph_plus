@@ -35,9 +35,7 @@ except ImportError as e:
 class GHCompo_CreateWindowRhinoGeometry(object):
     NAME_FORMAT = "{}_C{}_R{}"
 
-    def __init__(
-        self, _IGH, _win_baselines, _win_names, _win_collection, *args, **kwargs
-    ):
+    def __init__(self, _IGH, _win_baselines, _win_names, _win_collection, *args, **kwargs):
         # type: (gh_io.IGH, list[LineCurve], list[str], dict[str, win_create_types.WindowUnitType], *Any, **Any) -> None
         self.IGH = _IGH
         self.win_collection = _win_collection
@@ -68,11 +66,7 @@ class GHCompo_CreateWindowRhinoGeometry(object):
             try:
                 names.append(self.NAME_FORMAT.format(type_name, col, row))
             except Exception as e:
-                msg = (
-                    "Error creating the window name using the format: '{}'? \n{}".format(
-                        self.NAME_FORMAT, e
-                    )
-                )
+                msg = "Error creating the window name using the format: '{}'? \n{}".format(self.NAME_FORMAT, e)
                 self.IGH.error(msg)
                 names.append("{}".format(type_name))
         return names
@@ -89,9 +83,7 @@ class GHCompo_CreateWindowRhinoGeometry(object):
             except KeyError:
                 msg = (
                     "Failed to find window type named: '{}' in the window-type-collection?\n"
-                    "Valid type-names include: [{}]".format(
-                        name, ", ".join(list(self.win_collection.keys()))
-                    )
+                    "Valid type-names include: [{}]".format(name, ", ".join(list(self.win_collection.keys())))
                 )
                 raise KeyError(msg)
             surfaces, id_data = win_type.build(baseline)

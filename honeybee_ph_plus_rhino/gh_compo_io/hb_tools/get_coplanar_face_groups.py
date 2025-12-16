@@ -56,19 +56,13 @@ class GHCompo_GetCoPlanarFaceGroups(object):
     @property
     def angle_tolerance_deg(self):
         # type: () -> float
-        return math.radians(
-            self._angle_tolerance_deg or self.IGH.ghdoc.ModelAngleToleranceDegrees
-        )
+        return math.radians(self._angle_tolerance_deg or self.IGH.ghdoc.ModelAngleToleranceDegrees)
 
     def run(self):
         # type: () -> DataTree[list[Face | Shade]]
 
         output = DataTree[Object]()
-        for i, group in enumerate(
-            sort_hb_faces_by_co_planar(
-                self.faces, self.tolerance, self.angle_tolerance_deg
-            )
-        ):
+        for i, group in enumerate(sort_hb_faces_by_co_planar(self.faces, self.tolerance, self.angle_tolerance_deg)):
             output.AddRange(group, GH_Path(i))
 
         return output

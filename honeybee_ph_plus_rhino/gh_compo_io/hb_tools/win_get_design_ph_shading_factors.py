@@ -77,9 +77,7 @@ class GHCompo_GetDesignPHShadingFactors(object):
             try:
                 d = shading_row_data[hb_ap.display_name]
             except KeyError:
-                msg = "Failed to find any shading factor data for the aperture '{}'.".format(
-                    hb_ap.display_name
-                )
+                msg = "Failed to find any shading factor data for the aperture '{}'.".format(hb_ap.display_name)
                 self.IGH.warning(msg)
                 d = None
 

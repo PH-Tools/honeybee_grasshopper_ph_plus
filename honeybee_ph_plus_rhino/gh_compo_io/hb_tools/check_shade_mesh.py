@@ -87,16 +87,10 @@ class GHCompo_CheckShadeMesh(object):
         shade_groups = self.shades_grouped_by_name()
         check_shades_ = []
         for shade_group in shade_groups.values():
-            face_vertices = (
-                v
-                for shd in shade_group
-                for v in shd.geometry.triangulated_mesh3d.face_vertices
-            )
+            face_vertices = (v for shd in shade_group for v in shd.geometry.triangulated_mesh3d.face_vertices)
             vertices, face_collector = interpret_input_from_face_vertices(face_vertices)
             joined_mesh = Mesh3D(tuple(vertices), tuple(face_collector))
-            face_to_vert_ratio = float(len(joined_mesh.faces)) / float(
-                len(joined_mesh.vertices)
-            )
+            face_to_vert_ratio = float(len(joined_mesh.faces)) / float(len(joined_mesh.vertices))
 
             # -- Add any problem-Meshes to the check_shades_ list
             if face_to_vert_ratio > self.face_to_vertix_threshold:

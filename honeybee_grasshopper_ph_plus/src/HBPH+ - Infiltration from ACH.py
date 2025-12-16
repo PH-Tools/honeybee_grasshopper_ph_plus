@@ -26,7 +26,7 @@ this component will use the NET interior volume of the Spaces, so ensure that al
 have Spaces added BEFORE using this component. The exterior envelope area will include all faces exposed
 to the Ouotdoor air, or Ground, but not faces expose to Adiabatic or Surface conditions.
 -
-EM February 24, 2025
+EM December 16, 2025
     Args:
         _ach_at_50Pa: The Air Change Rate (ACH) at 50Pa. Typical Values:
 - PHI New Construction: 0.6 ACH@50Pa
@@ -36,7 +36,18 @@ EM February 24, 2025
         _hb_rooms: The Honeybee-Rooms to use as the reference volume and envelope area.
     
     Returns:
-        infilt_per_exterior_at_50Pa_: The air infiltration (m3/s-m2) rate.
+        infilt_per_exterior_at_4Pa_: The envelope air infiltration rate (m3/s-m2)
+            ---
+            This value can be passed directly into the Honeybee 'Apply Load Values' component 
+            as the 'infilt_per_area' value. Note that this value is calculated at 4Pa of pressure, 
+            which is an approximate for the 'resting' normal pressure difference.
+
+        infilt_per_exterior_at_50Pa_: The envelope air infiltration rate (m3/s-m2)
+            --- 
+            This value can be  passed into the Honeybee 'Blower Pressure Converter' in order 
+            to determine the infiltration rate at a specific resting pressure. Note that this 
+            value should NOT be passed directly into the Honeybee 'Apply Load Values' component as 
+            the 'infilt_per_area'. For this, use the 'infilt_per_exterior_at_4Pa_' value instead.
 """
 
 
@@ -70,4 +81,4 @@ gh_compo_interface = gh_compo_io.GHCompo_CalculateInfiltrationFromACH(
         _ach_at_50Pa,
         _hb_rooms,
     )
-infilt_per_exterior_at_50Pa_ = gh_compo_interface.run()
+infilt_per_exterior_at_4Pa_, infilt_per_exterior_at_50Pa_ = gh_compo_interface.run()

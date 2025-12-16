@@ -38,8 +38,6 @@ class GHCompo_GetRoomsByName(object):
                     break
 
         if len(self.room_names) > 0:
-            self.IGH.warning(
-                "Failed to find the following rooms: {}".format(self.room_names)
-            )
+            self.IGH.warning("Failed to find the following rooms: {}".format(self.room_names))
 
         return hb_rooms_

@@ -69,10 +69,7 @@ class GHCompo_CleanInputBreps(object):
         brep_, brep_is_closed = self.IGH.ghc.BrepJoin(good_brep_faces)
 
         if not brep_is_closed:
-            msg = (
-                "Error: Brep '{}' is not closed."
-                "Check the 'bad_breps_' to visualize.".format(brep)
-            )
+            msg = "Error: Brep '{}' is not closed." "Check the 'bad_breps_' to visualize.".format(brep)
             self.IGH.error(msg)
             return None, brep_, bad_brep_faces
 

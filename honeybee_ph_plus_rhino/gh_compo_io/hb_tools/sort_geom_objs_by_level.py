@@ -37,9 +37,7 @@ class GHCompo_SortGeomObjectsByLevel(object):
         # type: (gh_io.IGH, List[Geometry.GeometryBase], float) -> None
         self.IGH = _IGH
         self.geom = _geom
-        self.geom_by_level = defaultdict(
-            list
-        )  # type: defaultdict[str, List[GeometryBase]]
+        self.geom_by_level = defaultdict(list)  # type: defaultdict[str, List[GeometryBase]]
         self.names_by_level = defaultdict(list)  # type: defaultdict[str, List[str]]
         self.user_text_by_level = defaultdict(list)  # type: defaultdict[str, List[Dict]]
         self.tolerance = _tolerance or 0.001
@@ -70,9 +68,7 @@ class GHCompo_SortGeomObjectsByLevel(object):
 
         # -- Get all the Geom attributes from the GH Scene
         geom_input_idx = self.IGH.gh_compo_find_input_index_by_name("_geom")
-        obj_attributes = self.IGH.get_rh_obj_UserText_dict(
-            self.IGH.gh_compo_get_input_guids(geom_input_idx)
-        )
+        obj_attributes = self.IGH.get_rh_obj_UserText_dict(self.IGH.gh_compo_get_input_guids(geom_input_idx))
 
         # -- Get all the Geom object info from the RH Scene
         with self.IGH.context_rh_doc():

@@ -153,13 +153,7 @@ class GHCompo_ImportFlixoMaterials(object):
 
         headers_ = []
         for header_name in headers_list:
-            counter = len(
-                [
-                    header_name
-                    for h in headers_
-                    if "{}_".format(header_name) in h or header_name in h
-                ]
-            )
+            counter = len([header_name for h in headers_ if "{}_".format(header_name) in h or header_name in h])
             if counter != 0:
                 header_name = "{}_{}".format(header_name, counter)
             headers_.append(header_name)
@@ -177,9 +171,7 @@ class GHCompo_ImportFlixoMaterials(object):
         flixo_data_items = []
         headers = self.build_headers(_data[1])
         for item in _data[2:]:
-            flixo_data_items.append(
-                FlixoDataItem(**{k: v for k, v in izip(headers, item.split(";")[1:])})
-            )
+            flixo_data_items.append(FlixoDataItem(**{k: v for k, v in izip(headers, item.split(";")[1:])}))
         return flixo_data_items
 
     def build_hb_materials(self, _flixo_data_items):

@@ -33,9 +33,7 @@ except ImportError:
 
 
 class GHCompo_GroupConnectedFaces(object):
-    def __init__(
-        self, _IGH, _hb_faces, _tolerance, _angle_tolerance_degrees, *args, **kwargs
-    ):
+    def __init__(self, _IGH, _hb_faces, _tolerance, _angle_tolerance_degrees, *args, **kwargs):
         # type: (gh_io.IGH, DataTree[face.Face], float | None, float | None, *Any, **Any) -> None
         self.IGH = _IGH
         self.hb_faces = _hb_faces or []
@@ -58,8 +56,6 @@ class GHCompo_GroupConnectedFaces(object):
         # type: () -> list[face.Face3D]
         hb_faces_ = DataTree[Object]()
         for i, b in enumerate(self.hb_faces.Branches):  # type: ignore
-            for j, group in enumerate(
-                face_tools.group_hb_faces(b, self.tolerance, self.angle_tolerance_degrees)
-            ):
+            for j, group in enumerate(face_tools.group_hb_faces(b, self.tolerance, self.angle_tolerance_degrees)):
                 hb_faces_.AddRange(group, GH_Path(i, j))  # type: ignore
         return hb_faces_

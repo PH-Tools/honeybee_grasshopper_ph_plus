@@ -40,8 +40,6 @@ class GHCompo_GetFacesByName(object):
                         break
 
         if len(self.face_names) > 0:
-            self.IGH.warning(
-                "Failed to find the following faces: {}".format(self.face_names)
-            )
+            self.IGH.warning("Failed to find the following faces: {}".format(self.face_names))
 
         return hb_faces_
