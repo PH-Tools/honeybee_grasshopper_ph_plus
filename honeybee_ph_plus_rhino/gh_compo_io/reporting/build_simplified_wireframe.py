@@ -6,10 +6,13 @@
 
 try:
     from System import Object # type: ignore
+    from System.Drawing import Color # type: ignore
+    import Rhino # type: ignore
     from Grasshopper import DataTree # type: ignore
     from Grasshopper.Kernel.Data import GH_Path # type: ignore
 except ImportError as e:
     raise ImportError("\nFailed to import from Rhino:\n\t{}".format(e))
+
 try:
     from ladybug_rhino.fromgeometry import from_face3d
 except ImportError as e:
@@ -34,10 +37,11 @@ except ImportError as e:
 
 
 class GHCompo_BuildHbModelSimplifiedWireframe(object):
-    def __init__(self, _IGH, _hb_model):
-        # type: (gh_io.IGH, Model) -> None
+    def __init__(self, _IGH, _hb_model, _color):
+        # type: (gh_io.IGH, Model, Color | None) -> None
         self.IGH = _IGH
         self.hb_model = _hb_model
+        self.color = _color
 
     @property
     def ready(self):
@@ -46,11 +50,12 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
         return True
 
     def run(self):
-        # type: () -> tuple[list[Face], list, DataTree[Object], DataTree[Object], DataTree[Object], DataTree[Object]]
+        # type: () -> tuple[list[Face], list, DataTree[Object], DataTree[Object], DataTree[Object], DataTree[Object], None]
         
         if not self.ready:
-            return [], [], DataTree[Object](), DataTree[Object](), DataTree[Object](), []
+            return [], [], DataTree[Object](), DataTree[Object](), DataTree[Object](), [], None
         
+
         # -------------------------------------------------------------------------------
         # -- Get all the HB Envelope Faces
         faces_ = []
@@ -62,6 +67,7 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
                 dup_face.remove_sub_faces()
                 faces_.append(dup_face)
 
+
         # -------------------------------------------------------------------------------
         # -- Find the CoPlanar Face Groups
         coplanar_face_groups_ = DataTree[Object]()
@@ -72,6 +78,7 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
         ):
             coplanar_face_groups_.AddRange(group, GH_Path(i))
 
+
         # -------------------------------------------------------------------------------
         # -- Merge the FaceGroups
         merged_hb_faces_ = DataTree[Object]()
@@ -80,6 +87,7 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
                 group_hb_faces(b, self.IGH.ghdoc.ModelAbsoluteTolerance, self.IGH.ghdoc.ModelAngleToleranceDegrees)
             ):
                 merged_hb_faces_.AddRange(group, GH_Path(i, j))  # type: ignore
+
 
         # -------------------------------------------------------------------------------
         # -- Create Rhino Surface Geometry
@@ -120,6 +128,12 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
             wireframe_.extend(model_obj)
 
         # -------------------------------------------------------------------------------
+        # -- Setup the Wireframe Render Material
+        material_name = "_wireframe_outline__"
+        rh_material = self.IGH.create_rhino_render_material(material_name, self.color)
+        gh_material = self.IGH.gh_type.GH_Material(rh_material.Id)
+
+        # -------------------------------------------------------------------------------
         # -- Outputs
         return (
             faces_,
@@ -128,4 +142,5 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
             rh_surfaces_,
             construction_names_,
             wireframe_,
+            gh_material,
         )

@@ -23,10 +23,12 @@
 This component will create a simplified wireframe ModelObject of the Honeybee-Mode which 
 is useful as refernce geometry when exporting / printing / making diagrams, etc.
 -
-EM Nov 15, 2025
+EM Jan 8, 2026
     Args:
 
         _hb_model: (Model) The Honeybee-Model object to pull the ERV Ducting out of.
+
+        _color_: (Color) Default=Gray. Optional color swatch for the 'material_' color. 
 
     Returns:
 
@@ -44,6 +46,9 @@ EM Nov 15, 2025
 
         wireframe_: (list[Model Curve]) The simplified wireframe ModelObjects which can be passed along
             for export or printing.
+
+        material_: (Model Material) A new RenderMaterial which can be passed directly to
+            to the 'Render' input on a Model-Object.
 """
 
 import scriptcontext as sc
@@ -71,6 +76,7 @@ DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=Fa
 if DEV:
     from honeybee_ph_plus_rhino.gh_compo_io.reporting import build_simplified_wireframe as gh_compo_io
     reload(gh_compo_io)
+    reload(gh_io)
 
 # ------------------------------------------------------------------------------
 # -- GH Interface
@@ -80,6 +86,7 @@ IGH = gh_io.IGH( ghdoc, ghenv, sc, rh, rs, ghc, gh )
 gh_compo_interface = gh_compo_io.GHCompo_BuildHbModelSimplifiedWireframe(
     IGH,
     _hb_model,
+    _color_,
 )
 
 (
@@ -89,4 +96,5 @@ gh_compo_interface = gh_compo_io.GHCompo_BuildHbModelSimplifiedWireframe(
     rh_surfaces_,
     construction_names_,
     wireframe_,
+    material_,
 ) = gh_compo_interface.run()
