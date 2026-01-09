@@ -51,11 +51,10 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
 
     def run(self):
         # type: () -> tuple[list[Face], list, DataTree[Object], DataTree[Object], DataTree[Object], DataTree[Object], None]
-        
+
         if not self.ready:
             return [], [], DataTree[Object](), DataTree[Object](), DataTree[Object](), [], None
         
-
         # -------------------------------------------------------------------------------
         # -- Get all the HB Envelope Faces
         faces_ = []
@@ -125,6 +124,8 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
                 geometry=curves,
                 layer=outline_layer,
             ).object
+            if not isinstance(model_obj, list):
+                model_obj = [model_obj]
             wireframe_.extend(model_obj)
 
         # -------------------------------------------------------------------------------
