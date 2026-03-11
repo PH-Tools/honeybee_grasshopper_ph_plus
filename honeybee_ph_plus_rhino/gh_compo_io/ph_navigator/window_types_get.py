@@ -141,7 +141,18 @@ def create_hbph_window_unit_types(_IGH, _aperture_types):
 
     window_types_ = {}  # type: dict[str, WindowUnitType]
     for aperture_type in _aperture_types:
-        new_window_unit_type = WindowUnitType(_IGH, aperture_type.name)
+        # Convert row/column dimensions from mm to m
+        # Reverse row heights to match Rhino's bottom-to-top ordering
+        # (the element row numbers are already reversed in reverse_elements_row_order)
+        row_heights_m = [h / 1000.0 for h in reversed(aperture_type.row_heights_mm)]
+        col_widths_m = [w / 1000.0 for w in aperture_type.column_widths_mm]
+
+        new_window_unit_type = WindowUnitType(
+            _IGH,
+            aperture_type.name,
+            _row_heights_m=row_heights_m,
+            _col_widths_m=col_widths_m,
+        )
 
         for element in aperture_type.elements:
             # -- Calculate the total width considering column span
@@ -250,9 +261,9 @@ class GHCompo_PHNavGetWindowTypes(object):
         )
 
         try:
-            System.Net.ServicePointManager.SecurityProtocol = (
-                System.Net.SecurityProtocolType.Tls12
-            )
+            System.Net.ServicePointManager.SecurityProtocol = ( # type: ignore
+                System.Net.SecurityProtocolType.Tls12 # type: ignore
+            ) 
         except AttributeError:
             if _url.lower().startswith("https"):
                 self.IGH.error(
@@ -267,7 +278,7 @@ class GHCompo_PHNavGetWindowTypes(object):
         # type: (str) -> System.Net.WebClient
         """Get a web client with Header and Query configuration for downloading data from PH-Navigator."""
 
-        client = System.Net.WebClient()
+        client = System.Net.WebClient() # type: ignore
         client.Headers.Add("Authorization", "Bearer {}".format(None))
         client.Headers.Add("Content-type", "application/json")
         client.QueryString.Add("offset", _offset)

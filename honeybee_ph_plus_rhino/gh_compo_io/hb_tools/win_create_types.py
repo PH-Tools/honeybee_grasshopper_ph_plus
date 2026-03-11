@@ -85,11 +85,13 @@ class WindowElement(object):
 class WindowUnitType(object):
     """A Class to organize a single Window 'Type' with all its WindowElements."""
 
-    def __init__(self, _IGH, _type_name, _spacer_m=0.0):
-        # type: (gh_io.IGH, str, float) -> None
+    def __init__(self, _IGH, _type_name, _spacer_m=0.0, _row_heights_m=None, _col_widths_m=None):
+        # type: (gh_io.IGH, str, float, list[float] | None, list[float] | None) -> None
         self.IGH = _IGH
         self.type_name = _type_name
         self.spacer_m = _spacer_m
+        self._row_heights_m = _row_heights_m  # Explicit grid row heights
+        self._col_widths_m = _col_widths_m  # Explicit grid column widths
         self.elements = []  # type: list[WindowElement]
 
     @staticmethod
@@ -158,28 +160,58 @@ class WindowUnitType(object):
         # type: () -> list[float]
         """Returns a list of the cumulative row-heights starting from 0. ie: [0.0, 3.4, 5.6]"""
 
+        # Use explicit row heights if provided
+        # Try to use the true grid heights (from the JSON) directly.  
+        if self._row_heights_m is not None:
+            row_heights_ = [0.0]
+            for height in self._row_heights_m:
+                row_heights_.append(row_heights_[-1] + height)
+            return row_heights_
+
+        # Fallback: derive from element's height values
+        # If ALL elements at a row position have row_span > 1, this
+        # fallback path's min() returns the combined height of spanned rows, not the single row height.
         row_heights_dict = defaultdict(list)
         for element in self.elements:
             row_heights_dict[int(element.row)].append(float(element.height_m))
-
+            # >>> {
+            #  0: [1, 1, 2.5],
+            #  1: [1, 1, 2.5],
+            #  ...
+            # }
+            
         row_heights_ = [0.0]  # starting position
         for k in sorted(row_heights_dict.keys()):
             row_heights_.append(row_heights_[k] + min(row_heights_dict[k]))
-        # print("Cumulative Row Heights: {}".format(row_heights_))
         return row_heights_
 
     def get_cumulative_col_widths_m(self):
         # type: () -> list[float]
         """Returns a list of the cumulative column-widths starting from 0. ie: [0.0, 3.4, 5.6]"""
 
+        # Use explicit column widths if provided
+        # Try to use the true grid widths (from the JSON) directly.  
+        if self._col_widths_m is not None:
+            col_widths_ = [0.0]
+            for width in self._col_widths_m:
+                col_widths_.append(col_widths_[-1] + width)
+            return col_widths_
+
+        # Fallback: derive from element's width values
+        # If ALL elements at a column position have col_span > 1, this
+        # fallback path's min() returns the combined width of spanned columns, not the single column width.
         col_widths_dict = defaultdict(list)
         for element in self.elements:
             col_widths_dict[int(element.col)].append(float(element.width_m))
+            # >>> {
+            #  0: [1, 1, 2.5],
+            #  1: [1, 1, 2.5],
+            #  ...
+            # }
 
         col_widths_ = [0.0]  # starting position
         for k in sorted(col_widths_dict.keys()):
             col_widths_.append(col_widths_[k] + min(col_widths_dict[k]))
-        # print("Cumulative Column Widths: {}".format(col_widths_))
         return col_widths_
 
     def build(self, _base_curve):
