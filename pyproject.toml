@@ -1,7 +1,7 @@
 # -- Bump My Version ---------------------------------------------------------------
 # Manages the RELEASE_VERSION in _component_info_.py
 [tool.bumpversion]
-current_version = "1.6.4"
+current_version = "1.6.5"
 commit = true
 tag = true
 tag_name = "v{new_version}"
