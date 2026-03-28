@@ -49,12 +49,12 @@ import Grasshopper as gh
 try:
     from ph_gh_component_io import gh_io
 except ImportError as e:
-    raise ImportError('Failed to import ph_gh_component_io:\t{}'.format(e))
+    raise ImportError('\nFailed to import ph_gh_component_io:\n\t{}'.format(e))
 
 try:
     from honeybee_ph_plus_rhino import gh_compo_io
 except ImportError as e:
-    raise ImportError('Failed to import honeybee_ph_plus_rhino:\t{}'.format(e))
+    raise ImportError('\nFailed to import honeybee_ph_plus_rhino:\n\t{}'.format(e))
 
 
 # ------------------------------------------------------------------------------
