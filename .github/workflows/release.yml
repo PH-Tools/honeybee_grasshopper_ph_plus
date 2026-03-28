@@ -1,0 +1,66 @@
+name: Release Honeybee-PH+
+
+# Can be triggered manually or via repository_dispatch from the
+# honeybee_grasshopper_ph orchestrator.
+
+on:
+  workflow_dispatch:
+    inputs:
+      bump_level:
+        description: "Version bump level"
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+  repository_dispatch:
+    types: [release]
+
+jobs:
+  release:
+    name: Bump version and release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install tools
+        run: pip install bump-my-version
+
+      # Determine bump level: from workflow_dispatch input or repository_dispatch payload
+      - name: Determine bump level
+        id: level
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "bump=${{ github.event.client_payload.bump_level }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "bump=${{ inputs.bump_level }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Bump version
+        id: bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          bump-my-version bump ${{ steps.level.outputs.bump }}
+          NEW_VERSION=$(bump-my-version show current_version)
+          echo "new_version=$NEW_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Push version commit and tag
+        run: git push --follow-tags
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.bump.outputs.new_version }}
+          name: Honeybee-PH+ v${{ steps.bump.outputs.new_version }}
+          generate_release_notes: true
