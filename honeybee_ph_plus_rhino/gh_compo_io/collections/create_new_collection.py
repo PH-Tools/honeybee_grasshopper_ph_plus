@@ -33,6 +33,22 @@ class CustomCollection(object):
         self.display_name = _display_name or ""
         self._storage = {}
 
+    @classmethod
+    def from_dict(cls, _mapping, _display_name=""):
+        # type: (Dict[str, T], str) -> CustomCollection
+        """Build a CustomCollection from a `{key: value}` mapping.
+
+        The keys become the collection keys and the values its items (key order is
+        not preserved - storage is a plain dict). This is the canonical way to turn a
+        `{name: object}` dict into a collection, so components that build such a dict
+        (e.g. the PH-Nav Get Constructions / Get Apertures getters) all emit the same
+        output type the same way.
+        """
+        collection = cls(_display_name)
+        for key, value in _mapping.items():
+            collection[key] = value
+        return collection
+
     def keys(self):
         # type: () -> KeysView[str]
         return self._storage.keys()
