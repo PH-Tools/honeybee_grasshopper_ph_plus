@@ -1,50 +1,32 @@
-# CLAUDE.md — honeybee_grasshopper_ph_plus (HBPH+)
+# honeybee_grasshopper_ph_plus (HBPH+)
 
-Open-source (`github.com/PH-Tools`) plugin adding extra utility Grasshopper components to the Honeybee-PH toolchain. See `.index.md` for the file-level navigation map, and `honeybee_ph_plus_rhino/gh_compo_io/.index.md` for the "why" behind the facade/deploy/IronPython design plus the anatomy of a `GHCompo_*` class (each `gh_compo_io/` subfolder has its own `.index.md` too).
+Open-source (`github.com/PH-Tools`) plugin adding **extra utility** Grasshopper components on top of the base `honeybee_grasshopper_ph` package (Airtable integration, reporting/PDF, PHPP readers, SQL/E+ readers, Plotly plotting, PH-Navigator, and more). Requires the base HBPH package.
 
-## Runtime target — IronPython 2.7
+> **Runtime constraint (critical):** deployed code runs inside **Rhino/Grasshopper's IronPython 2.7**, not CPython 3. Repo tooling (black/ruff/bumpversion, `.venv`) is CPython and is for linting/release only — never installed into Rhino. See `context/CODING_STANDARDS.md`.
 
-The deployed code runs inside **Rhino/Grasshopper's IronPython 2.7**, NOT CPython 3.
+## Where things live — read before working
 
-- Write Py2.7-compatible code: no f-strings, no `pathlib`, use `# type:` comment annotations (not inline `def f(x: int)`), `print` is fine but rarely used.
-- `.venv/` and repo tooling (black, ruff, bumpversion) ARE CPython — that's only for linting/release, never installed into Rhino.
-- ruff/black line-length is **120**. `F401` is globally ignored (type-hint-in-comment imports); `__init__.py` may use wildcard imports.
-- Do NOT "modernize" to Python 3 idioms. Match the surrounding Py2.7 style exactly.
+| Working on… | Read |
+|-------------|------|
+| What this repo is/isn't, scope | `context/PRD.md` |
+| The two-layer design, fsdeploy, `GHCompo_*` anatomy (the deep "why") | `honeybee_ph_plus_rhino/gh_compo_io/.index.md` |
+| Component pattern + subpackage map (orientation) | `context/ARCHITECTURE.md` |
+| IronPython 2.7 rules, imports, type comments, formatting | `context/CODING_STANDARDS.md` |
+| Deps, fsdeploy dev loop, release | `context/TECH_STACK.md` |
+| Current / in-flight work | `planning/STATUS.md` |
+| File-level navigation | `.index.md` (root) + per-folder `.index.md` under `gh_compo_io/` |
 
-## Two-layer architecture
+Full context index: `context/README.md`.
 
-A component = a thin GH wrapper + a backend logic class. Keep the two in sync.
+## Hard rules
 
-1. **`honeybee_grasshopper_ph_plus/src/HBPH+ - <Name>.py`** — thin GH-canvas wrapper. Boilerplate GPL header + docstring (Args/Returns block that GH renders as tooltips), sets `ghenv.Component.Name`, builds an `IGH` interface, instantiates a `GHCompo_*` class from `gh_compo_io`, calls `.run()`. Logic does NOT live here.
-2. **`honeybee_ph_plus_rhino/gh_compo_io/<subcat>/<name>.py`** — the actual `GHCompo_*` class doing the work. Subcategory folders: `airtable/ collections/ ghpy/ hb_tools/ ph_navigator/ read/ reporting/`; also `phpp/`, `plotly/`, `sql/` at package root.
-3. **`honeybee_ph_plus_rhino/_component_info_.py`** — registry: `RELEASE_VERSION`, `CATEGORY` = `HB-PH+`, `SUB_CATEGORIES` map, per-component `COMPONENT_PARAMS` (NickName / Category / SubCategory).
-4. **`honeybee_grasshopper_ph_plus/user_objects/HBPH+ - <Name>.ghuser`** — compiled binary user object (build artifact, regenerated on release — do not hand-edit).
-5. **`honeybee_grasshopper_ph_plus/icons/`** — `AI/` source + `PNG/` export per component.
+1. **IronPython 2.7 for deployed code.** No f-strings/`pathlib`/modern stdlib; type **comments** (`# type:`), not annotations. Do not "modernize" to Py3 idioms — match the surrounding Py2.7 style. `F401` is globally ignored (type-hint-in-comment imports); `__init__.py` may use wildcard imports.
+2. **A component = thin GH wrapper + backend logic class.** Wrapper `honeybee_grasshopper_ph_plus/src/HBPH+ - <Name>.py` (no logic); logic `honeybee_ph_plus_rhino/gh_compo_io/<subcat>/<name>.py` (`GHCompo_*`). Adding one touches: (a) `src/` wrapper, (b) `gh_compo_io/` class, (c) `_component_info_.py` entry, (d) icon in `icons/`, (e) rebuilt `.ghuser`.
+3. **Names must match exactly** across the `src/` filename, `ghenv.Component.Name`, and the `_component_info_.py` key — all `"HBPH+ - <Name>"`. Preserve the GPL header + Args/Returns docstring in wrappers (GH renders it as tooltips).
+4. **fsdeploy makes saves live.** Saving a `gh_compo_io/` logic file silently updates the live Rhino install (`.vscode/settings.json` → `fsdeploy`). Never edit inside Rhino's folders directly — those copies are overwritten on next deploy. Leave the wrapper `DEV`/`reload` block at `dev=False` on commit.
+5. **Do not hand-edit the version.** `bump-my-version` rewrites `RELEASE_VERSION` in `_component_info_.py`; `.github/workflows/release.yml` releases. Don't commit version bumps unless asked.
+6. **No test suite here** (the `.pytest_cache` is incidental). Verify logic against the sibling backend repos where the tested code lives, or by loading in Rhino/GH.
 
-## Adding / editing a component
+## Related repos (all under `~/Dropbox/bldgtyp-00/00_PH_Tools/`)
 
-To add one, touch all of: (a) `src/` wrapper, (b) `gh_compo_io/` logic class, (c) `_component_info_.py` entry, (d) icon in `icons/`, (e) rebuild the `.ghuser`. Editing behavior usually means editing the `gh_compo_io/` class only — the `src/` wrapper rarely changes.
-
-The `DEV` block in each wrapper (`reload(...)` calls guarded by `dev=False`) is a hot-reload aid for canvas development; leave `dev=False` on commit.
-
-## Deployment — fsdeploy (why this repo lives outside Rhino)
-
-We keep the source in this git repo instead of inside Rhino's application folders (where `.ghuser` code normally lives and can't be diffed/reviewed/type-checked). A VS Code extension, **fsdeploy**, bridges the gap: on every save (`fsdeploy.deployOnSave: true` in `.vscode/settings.json`) it copies the package to Rhino's runtime paths.
-
-- Targets (`fsdeploy.nodes` in `.vscode/settings.json`): the `ladybug_tools/python/.../site-packages/` path Grasshopper imports at runtime, and the sibling `PHX/.venv/` so PHX-side dev/tests resolve the same package.
-- Consequence: **saving a `gh_compo_io/` logic file silently updates the live Rhino install** — no build step for logic changes. Only the `.ghuser` facade needs a real rebuild, and only when the facade itself changes.
-- Never edit inside the Rhino folders directly; those copies are overwritten on the next deploy.
-
-## Dependencies (external, IronPython import namespace)
-
-Imports resolve against sibling PH-Tools packages installed in the Rhino Python path, not via pip: `honeybee_ph`, `honeybee_ph_rhino` (base `honeybee_grasshopper_ph` — required), `ph_units`, plus Ladybug/Honeybee core and `.NET` (`Rhino`, `Grasshopper`, `System`). `typings/` holds stubs for the .NET/GH API for static checking only.
-
-## Versioning & release
-
-`bump-my-version` drives releases: it rewrites `RELEASE_VERSION` in `_component_info_.py`, commits (`bump: ... [skip ci]`), and tags `v{version}`. `.github/workflows/release.yml` handles the release. Do not hand-edit the version string; do not commit version bumps unless asked.
-
-## Conventions
-
-- Preserve the GPL-3.0 header block and the Args/Returns docstring format in `src/` wrappers — GH parses the docstring for the canvas UI.
-- Component display names are the exact `"HBPH+ - <Name>"` strings; they must match across `src/` filename, `ghenv.Component.Name`, and the `_component_info_.py` key.
-- No test suite in this repo (the `.pytest_cache` is incidental). Verify logic changes against the sibling backend repos where the tested code lives, or by loading in Rhino/GH.
+`honeybee_grasshopper_ph` (base package — **required**) · `honeybee_ph` (data model) · `PHX` (serialization) · `PH_units` (units).
