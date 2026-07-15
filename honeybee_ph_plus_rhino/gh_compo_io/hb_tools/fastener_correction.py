@@ -395,6 +395,33 @@ class GHCompo_AddFastenersToConstruction(object):
             _debug=False,
         )
 
+        # -- Guard against a non-physical (negative) result. The ISO 6946 point-fastener
+        # -- correction subtracts the entire assembly-resistance loss from this single
+        # -- layer. When the fasteners remove more resistance than the selected layer
+        # -- actually provides, the adjusted conductivity goes negative and honeybee's
+        # -- EnergyMaterial raises an opaque AssertionException. Fail here with an
+        # -- actionable message instead of emitting a wrong construction.
+        if self.adjusted_layer_conductivity_w_mk <= 0:
+            raise ValueError(
+                "The fastener correction for layer {layer} ('{name}') removes more thermal "
+                "resistance than the layer provides, giving a non-physical (negative) "
+                "conductivity of {cond:.4f} W/mk.\n"
+                "  layer R-value (R_1) = {r1:.3f} m2-K/W | assembly R-value (R_tot) = {rtot:.3f} m2-K/W\n"
+                "The point-fastener correction is only valid as a small perturbation, so this "
+                "means an input is out of range. Please check:\n"
+                "  - '_layer_' = {layer}: is this the insulation layer the fasteners actually penetrate?\n"
+                "  - '_fastener_count' ({count:.2f}) and '_reference_area': is the fastener density realistic? "
+                "(a too-small reference area inflates fasteners-per-m2)\n"
+                "  - '_fastener_material': a high-conductivity metal at high density can fully short a thin layer.".format(
+                    layer=self.layer,
+                    name=self.insulation_material.display_name,
+                    cond=self.adjusted_layer_conductivity_w_mk,
+                    r1=self.insulation_material.r_value,
+                    rtot=1 / self.construction.u_factor,
+                    count=self.fastener_count,
+                )
+            )
+
         # -- Build the new Material with adjusted R-value
         new_material = EnergyMaterial(
             identifier=self.insulation_material.display_name + " w/ Fasteners",
