@@ -161,7 +161,7 @@ class WindowUnitType(object):
         """Returns a list of the cumulative row-heights starting from 0. ie: [0.0, 3.4, 5.6]"""
 
         # Use explicit row heights if provided
-        # Try to use the true grid heights (from the JSON) directly.  
+        # Try to use the true grid heights (from the JSON) directly.
         if self._row_heights_m is not None:
             row_heights_ = [0.0]
             for height in self._row_heights_m:
@@ -179,7 +179,7 @@ class WindowUnitType(object):
             #  1: [1, 1, 2.5],
             #  ...
             # }
-            
+
         row_heights_ = [0.0]  # starting position
         for k in sorted(row_heights_dict.keys()):
             row_heights_.append(row_heights_[k] + min(row_heights_dict[k]))
@@ -190,7 +190,7 @@ class WindowUnitType(object):
         """Returns a list of the cumulative column-widths starting from 0. ie: [0.0, 3.4, 5.6]"""
 
         # Use explicit column widths if provided
-        # Try to use the true grid widths (from the JSON) directly.  
+        # Try to use the true grid widths (from the JSON) directly.
         if self._col_widths_m is not None:
             col_widths_ = [0.0]
             for width in self._col_widths_m:
@@ -230,11 +230,12 @@ class WindowUnitType(object):
         surfaces_ = []
         id_data_ = OrderedDict()
         rh_doc_units = self.IGH.get_rhino_unit_system_name()
-        for i, col_element_lists in enumerate(self.elements_by_column(self.elements)):
+        for col_element_lists in self.elements_by_column(self.elements):
             column_elements_origin_plane = copy(origin_plane)  # type: Plane
 
             # 1) -- Move the origin plane 'over' to the next column
-            col_width_in_doc_units = convert(cum_col_widths_m_[i], "M", rh_doc_units)
+            col_index = col_element_lists[0].col
+            col_width_in_doc_units = convert(cum_col_widths_m_[col_index], "M", rh_doc_units)
             column_elements_origin_plane = self.IGH.ghc.Move(
                 column_elements_origin_plane,
                 self.IGH.ghc.Amplitude(self.x_vector, col_width_in_doc_units),
