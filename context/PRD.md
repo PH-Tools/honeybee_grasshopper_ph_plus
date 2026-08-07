@@ -23,7 +23,7 @@ Passive House consultants already using the base `honeybee_grasshopper_ph` packa
 
 - **Not the base modeling components** — those are `honeybee_grasshopper_ph`.
 - **Not the core data model / serialization** — `honeybee_ph` / `PHX`.
-- **No test suite of its own** — logic is verified against the sibling backend repos or by loading in Rhino/GH.
+- **Not a Rhino/GH integration-test suite** — dependency-stubbed CPython tests may cover isolated logic, but integration is verified against sibling backend repos or by loading in Rhino/GH.
 
 ## 5. Success criteria
 

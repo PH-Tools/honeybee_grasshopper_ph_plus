@@ -8,6 +8,7 @@ Working plans for HBPH+. See [`.instructions.md`](.instructions.md) for the rule
 
 - `STATUS.md` — master index of active work.
 - `features/` — plans for new capabilities.
+- `bug-fixes/` — defect investigations (single `<slug>.md` for small items).
 - `archive/` — completed/superseded work, flat by slug, indexed in `archive/README.md` (currently: `ph-navigator-v1/`).
 
 When an item is done, fold its outcome into `context/`, then move it into `archive/<slug>/` and add a row to `archive/README.md`.

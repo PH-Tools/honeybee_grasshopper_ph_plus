@@ -2,13 +2,13 @@
 
 Master index of tracked planning work in HBPH+.
 
-_Last updated: 2026-07-15_
+_Last updated: 2026-08-06_
 
 ## Active / current work
 
 | Item | Kind | Status | Pointer |
 |------|------|--------|---------|
-| _(none active)_ | | | |
+| `Infiltration from ACH` — 50Pa output unit mismatch | Bug fix | **Implemented** — automated verification passed | [`bug-fixes/infiltration-from-ach-units.md`](bug-fixes/infiltration-from-ach-units.md) |
 
 ## Archived
 

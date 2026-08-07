@@ -46,7 +46,11 @@ except ImportError as e:
 def face_is_exposed(_face):
     # type: (Face) -> bool
     """Check if the Honeybee-face is exposed to OUTDOORS or GROUND or ADIABATIC."""
-    return isinstance(_face.boundary_condition, Outdoors) or isinstance(_face.boundary_condition, Ground) or isinstance(_face.boundary_condition, Adiabatic)
+    return (
+        isinstance(_face.boundary_condition, Outdoors)
+        or isinstance(_face.boundary_condition, Ground)
+        or isinstance(_face.boundary_condition, Adiabatic)
+    )
 
 
 class GHCompo_CalculateInfiltrationFromACH(object):
@@ -135,19 +139,22 @@ class GHCompo_CalculateInfiltrationFromACH(object):
             raise ValueError("Volume and envelope_area must be positive")
 
         # Total volumetric flow at blower pressure
-        q50 = n_50 * volume_m3 / 3600.0  # m3/s
+        q50_total_m3s = n_50 * volume_m3 / 3600.0
         print(
             "Total Leakage Airflow at {:,.1f}-ACH@{:,.0f}Pa: {:,.6f} M3/S [{:,.3f} CFM]".format(
-                self.ach_at_50Pa, 50.0, q50, convert(q50, "M3/S", "CFM")
+                self.ach_at_50Pa, 50.0, q50_total_m3s, convert(q50_total_m3s, "M3/S", "CFM")
             )
         )
 
         print(
             "Infiltration Rate at {:,.1f}-ACH@{:,.0f}Pa: {:,.6f} M3/S-M2 [{:,.3f} CFM/FT2]".format(
-                self.ach_at_50Pa, 50.0, q50 / envelope_area_m2, convert(q50 / envelope_area_m2, "M3/S-M2", "CFM/FT2")
+                self.ach_at_50Pa,
+                50.0,
+                q50_total_m3s / envelope_area_m2,
+                convert(q50_total_m3s / envelope_area_m2, "M3/S-M2", "CFM/FT2"),
             )
         )
-        return q50
+        return q50_total_m3s
 
     def calculate_infiltration_rate_at_resting_pressure(
         self,
@@ -160,11 +167,13 @@ class GHCompo_CalculateInfiltrationFromACH(object):
     ):
         # type: (float, float, float, float, float, float) -> float
         """
-        Convert ACH@50 to infiltration per exterior area at resting pressure (4Pa).
+        Convert total airflow at blower pressure to a per-area rate at resting pressure.
 
         Args:
-            q_50 (float):
-                Air changes per hour at 50 Pa [ACH]. Default: 1.0
+            q50 (float):
+                Total volumetric flow at 50 Pa [m3/s].
+            envelope_area_m2 (float):
+                Exposed envelope area [m2].
             resting_pressure_Pa (float):
                 Typical operating pressure [Pa]. Default: 4 Pa.
             blower_pressure_Pa (float):
@@ -172,7 +181,8 @@ class GHCompo_CalculateInfiltrationFromACH(object):
             flow_exponent (float):
                 Flow exponent n [-]. Default: 0.65.
             air_density_kg_m3 (float):
-                Air density [kg/m3].
+                Retained for backwards compatibility. Density cancels from the
+                pressure-law calculation and does not affect the result.
 
         Returns:
             float:
@@ -181,29 +191,10 @@ class GHCompo_CalculateInfiltrationFromACH(object):
         """
         if envelope_area_m2 <= 0:
             raise ValueError("Envelope-Area must be positive. Got: '{}' ?".format(envelope_area_m2))
-    
-        # Total mass flow at blower pressure
-        m50 = q50 * air_density_kg_m3  # kg/s
-
-        # Total leakage coefficient
-        C_total = m50 / (blower_pressure_Pa**flow_exponent)
-
-        # Normalize by envelope area
-        C_area = C_total / envelope_area_m2  # kg/(m2·s·Pa^n)
-
-        # Mass flow per area at resting pressure
-        m_rest_area = C_area * (resting_pressure_Pa**flow_exponent)
-
-        # Convert back to volumetric flow per area
-        q_rest_area = m_rest_area / air_density_kg_m3
-        print(
-            "Total Leakage Airflow at {:,.1f}-ACH@{:,.0f}Pa: {:,.6f} M3/S [{:,.3f} CFM]".format(
-                self.ach_at_50Pa, resting_pressure_Pa, q_rest_area, convert(q_rest_area, "M3/S", "CFM")
-            )
-        )
+        q_rest_area = (q50 / envelope_area_m2) * (resting_pressure_Pa / blower_pressure_Pa) ** flow_exponent
         print(
             "Infiltration Rate at {:,.1f}-ACH@{:,.0f}Pa: {:,.6f} M3/S-M2 [{:,.3f} CFM/FT2]".format(
-                self.ach_at_50Pa, resting_pressure_Pa, q_rest_area, convert(q_rest_area, "M3/S-M2", "CFM/FT2")  
+                self.ach_at_50Pa, resting_pressure_Pa, q_rest_area, convert(q_rest_area, "M3/S-M2", "CFM/FT2")
             )
         )
         return q_rest_area
@@ -225,19 +216,18 @@ class GHCompo_CalculateInfiltrationFromACH(object):
         if exposed_area_m2 is None:
             return None, None
 
-        # -- Calculate the Airflow Leakage Rate(M3/S-M2)
-        infiltration_rate_at_50Pa = self.calculate_infiltration_rate_at_test_pressure(
+        q50_total_m3s = self.calculate_infiltration_rate_at_test_pressure(
             self.ach_at_50Pa,
             vn50_m3,
             exposed_area_m2,
         )
         infiltration_rate_at_4Pa = self.calculate_infiltration_rate_at_resting_pressure(
-            infiltration_rate_at_50Pa,
+            q50_total_m3s,
             exposed_area_m2,
             resting_pressure_Pa=4.0,
             blower_pressure_Pa=50.0,
             flow_exponent=0.65,
-            air_density_kg_m3=1.0,
         )
 
+        infiltration_rate_at_50Pa = q50_total_m3s / exposed_area_m2
         return infiltration_rate_at_4Pa, infiltration_rate_at_50Pa

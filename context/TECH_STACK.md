@@ -32,7 +32,8 @@ Backend integration libraries in `honeybee_ph_plus_rhino/`: `phpp/` (PHPP reader
 
 ## Testing
 
-- **No tests in this repo** (the `.pytest_cache` is incidental). Verify against the sibling backend repos or in Rhino/GH.
+- Dependency-stubbed CPython unit tests in `tests/` cover isolated logic.
+- These tests do not prove Rhino/Grasshopper compatibility; verify integration changes against sibling backend repos or in Rhino/GH.
 
 ## Versioning & release
 
