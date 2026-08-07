@@ -86,12 +86,7 @@ class CustomCollection(object):
             self.__class__.__name__,
             self.display_name,
             len(self._storage),
-            "\n".join(
-                [
-                    "\t - Key: {} = {}...".format(k, str(v)[:25].replace("\n", ""))
-                    for k, v in self.items()
-                ]
-            ),
+            "\n".join(["\t - Key: {} = {}...".format(k, str(v)[:25].replace("\n", "")) for k, v in self.items()]),
         )
 
     def __repr__(self):
@@ -113,9 +108,7 @@ class GHCompo_CreateCustomCollection(object):
         # type: (T) -> str
         """Return the Key to use when storing the value. Returns id(item) by default."""
         if self.key_name and "," in self.key_name:
-            values = [
-                str(getattr(_item, str(_).strip())) for _ in self.key_name.split(",")
-            ]
+            values = [str(getattr(_item, str(_).strip())) for _ in self.key_name.split(",")]
             return "_".join(values)
         elif self.key_name:
             return str(getattr(_item, self.key_name))

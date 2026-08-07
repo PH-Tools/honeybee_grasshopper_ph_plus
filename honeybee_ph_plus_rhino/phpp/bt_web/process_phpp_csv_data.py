@@ -135,9 +135,7 @@ def get_absolute_certification_limits_as_df(
     for variant in cert_limits_specific.columns[:2]:  # Data ID cols
         cert_limits_abs[variant] = cert_limits_specific[variant]
 
-    cert_limits_abs["Units"] = cert_limits_specific["Units"].str.replace(
-        "/m2", ""
-    )  # 'm2' strings
+    cert_limits_abs["Units"] = cert_limits_specific["Units"].str.replace("/m2", "")  # 'm2' strings
 
     for variant in cert_limits_specific.columns[2:]:  # The data cols
         cert_limits_abs[variant] = cert_limits_specific[variant].mul(tfa_df[variant])
@@ -199,9 +197,7 @@ def resolve_arguments(_args: list[str]) -> tuple[Path, Path, Path, Path]:
 if __name__ == "__main__":
     print(f"Running script {__file__}")
 
-    variant_data_csv, climate_data_csv, room_vent_data_csv, save_folder = (
-        resolve_arguments(sys.argv)
-    )
+    variant_data_csv, climate_data_csv, room_vent_data_csv, save_folder = resolve_arguments(sys.argv)
 
     # variant_data_csv = Path("/Users/em/Dropbox/bldgtyp-00/00_PH_Tools/honeybee_grasshopper_ph_plus/honeybee_ph_plus_rhino/phpp/bt_web/test/phpp_data_variants.csv")
     # climate_data_csv = Path("/Users/em/Dropbox/bldgtyp-00/00_PH_Tools/honeybee_grasshopper_ph_plus/honeybee_ph_plus_rhino/phpp/bt_web/test/phpp_data_climate.csv")
@@ -221,8 +217,6 @@ if __name__ == "__main__":
     tfa_df = get_tfa_as_df(variant_df)
     variant_names = get_variant_names_as_series(variant_df)
 
-    phpp_data = PHPPData(
-        variant_df, climate_df, room_vent_df, abs_cert_limits_df, tfa_df, variant_names
-    )
+    phpp_data = PHPPData(variant_df, climate_df, room_vent_df, abs_cert_limits_df, tfa_df, variant_names)
 
     generate_csv_files.create_csv_files(save_folder, phpp_data)

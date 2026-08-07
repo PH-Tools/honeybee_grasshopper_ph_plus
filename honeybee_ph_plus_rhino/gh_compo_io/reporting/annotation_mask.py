@@ -11,10 +11,7 @@ except ImportError:
 try:
     from System.Drawing import Color  # type: ignore
 except ImportError:
-    raise ImportError(
-        "Failed to import System.Drawing.\n"
-        "Module '{}' cannot be used outside Rhino.".format(__name__)
-    )
+    raise ImportError("Failed to import System.Drawing.\n" "Module '{}' cannot be used outside Rhino.".format(__name__))
 try:
     from Rhino.DocObjects.DimensionStyle import MaskFrame  # type: ignore
 except ImportError:
@@ -26,10 +23,7 @@ except ImportError:
 try:
     from Grasshopper import DataTree  # type: ignore
 except ImportError:
-    raise ImportError(
-        "Failed to import Grasshopper.\n"
-        "Module '{}' cannot be used outside Rhino.".format(__name__)
-    )
+    raise ImportError("Failed to import Grasshopper.\n" "Module '{}' cannot be used outside Rhino.".format(__name__))
 
 try:
     from ph_gh_component_io import gh_io
@@ -98,9 +92,7 @@ class TextAnnotationMaskAttributes(object):
         )
 
     def __str__(self):
-        return "{}({})".format(
-            self.__class__.__name__, ["{}={}".format(k, v) for k, v in vars(self).items()]
-        )
+        return "{}({})".format(self.__class__.__name__, ["{}={}".format(k, v) for k, v in vars(self).items()])
 
     def __repr__(self):
         return str(self)
@@ -116,9 +108,7 @@ class GHCompo_CreateTextAnnotationMask(object):
     default_frame_type = MaskFrame.RectFrame
     default_show_frame = True
 
-    def __init__(
-        self, _IGH, _show_mask, _color, _offset, _frame_type, _show_frame, *args, **kwargs
-    ):
+    def __init__(self, _IGH, _show_mask, _color, _offset, _frame_type, _show_frame, *args, **kwargs):
         # type: (gh_io.IGH, DataTree, DataTree, DataTree, DataTree, DataTree, *Any, **Any) -> None
         self.IGH = _IGH
         self.show_mask = _show_mask
@@ -196,22 +186,14 @@ class GHCompo_CreateTextAnnotationMask(object):
                 )
             ):
                 # -- Get the right data from the tree branch
-                show_mask = cleaner_get(
-                    list(show_mask_branch), k, _default=self.default_show_mask
-                )
+                show_mask = cleaner_get(list(show_mask_branch), k, _default=self.default_show_mask)
                 color = cleaner_get(list(color_branch), k, _default=self.default_color)
                 offset = cleaner_get(list(offset_branch), k, _default=self.default_offset)
-                frame_type = cleaner_get(
-                    list(frame_type_branch), k, _default=self.default_frame_type
-                )
-                show_frame = cleaner_get(
-                    list(show_frame_branch), k, _default=self.default_show_frame
-                )
+                frame_type = cleaner_get(list(frame_type_branch), k, _default=self.default_frame_type)
+                show_frame = cleaner_get(list(show_frame_branch), k, _default=self.default_show_frame)
 
                 # -- Build the TextAnnotationMaskAttributes
-                new_mask = TextAnnotationMaskAttributes(
-                    show_mask, color, offset, frame_type, show_frame
-                )
+                new_mask = TextAnnotationMaskAttributes(show_mask, color, offset, frame_type, show_frame)
 
                 text_annotation_masks_.Add(new_mask)
 

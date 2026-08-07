@@ -56,9 +56,7 @@ def create_csv_radiation(_df_climate: pd.DataFrame, _output_path: pathlib.Path) 
 
     rad_series_converted = []
     for each_col_name in rad_df3.columns:
-        newSeries = pd.Series(
-            rad_df3[each_col_name].values / 10.76391042
-        )  # kWh/m2---> kWh/ft2
+        newSeries = pd.Series(rad_df3[each_col_name].values / 10.76391042)  # kWh/m2---> kWh/ft2
         rad_series_converted.append(newSeries)
 
     rad_df4 = pd.DataFrame(rad_series_converted).T
@@ -70,9 +68,7 @@ def create_csv_radiation(_df_climate: pd.DataFrame, _output_path: pathlib.Path) 
     rad_df4.to_csv(_output_path, index=False)
 
 
-def create_csv_temperatures(
-    _df_climate: pd.DataFrame, _output_path: pathlib.Path
-) -> None:
+def create_csv_temperatures(_df_climate: pd.DataFrame, _output_path: pathlib.Path) -> None:
     """Creates the Temperature data CSV file based on the PHPP Climate DataFrame.
 
     Arguments:
@@ -104,9 +100,7 @@ def create_csv_temperatures(
 
     # --------------------------------------------------------------------------
     # Pull out the Temperature Data
-    temps_df1 = _df_climate.loc[
-        ["Exterior temperature", "Dew point temperature", "Sky temperature"]
-    ]
+    temps_df1 = _df_climate.loc[["Exterior temperature", "Dew point temperature", "Sky temperature"]]
     temps_df2 = temps_df1.T
     temps_df3 = temps_df2.drop("Units")
 

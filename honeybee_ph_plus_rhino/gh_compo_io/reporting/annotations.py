@@ -104,11 +104,7 @@ class TextAnnotation(object):
         if isinstance(self._location, rg.Point3d):
             return self._location
         else:
-            raise ValueError(
-                "Location input must be a Point3d or Plane? Got: {}".format(
-                    type(self._location)
-                )
-            )
+            raise ValueError("Location input must be a Point3d or Plane? Got: {}".format(type(self._location)))
 
     @property
     def plane(self):
@@ -122,11 +118,7 @@ class TextAnnotation(object):
             default_plane = rg.Plane(origin=self._location, normal=default_normal)
             return default_plane
         else:
-            raise ValueError(
-                "Location input must be a Point3d or Plane? Got: {}".format(
-                    type(self._location)
-                )
-            )
+            raise ValueError("Location input must be a Point3d or Plane? Got: {}".format(type(self._location)))
 
     @property
     def text(self):
@@ -211,18 +203,7 @@ class GHCompo_CreateTextAnnotations(object):
     default_format = "{}"
     default_justification = 4  # 4=Middle-Center
 
-    def __init__(
-        self,
-        _IGH,
-        _text,
-        _size,
-        _location,
-        _format,
-        _justification,
-        _mask,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, _IGH, _text, _size, _location, _format, _justification, _mask, *args, **kwargs):
         # type: (gh_io.IGH, DataTree, DataTree, DataTree, DataTree, DataTree, DataTree, *Any, **Any) -> None
         self.IGH = _IGH
         self.text = _text
@@ -246,9 +227,7 @@ class GHCompo_CreateTextAnnotations(object):
 
     def get_justification_branch(self, i):
         # type: (int) -> List[int]
-        return clean_tree_get(
-            self.justification, i, _default=[self.default_justification]
-        )
+        return clean_tree_get(self.justification, i, _default=[self.default_justification])
 
     def get_mask_branch(self, i):
         # type: (int) -> List[TextAnnotationMaskAttributes] | List[None]
@@ -270,15 +249,11 @@ class GHCompo_CreateTextAnnotations(object):
                 size = cleaner_get(list(size_branch), k, 0.25)
                 location = cleaner_get(list(loc_branch), k, self.default_location)
                 format = cleaner_get(list(format_branch), k, self.default_format)
-                justification = cleaner_get(
-                    list(justify_branch), k, self.default_justification
-                )
+                justification = cleaner_get(list(justify_branch), k, self.default_justification)
                 mask = cleaner_get(list(mask_branch), k, None)
 
                 # -- Build the TextAnnotation
-                new_label = TextAnnotation(
-                    self.IGH, txt, size, location, format, justification, False, mask
-                )
+                new_label = TextAnnotation(self.IGH, txt, size, location, format, justification, False, mask)
                 text_annotations_.Add(new_label, self.IGH.GH_Path(i))
 
         return text_annotations_

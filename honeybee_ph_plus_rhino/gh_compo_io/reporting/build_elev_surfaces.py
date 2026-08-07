@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""Create the 'Elevation' Geometry for Export to PDF. """
+"""Create the 'Elevation' Geometry for Export to PDF."""
 
 import math
 from collections import defaultdict
@@ -52,17 +52,7 @@ except ImportError:
 
 
 class GHCompo_CreateElevationPDFGeometry(object):
-    def __init__(
-        self,
-        _IGH,
-        hb_model,
-        surface_color,
-        line_color,
-        line_weight,
-        branch_count,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, _IGH, hb_model, surface_color, line_color, line_weight, branch_count, *args, **kwargs):
         # type: (gh_io.IGH, model.Model, Color, Color, float, int, List[Any], Dict[Any, Any]) -> None
         self.IGH = _IGH
         self.hb_model = hb_model
@@ -94,9 +84,7 @@ class GHCompo_CreateElevationPDFGeometry(object):
             # type: (face.Face) -> bool
             """Return True if the face is an 'Interior' Surface exposure."""
             if isinstance(hb_face.boundary_condition, boundarycondition.Surface):
-                adjacent_room_name = (
-                    hb_face.boundary_condition.boundary_condition_objects[-1]
-                )
+                adjacent_room_name = hb_face.boundary_condition.boundary_condition_objects[-1]
                 if adjacent_room_name in all_room_ids:
                     return True
             return False
@@ -137,9 +125,7 @@ class GHCompo_CreateElevationPDFGeometry(object):
         """Return the 'Aperture' Plane centered on the Aperture's center point."""
         ap_cp = from_point3d(_aperture.geometry.center)
         ap_plane = from_plane(_aperture.geometry.plane)
-        move_vec = self.IGH.ghpythonlib_components.Vector2Pt(
-            ap_plane.Origin, ap_cp, False
-        ).vector
+        move_vec = self.IGH.ghpythonlib_components.Vector2Pt(ap_plane.Origin, ap_cp, False).vector
         centered_plane = self.IGH.ghpythonlib_components.Move(ap_plane, move_vec).geometry
 
         # -- Ensure that the plane's Y-Axis is always pointing up.
@@ -152,17 +138,9 @@ class GHCompo_CreateElevationPDFGeometry(object):
         # type: (Iterable[face.Face]) -> Tuple[List[Brep], List[str], List[plane.Plane]]
         """Return a list of all the 'Aperture' Breps (and names / planes) for a group of HB-Faces."""
         return (
-            [
-                from_face3d(ap.geometry)
-                for hb_face in _hb_faces
-                for ap in hb_face.apertures
-            ],
+            [from_face3d(ap.geometry) for hb_face in _hb_faces for ap in hb_face.apertures],
             [ap.display_name for hb_face in _hb_faces for ap in hb_face.apertures],
-            [
-                self.get_centered_aperture_plane(ap)
-                for hb_face in _hb_faces
-                for ap in hb_face.apertures
-            ],
+            [self.get_centered_aperture_plane(ap) for hb_face in _hb_faces for ap in hb_face.apertures],
         )
 
     def breps_to_meshes(self, _breps):
@@ -170,9 +148,7 @@ class GHCompo_CreateElevationPDFGeometry(object):
         """Convert a group of Brep-Surface into to list of Meshes."""
         meshes_ = []
         for brep in _breps:
-            meshes_.append(
-                self.IGH.ghpythonlib_components.MeshColours(brep, self.surface_color)
-            )
+            meshes_.append(self.IGH.ghpythonlib_components.MeshColours(brep, self.surface_color))
         return meshes_
 
     def get_mesh_naked_edges(self, _mesh):
@@ -212,16 +188,10 @@ class GHCompo_CreateElevationPDFGeometry(object):
 
         new_attr_obj.ObjectColor = _color
         new_attr_obj.PlotColor = _color
-        new_attr_obj.ColorSource = (
-            self.IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
-        )
-        new_attr_obj.PlotColorSource = (
-            self.IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
-        )
+        new_attr_obj.ColorSource = self.IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
+        new_attr_obj.PlotColorSource = self.IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
         new_attr_obj.PlotWeight = _line_weight
-        new_attr_obj.PlotWeightSource = (
-            self.IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
-        )
+        new_attr_obj.PlotWeightSource = self.IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
         new_attr_obj.DisplayOrder = 0
 
         return new_attr_obj
@@ -248,9 +218,7 @@ class GHCompo_CreateElevationPDFGeometry(object):
 
         # -- Get all the Surface and Aperture Meshes, Edges, and Rhino-Attributes
         for face_group in ext_hb_faces.values():
-            surface_punched_breps = self.merge_rh_breps(
-                self.get_punched_breps(face_group)
-            )
+            surface_punched_breps = self.merge_rh_breps(self.get_punched_breps(face_group))
             (
                 surface_aperture_breps,
                 surface_aperture_names,
@@ -260,42 +228,28 @@ class GHCompo_CreateElevationPDFGeometry(object):
             # -- Base surfaces (wall, floor, roof, etc.)
             for surface_msh in self.breps_to_meshes(surface_punched_breps):
                 all_geom.append(surface_msh)
-                all_geom_attributes.append(
-                    self.create_rh_attr_object(self.surface_color, self.line_weight)
-                )
+                all_geom_attributes.append(self.create_rh_attr_object(self.surface_color, self.line_weight))
 
                 for edge in self.get_mesh_naked_edges(surface_msh):
                     all_geom.append(edge)
-                    all_geom_attributes.append(
-                        self.create_rh_attr_object(self.line_color, self.line_weight)
-                    )
+                    all_geom_attributes.append(self.create_rh_attr_object(self.line_color, self.line_weight))
 
             # -- Apertures (windows, doors, etc.)
             all_aperture_names.extend(surface_aperture_names)
             all_aperture_planes.extend(surface_aperture_planes)
             for ap_msh in self.breps_to_meshes(surface_aperture_breps):
                 all_geom.append(ap_msh)
-                all_geom_attributes.append(
-                    self.create_rh_attr_object(self.surface_color, self.line_weight)
-                )
+                all_geom_attributes.append(self.create_rh_attr_object(self.surface_color, self.line_weight))
 
                 for edge in self.get_mesh_naked_edges(ap_msh):
                     all_geom.append(edge)
-                    all_geom_attributes.append(
-                        self.create_rh_attr_object(self.line_color, self.line_weight)
-                    )
+                    all_geom_attributes.append(self.create_rh_attr_object(self.line_color, self.line_weight))
 
         # -- Package up the data into DataTrees for Export
         # -- This is required to ensure the geom branches match the layout-views being printed.
         geom_ = self.IGH.duplicate_data_to_branches(all_geom, self.branch_count)
-        geom_attributes_ = self.IGH.duplicate_data_to_branches(
-            all_geom_attributes, self.branch_count
-        )
-        aperture_names_ = self.IGH.duplicate_data_to_branches(
-            all_aperture_names, self.branch_count
-        )
-        aperture_planes_ = self.IGH.duplicate_data_to_branches(
-            all_aperture_planes, self.branch_count
-        )
+        geom_attributes_ = self.IGH.duplicate_data_to_branches(all_geom_attributes, self.branch_count)
+        aperture_names_ = self.IGH.duplicate_data_to_branches(all_aperture_names, self.branch_count)
+        aperture_planes_ = self.IGH.duplicate_data_to_branches(all_aperture_planes, self.branch_count)
 
         return self.error, geom_, geom_attributes_, aperture_names_, aperture_planes_

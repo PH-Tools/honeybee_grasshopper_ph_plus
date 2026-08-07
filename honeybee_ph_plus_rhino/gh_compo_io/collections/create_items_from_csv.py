@@ -117,8 +117,7 @@ class GHCompo_CreateObjectsFromCSV(object):
 
         headers = [_ for _ in _data[0].split(",")]
         new_objects_ = [
-            NewObjectType(**{h: d for h, d in izip_longest(headers, line.split(","))})
-            for line in _data[1:]
+            NewObjectType(**{h: d for h, d in izip_longest(headers, line.split(","))}) for line in _data[1:]
         ]
 
         return new_objects_
@@ -130,9 +129,7 @@ class GHCompo_CreateObjectsFromCSV(object):
             return []
 
         if not os.path.exists(self.path):
-            msg = "I cannot find the file '{}'? Please supply the full path.".format(
-                self.path
-            )
+            msg = "I cannot find the file '{}'? Please supply the full path.".format(self.path)
             self.IGH.warning(msg)
             return []
 

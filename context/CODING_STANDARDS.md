@@ -14,6 +14,7 @@ Everything that runs on the Grasshopper canvas must be Python-2.7 / IronPython-2
 - **Do not "modernize" to Python 3 idioms.** Match the surrounding Py2.7 style exactly.
 - `F401` (unused import) is globally ignored — it collides with the type-hint-in-comment style. Wildcard imports allowed in `__init__.py`.
 - Line length **120** (black + ruff).
+- `honeybee_grasshopper_ph_plus/` is scraped from Grasshopper and excluded from Black; each scrape regenerates its component-script formatting. Black-format maintained backend code in `honeybee_ph_plus_rhino/` and tests normally.
 
 ## 2. The component contract
 
@@ -35,7 +36,7 @@ fsdeploy copies the package to Rhino on save — **never edit inside Rhino's fol
 
 ## 5. Verification
 
-No test suite in this repo. Verify logic changes against the sibling backend repos where the tested code lives (`honeybee_ph`, `PHX`), or by loading the component in Rhino/Grasshopper.
+Dependency-stubbed CPython unit tests in `tests/` cover isolated logic only. They do not prove Rhino/Grasshopper compatibility. Verify integration changes against sibling backend repos (`honeybee_ph`, `PHX`) or by loading the component in Rhino/Grasshopper.
 
 ## Closeout checklist
 

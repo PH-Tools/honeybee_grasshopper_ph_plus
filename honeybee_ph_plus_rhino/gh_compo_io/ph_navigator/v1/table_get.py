@@ -48,7 +48,9 @@ class GHCompo_PHNavV1GetTable(object):
     returns `None` after logging via `IGH.error`.
     """
 
-    def __init__(self, _IGH, _project_number, _table_name, _key, _version, _url_base, _token, _download, *args, **kwargs):
+    def __init__(
+        self, _IGH, _project_number, _table_name, _key, _version, _url_base, _token, _download, *args, **kwargs
+    ):
         # type: (gh_io.IGH, str, str | None, str | None, str | None, str | None, str | None, bool, *Any, **Any) -> None
         self.IGH = _IGH
         self.project_number = _project_number
@@ -77,9 +79,7 @@ class GHCompo_PHNavV1GetTable(object):
 
         if self.table_name not in VALID_TABLE_NAMES:
             self.IGH.error(
-                "Unknown table name '{}'. Valid names are:\n{}".format(
-                    self.table_name, "\n".join(VALID_TABLE_NAMES)
-                )
+                "Unknown table name '{}'. Valid names are:\n{}".format(self.table_name, "\n".join(VALID_TABLE_NAMES))
             )
             return self._empty_result()
 

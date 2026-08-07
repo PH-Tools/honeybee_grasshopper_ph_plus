@@ -33,14 +33,10 @@ def create_csv_detailed_cooling_demand(
 
     # Create the Detailed Heating Demand CSV
     demand_cooling_losses_df = _df_main.loc[
-        VARIANTS.cooling_demand["Cooling Demand"]
-        .row : VARIANTS.cooling_demand["Ventilation (Addn'l)"]
-        .row
+        VARIANTS.cooling_demand["Cooling Demand"].row : VARIANTS.cooling_demand["Ventilation (Addn'l)"].row
     ]
     demand_cooling_gains_df = _df_main.loc[
-        VARIANTS.cooling_demand["North"]
-        .row : VARIANTS.cooling_demand["Internal Gains"]
-        .row
+        VARIANTS.cooling_demand["North"].row : VARIANTS.cooling_demand["Internal Gains"].row
     ]
 
     # Get the variant column names (ignore the first two items 'Datatype' and 'Units')
@@ -51,9 +47,7 @@ def create_csv_detailed_cooling_demand(
         [demand_cooling_losses_df["Datatype"], demand_cooling_gains_df["Datatype"]],
         sort=True,
     )
-    units = pd.concat(
-        [demand_cooling_losses_df["Units"], demand_cooling_gains_df["Units"]], sort=True
-    )
+    units = pd.concat([demand_cooling_losses_df["Units"], demand_cooling_gains_df["Units"]], sort=True)
 
     # Create the 'Demand Limit' items in a way that matches the format of the main DF
     tempLimits = {}
@@ -62,12 +56,8 @@ def create_csv_detailed_cooling_demand(
         vals = [
             "Cooling Demand Limit",
             "kWh",
-            _cert_limits_abs.loc[
-                VARIANTS.certification_limits["Total Cooling Demand Limit"].row
-            ][colName],
-            _cert_limits_abs.loc[
-                VARIANTS.certification_limits["Total Cooling Demand Limit"].row
-            ][colName],
+            _cert_limits_abs.loc[VARIANTS.certification_limits["Total Cooling Demand Limit"].row][colName],
+            _cert_limits_abs.loc[VARIANTS.certification_limits["Total Cooling Demand Limit"].row][colName],
         ]
         newSeries = pd.Series(vals, index=index_temp)
         tempLimits[colName] = newSeries

@@ -71,7 +71,7 @@ class GHCompo_PHNavV1GetVersions(object):
     def _version_row(_version):
         # type: (dict) -> str
         """Format one saved version as `"{saved_at} · {name} · {kind}"` for a panel."""
-        return u"{} · {} · {}".format(_version.get("saved_at"), _version.get("name"), _version.get("kind"))
+        return "{} · {} · {}".format(_version.get("saved_at"), _version.get("name"), _version.get("kind"))
 
     @staticmethod
     def _project_label(_project):
@@ -79,4 +79,4 @@ class GHCompo_PHNavV1GetVersions(object):
         """Format the envelope `project` as `"{bt_number} · {name}"` for display."""
         if not _project:
             return None
-        return u"{} · {}".format(_project.get("bt_number"), _project.get("name"))
+        return "{} · {}".format(_project.get("bt_number"), _project.get("name"))

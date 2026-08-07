@@ -25,7 +25,8 @@ Full context index: `context/README.md`.
 3. **Names must match exactly** across the `src/` filename, `ghenv.Component.Name`, and the `_component_info_.py` key — all `"HBPH+ - <Name>"`. Preserve the GPL header + Args/Returns docstring in wrappers (GH renders it as tooltips).
 4. **fsdeploy makes saves live.** Saving a `gh_compo_io/` logic file silently updates the live Rhino install (`.vscode/settings.json` → `fsdeploy`). Never edit inside Rhino's folders directly — those copies are overwritten on next deploy. Leave the wrapper `DEV`/`reload` block at `dev=False` on commit.
 5. **Do not hand-edit the version.** `bump-my-version` rewrites `RELEASE_VERSION` in `_component_info_.py`; `.github/workflows/release.yml` releases. Don't commit version bumps unless asked.
-6. **No test suite here** (the `.pytest_cache` is incidental). Verify logic against the sibling backend repos where the tested code lives, or by loading in Rhino/GH.
+6. **Testing is limited.** Dependency-stubbed CPython unit tests cover isolated logic in `tests/`; they do not prove Rhino/Grasshopper compatibility. Verify integration changes against sibling backend repos or by loading in Rhino/GH.
+7. **Do not Black-format `honeybee_grasshopper_ph_plus/`.** Its component scripts are scraped from Grasshopper and their formatting is regenerated on every scrape. `pyproject.toml` excludes that entire package; Black-format maintained backend code in `honeybee_ph_plus_rhino/` and tests normally.
 
 ## Related repos (all under `~/Dropbox/bldgtyp-00/00_PH_Tools/`)
 

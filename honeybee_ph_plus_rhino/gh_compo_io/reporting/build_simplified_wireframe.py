@@ -5,11 +5,11 @@
 
 
 try:
-    from System import Object # type: ignore
-    from System.Drawing import Color # type: ignore
-    import Rhino # type: ignore
-    from Grasshopper import DataTree # type: ignore
-    from Grasshopper.Kernel.Data import GH_Path # type: ignore
+    from System import Object  # type: ignore
+    from System.Drawing import Color  # type: ignore
+    import Rhino  # type: ignore
+    from Grasshopper import DataTree  # type: ignore
+    from Grasshopper.Kernel.Data import GH_Path  # type: ignore
 except ImportError as e:
     raise ImportError("\nFailed to import from Rhino:\n\t{}".format(e))
 
@@ -54,7 +54,7 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
 
         if not self.ready:
             return [], [], DataTree[Object](), DataTree[Object](), DataTree[Object](), [], None
-        
+
         # -------------------------------------------------------------------------------
         # -- Get all the HB Envelope Faces
         faces_ = []
@@ -66,7 +66,6 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
                 dup_face.remove_sub_faces()
                 faces_.append(dup_face)
 
-
         # -------------------------------------------------------------------------------
         # -- Find the CoPlanar Face Groups
         coplanar_face_groups_ = DataTree[Object]()
@@ -77,7 +76,6 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
         ):
             coplanar_face_groups_.AddRange(group, GH_Path(i))
 
-
         # -------------------------------------------------------------------------------
         # -- Merge the FaceGroups
         merged_hb_faces_ = DataTree[Object]()
@@ -86,7 +84,6 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
                 group_hb_faces(b, self.IGH.ghdoc.ModelAbsoluteTolerance, self.IGH.ghdoc.ModelAngleToleranceDegrees)
             ):
                 merged_hb_faces_.AddRange(group, GH_Path(i, j))  # type: ignore
-
 
         # -------------------------------------------------------------------------------
         # -- Create Rhino Surface Geometry
@@ -105,7 +102,6 @@ class GHCompo_BuildHbModelSimplifiedWireframe(object):
                 rh_surfaces_.AddRange(faces, GH_Path(i))
             else:
                 rh_surfaces_.Add(faces, GH_Path(i))
-
 
         # -------------------------------------------------------------------------------
         # -- Create Rhino Wireframe Geometry

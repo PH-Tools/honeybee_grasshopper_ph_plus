@@ -159,9 +159,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             layer_name = self._layer_name(_layer_data)
             msg = (
                 "Failed to get the thickness of the layer: '{}'"
-                "\nKey: '{}' was not found? Please check the AirTable field names.".format(
-                    layer_name, e
-                )
+                "\nKey: '{}' was not found? Please check the AirTable field names.".format(layer_name, e)
             )
             raise KeyError(msg)
 
@@ -174,9 +172,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
             layer_name = self._layer_name(_layer_material_data)
             msg = (
                 "Failed to get the conductivity of the layer: '{}'"
-                "\nKey: '{}' was not found? Please check the AirTable field names.".format(
-                    layer_name, e
-                )
+                "\nKey: '{}' was not found? Please check the AirTable field names.".format(layer_name, e)
             )
             raise KeyError(msg)
 
@@ -214,9 +210,7 @@ class GHCompo_AirTableCreateMaterialLayers(object):
         layer_data = _record.FIELDS
         layer_mat_id_list = layer_data.get(AT_COLUMN_NAMES["material"], None)
         if not layer_mat_id_list:
-            msg = "Layer Material not found for layer: {}".format(
-                layer_data[AT_COLUMN_NAMES["name"]]
-            )
+            msg = "Layer Material not found for layer: {}".format(layer_data[AT_COLUMN_NAMES["name"]])
             self.IGH.warning(msg)
             return None
 

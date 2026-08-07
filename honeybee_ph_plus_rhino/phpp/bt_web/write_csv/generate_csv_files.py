@@ -102,9 +102,7 @@ def create_csv_files(_csv_file_path: Path, _phpp_data: PHPPData) -> None:
         _phpp_data.variant_names,
         _csv_file_path / "variant_inputs.csv",
     )
-    create_csv_bldg_basic_data_table(
-        _phpp_data.df_variants, _csv_file_path / "bldg_data.csv"
-    )
+    create_csv_bldg_basic_data_table(_phpp_data.df_variants, _csv_file_path / "bldg_data.csv")
 
     # --- Create Detailed Heating, Cooling Demand
     create_csv_detailed_heating_demand(
@@ -119,17 +117,13 @@ def create_csv_files(_csv_file_path: Path, _phpp_data: PHPPData) -> None:
     )
 
     # --- Airtightness
-    create_csv_airtightness(
-        _phpp_data.df_variants, _csv_file_path / "envelope_airflow.csv"
-    )
+    create_csv_airtightness(_phpp_data.df_variants, _csv_file_path / "envelope_airflow.csv")
 
     # --- Climate
     create_csv_radiation(_phpp_data.df_climate, _csv_file_path / "climate_radiation.csv")
     create_csv_temperatures(_phpp_data.df_climate, _csv_file_path / "climate_temps.csv")
 
     # --- Mechanical
-    create_csv_fresh_air_flowrates(
-        _phpp_data.df_room_vent, _csv_file_path / "room_airflows.csv"
-    )
+    create_csv_fresh_air_flowrates(_phpp_data.df_room_vent, _csv_file_path / "room_airflows.csv")
 
     print(f"> Done writing CSV files.")

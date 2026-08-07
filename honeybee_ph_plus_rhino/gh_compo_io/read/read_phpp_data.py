@@ -43,9 +43,7 @@ def run(_IGH, _py3_shell_file, _py3_script_file, _output_file, _phpp_file):
         # -- See:
         # -- https://discourse.mcneel.com/t/python-subprocess-permissions-error-on-mac-os-1743/142830/6
 
-        execution_root = os.path.join(
-            hb_folders.python_package_path, "honeybee_ph_plus_rhino"
-        )
+        execution_root = os.path.join(hb_folders.python_package_path, "honeybee_ph_plus_rhino")
         # -- Build up the commands to run
         commands = [
             _py3_shell_file,  # -------------- The shell script to run

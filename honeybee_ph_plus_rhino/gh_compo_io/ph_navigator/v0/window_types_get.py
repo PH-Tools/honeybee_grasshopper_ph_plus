@@ -157,9 +157,7 @@ def create_hbph_window_unit_types(_IGH, _aperture_types):
         for element in aperture_type.elements:
             # -- Calculate the total width considering column span
             element_width_m = 0.0
-            for col in range(
-                element.column_number, element.column_number + element.column_span
-            ):
+            for col in range(element.column_number, element.column_number + element.column_span):
                 element_width_m += aperture_type.get_column_width_m(col)
 
             # -- Calculate the total height considering row span
@@ -188,9 +186,7 @@ def create_new_hbph_window_material(display_name, hbph_frame, hbph_glazing):
     nfrc_u_factor = iso_10077_1.calculate_window_uw(hbph_frame, hbph_glazing)
     nfrc_shgc = hbph_glazing.g_value
     t_vis = 0.6
-    window_mat = EnergyWindowMaterialSimpleGlazSys(
-        display_name, nfrc_u_factor, nfrc_shgc, t_vis
-    )
+    window_mat = EnergyWindowMaterialSimpleGlazSys(display_name, nfrc_u_factor, nfrc_shgc, t_vis)
     window_mat.display_name = display_name
     return window_mat
 
@@ -212,15 +208,11 @@ def create_hbph_ep_constructions(_aperture_types, _glazing_types, _frame_types):
                 continue
 
             # Build the HB Window Material and Construction
-            hbph_mat = create_new_hbph_window_material(
-                element.type_name, hbph_frame, hbph_glazing
-            )
+            hbph_mat = create_new_hbph_window_material(element.type_name, hbph_frame, hbph_glazing)
             hb_win_construction = WindowConstruction(element.type_name, [hbph_mat])
 
             # Set the PH Properties on the WindowConstructionProperties
-            prop_ph = getattr(
-                hb_win_construction.properties, "ph"
-            )  # type: WindowConstructionPhProperties
+            prop_ph = getattr(hb_win_construction.properties, "ph")  # type: WindowConstructionPhProperties
             prop_ph.ph_frame = hbph_frame
             prop_ph.ph_glazing = hbph_glazing
 
@@ -234,9 +226,7 @@ class GHCompo_PHNavGetWindowTypes(object):
 
     URL_BASE = "https://ph-dash-0cye.onrender.com"
 
-    def __init__(
-        self, IGH, _project_number, _url_base, _get_aperture_types, *args, **kwargs
-    ):
+    def __init__(self, IGH, _project_number, _url_base, _get_aperture_types, *args, **kwargs):
         # type: (gh_io.IGH, str, str | None, bool, *Any, **Any) -> None
         self.IGH = IGH
         self.PROJECT_NUMBER = _project_number
@@ -256,20 +246,15 @@ class GHCompo_PHNavGetWindowTypes(object):
     def url(self):
         # type: () -> str
         """Get the URL for the PH-Navigator API."""
-        _url = "{}/aperture/get-apertures-as-json/{}".format(
-            self._url_base or self.URL_BASE, self.PROJECT_NUMBER
-        )
+        _url = "{}/aperture/get-apertures-as-json/{}".format(self._url_base or self.URL_BASE, self.PROJECT_NUMBER)
 
         try:
-            System.Net.ServicePointManager.SecurityProtocol = ( # type: ignore
-                System.Net.SecurityProtocolType.Tls12 # type: ignore
-            ) 
+            System.Net.ServicePointManager.SecurityProtocol = (  # type: ignore
+                System.Net.SecurityProtocolType.Tls12  # type: ignore
+            )
         except AttributeError:
             if _url.lower().startswith("https"):
-                self.IGH.error(
-                    "This system lacks the necessary security"
-                    " libraries to download over https."
-                )
+                self.IGH.error("This system lacks the necessary security" " libraries to download over https.")
 
         print("PH-Navigator URL: {}".format(_url))
         return _url
@@ -278,7 +263,7 @@ class GHCompo_PHNavGetWindowTypes(object):
         # type: (str) -> System.Net.WebClient
         """Get a web client with Header and Query configuration for downloading data from PH-Navigator."""
 
-        client = System.Net.WebClient() # type: ignore
+        client = System.Net.WebClient()  # type: ignore
         client.Headers.Add("Authorization", "Bearer {}".format(None))
         client.Headers.Add("Content-type", "application/json")
         client.QueryString.Add("offset", _offset)
@@ -343,9 +328,7 @@ class GHCompo_PHNavGetWindowTypes(object):
         # Build all of the Types needed to create the HoneybeePH Window Types
         glazing_types_dict = create_hbph_glazing_types(aperture_types)
         frame_element_types_dict = create_new_hbph_frame_elements(aperture_types)
-        frame_types_dict = create_new_hbph_frames(
-            aperture_types, frame_element_types_dict
-        )
+        frame_types_dict = create_new_hbph_frames(aperture_types, frame_element_types_dict)
 
         # Build all of the WindowUnitTypes
         window_unit_types_dict = create_hbph_window_unit_types(self.IGH, aperture_types)
@@ -354,9 +337,7 @@ class GHCompo_PHNavGetWindowTypes(object):
             window_unit_types_collection_[k] = v
 
         # Build the EP-Constructions for each of the Elements
-        window_ep_construction_dict = create_hbph_ep_constructions(
-            aperture_types, glazing_types_dict, frame_types_dict
-        )
+        window_ep_construction_dict = create_hbph_ep_constructions(aperture_types, glazing_types_dict, frame_types_dict)
         window_ep_construction_collection_ = CustomCollection()
         for k, v in window_ep_construction_dict.items():
             window_ep_construction_collection_[k] = v

@@ -89,9 +89,7 @@ class GlazingData(object):
     def __str__(self):
         # type: () -> str
         """String representation of the GlazingData object."""
-        return "GlazingData(_name={}, _glazing_type={})".format(
-            self.name, self.glazing_type.name
-        )
+        return "GlazingData(_name={}, _glazing_type={})".format(self.name, self.glazing_type.name)
 
     def __repr__(self):
         # type: () -> str
@@ -315,9 +313,7 @@ class ElementData(object):
     def type_name(self):
         # type: () -> str
         """Get the type-name of the element with the Col and Row position. ie: 'A_C1_R2'."""
-        return "{}_C{}_R{}".format(
-            self.aperture_type_name, self.column_number, self.row_number
-        )
+        return "{}_C{}_R{}".format(self.aperture_type_name, self.column_number, self.row_number)
 
     @classmethod
     def from_dict(cls, _data_dict, _aperture_type_name=""):
@@ -375,9 +371,7 @@ class ElementData(object):
 class ApertureTypeData(object):
     """Schema for aperture type data from PH-Navigator."""
 
-    def __init__(
-        self, _name, _display_name, _column_widths_mm, _row_heights_mm, _elements
-    ):
+    def __init__(self, _name, _display_name, _column_widths_mm, _row_heights_mm, _elements):
         # type: (str, str, list[float], list[float], list[ElementData]) -> None
         self.name = _name
         self.display_name = _display_name
@@ -408,8 +402,7 @@ class ApertureTypeData(object):
             _column_widths_mm=[float(w) for w in _data_dict.get("column_widths_mm", [])],
             _row_heights_mm=[float(h) for h in _data_dict.get("row_heights_mm", [])],
             _elements=[
-                ElementData.from_dict(elem, _data_dict.get("name", ""))
-                for elem in _data_dict.get("elements", [])
+                ElementData.from_dict(elem, _data_dict.get("name", "")) for elem in _data_dict.get("elements", [])
             ],
         )
 
@@ -443,8 +436,6 @@ class ApertureTypeData(object):
             if elem is not None:
                 new_elem = copy(elem)
                 # Reverse the row number for Rhino's bottom-to-top ordering
-                new_elem.row_number = (
-                    len(self.row_heights_mm) - 1 - elem.row_number - elem.row_span + 1
-                )
+                new_elem.row_number = len(self.row_heights_mm) - 1 - elem.row_number - elem.row_span + 1
                 elements_.append(new_elem)
         return elements_

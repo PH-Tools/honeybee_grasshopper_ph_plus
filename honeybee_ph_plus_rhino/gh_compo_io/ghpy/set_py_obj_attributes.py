@@ -68,7 +68,4 @@ class GHCompo_SetObjectAttributes(object):
         # type: () -> List[Any]
         """Set the Object attributes with the keys and values supplied."""
 
-        return [
-            copy_and_set(obj, k, v)
-            for obj, k, v in izip(self.objects, self.keys, self.values)
-        ]
+        return [copy_and_set(obj, k, v) for obj, k, v in izip(self.objects, self.keys, self.values)]

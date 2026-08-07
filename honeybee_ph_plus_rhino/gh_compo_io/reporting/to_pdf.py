@@ -67,9 +67,7 @@ class HatchFromCurveError(Exception):
     """Raised when a Curve cannot be converted to a Hatch."""
 
     def __init__(self, crv):
-        self.message = "Error: Could not create a Hatch from the input curve: {}".format(
-            crv
-        )
+        self.message = "Error: Could not create a Hatch from the input curve: {}".format(crv)
         super(HatchFromCurveError, self).__init__(self.message)
 
 
@@ -155,9 +153,7 @@ def gen_file_paths(_save_folder, _file_names, _target_length):
     if _file_names.BranchCount != _target_length:
         raise Exception(
             "Error: The number of geometry branches ({}) does not"
-            " match the number of file-names ({})?".format(
-                _target_length, _file_names.BranchCount
-            )
+            " match the number of file-names ({})?".format(_target_length, _file_names.BranchCount)
         )
 
     # --- Save folder
@@ -231,9 +227,7 @@ def set_active_view_by_name(_IGH, _view_name):
 
     if _view_name != active_view_name:
         if _view_name in [seq[0] for seq in non_active_views]:
-            _IGH.scriptcontext.doc.Views.ActiveView = [
-                seq[1] for seq in non_active_views if seq[0] == _view_name
-            ][0]
+            _IGH.scriptcontext.doc.Views.ActiveView = [seq[1] for seq in non_active_views if seq[0] == _view_name][0]
             # print("Setting Active View to: '{}'".format(_view_name))
         else:
             msg = '"{0}" is not a valid view name?'.format(_view_name)
@@ -252,9 +246,7 @@ def set_active_layer_by_name(_IGH, _layer_name):
     """Change the active layer by name"""
     with _IGH.context_rh_doc():
         if _layer_name not in _IGH.rhinoscriptsyntax.LayerNames():
-            raise Exception(
-                "Error: Cannot find the Layer with name: '{}'?".format(_layer_name)
-            )
+            raise Exception("Error: Cannot find the Layer with name: '{}'?".format(_layer_name))
         _IGH.rhinoscriptsyntax.CurrentLayer(_layer_name)
 
 
@@ -282,9 +274,7 @@ def get_layout_view_transform(_IGH, _dtl_view_objs, _layout_name):
             "Model-Annotations may not align properly when multiple Detail-Views "
             "are present on a single Layout-Page. Try splitting up the Detail-Views "
             "onto multiple Layout-Pages, or make sure that the orientation of each "
-            "Detail-View on the Layout-Page is the same.".format(
-                len(_dtl_view_objs), _layout_name
-            )
+            "Detail-View on the Layout-Page is the same.".format(len(_dtl_view_objs), _layout_name)
         )
         _IGH.warning(msg)
     return all_dtl_view_transforms.pop()
@@ -333,10 +323,7 @@ def get_current_layer_visibilities(_IGH):
     # type: (gh_io.IGH) -> List[bool]
     """Return a list of current Layer visibilities"""
     with _IGH.context_rh_doc():
-        return [
-            _IGH.rhinoscriptsyntax.LayerVisible(layer)
-            for layer in _IGH.rhinoscriptsyntax.LayerNames()
-        ]
+        return [_IGH.rhinoscriptsyntax.LayerVisible(layer) for layer in _IGH.rhinoscriptsyntax.LayerNames()]
 
 
 def turn_off_all_layers(_IGH, _except_layers):
@@ -438,14 +425,10 @@ def remove_bake_layer(_IGH, _layer_name):
             return
 
         # Remove all the objects on the specified layer
-        _IGH.rhinoscriptsyntax.DeleteObjects(
-            _IGH.rhinoscriptsyntax.ObjectsByLayer(_layer_name)
-        )
+        _IGH.rhinoscriptsyntax.DeleteObjects(_IGH.rhinoscriptsyntax.ObjectsByLayer(_layer_name))
 
         # Remove the layer
-        _IGH.scriptcontext.doc.Layers.Delete(
-            _IGH.scriptcontext.doc.Layers.FindName(_layer_name)
-        )
+        _IGH.scriptcontext.doc.Layers.Delete(_IGH.scriptcontext.doc.Layers.FindName(_layer_name))
 
 
 def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
@@ -492,34 +475,13 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
 
         # Calculate the average color of the face.
         if face.IsQuad:
-            hatchColorR = (
-                faceColorList[0].R
-                + faceColorList[1].R
-                + faceColorList[2].R
-                + faceColorList[3].R
-            ) / 4
-            hatchColorG = (
-                faceColorList[0].G
-                + faceColorList[1].G
-                + faceColorList[2].G
-                + faceColorList[3].G
-            ) / 4
-            hatchColorB = (
-                faceColorList[0].B
-                + faceColorList[1].B
-                + faceColorList[2].B
-                + faceColorList[3].B
-            ) / 4
+            hatchColorR = (faceColorList[0].R + faceColorList[1].R + faceColorList[2].R + faceColorList[3].R) / 4
+            hatchColorG = (faceColorList[0].G + faceColorList[1].G + faceColorList[2].G + faceColorList[3].G) / 4
+            hatchColorB = (faceColorList[0].B + faceColorList[1].B + faceColorList[2].B + faceColorList[3].B) / 4
         else:
-            hatchColorR = (
-                faceColorList[0].R + faceColorList[1].R + faceColorList[2].R
-            ) / 3
-            hatchColorG = (
-                faceColorList[0].G + faceColorList[1].G + faceColorList[2].G
-            ) / 3
-            hatchColorB = (
-                faceColorList[0].B + faceColorList[1].B + faceColorList[2].B
-            ) / 3
+            hatchColorR = (faceColorList[0].R + faceColorList[1].R + faceColorList[2].R) / 3
+            hatchColorG = (faceColorList[0].G + faceColorList[1].G + faceColorList[2].G) / 3
+            hatchColorB = (faceColorList[0].B + faceColorList[1].B + faceColorList[2].B) / 3
         hatchColor = Color.FromArgb(255, hatchColorR, hatchColorG, hatchColorB)
 
         # Create the outline of a new hatch.
@@ -531,36 +493,26 @@ def mesh2Hatch(_IGH, mesh, _hatch_pattern_index=0):
         hatchCurve = rg.Curve.JoinCurves([hatchCurveInit, hatchExtra], _IGH.tolerance)[0]
         # Create the Hatch
         if hatchCurve.IsPlanar():
-            meshFaceHatch = hatch_from_curve(
-                hatchCurve, _IGH.tolerance, _hatch_pattern_index
-            )
+            meshFaceHatch = hatch_from_curve(hatchCurve, _IGH.tolerance, _hatch_pattern_index)
             hatches.append(meshFaceHatch)
             colors.append(hatchColor)
         else:
             # We have to split the quad face into two triangles.
             try:
-                hatchCurveInit1 = rg.PolylineCurve(
-                    [facePointList[0], facePointList[1], facePointList[2]]
-                )
+                hatchCurveInit1 = rg.PolylineCurve([facePointList[0], facePointList[1], facePointList[2]])
                 hatchExtra1 = rg.LineCurve(facePointList[0], facePointList[2])
                 hatchCurve1 = rg.Curve.JoinCurves(
                     [hatchCurveInit1, hatchExtra1],
                     _IGH.tolerance,
                 )[0]
-                meshFaceHatch1 = hatch_from_curve(
-                    hatchCurve1, _IGH.tolerance, _hatch_pattern_index
-                )
-                hatchCurveInit2 = rg.PolylineCurve(
-                    [facePointList[2], facePointList[3], facePointList[0]]
-                )
+                meshFaceHatch1 = hatch_from_curve(hatchCurve1, _IGH.tolerance, _hatch_pattern_index)
+                hatchCurveInit2 = rg.PolylineCurve([facePointList[2], facePointList[3], facePointList[0]])
                 hatchExtra2 = rg.LineCurve(facePointList[2], facePointList[0])
                 hatchCurve2 = rg.Curve.JoinCurves(
                     [hatchCurveInit2, hatchExtra2],
                     _IGH.tolerance,
                 )[0]
-                meshFaceHatch2 = hatch_from_curve(
-                    hatchCurve2, _IGH.tolerance, _hatch_pattern_index
-                )
+                meshFaceHatch2 = hatch_from_curve(hatchCurve2, _IGH.tolerance, _hatch_pattern_index)
                 hatches.extend([meshFaceHatch1, meshFaceHatch2])
                 colors.extend([hatchColor, hatchColor])
             except HatchFromCurveError as e:
@@ -592,9 +544,7 @@ def bake_mesh(_IGH, _layer_name, _geometry, _draw_order=0):
     # --
     layer_table = _IGH.Rhino.RhinoDoc.ActiveDoc.Layers
     hatch_id = get_default_solid_hatch_index(_IGH)
-    parent_layer_index = rdo.Tables.LayerTable.FindByFullPath(  # type: ignore
-        layer_table, _layer_name, True
-    )
+    parent_layer_index = rdo.Tables.LayerTable.FindByFullPath(layer_table, _layer_name, True)  # type: ignore
 
     # -- Create the hatches, and Bake them into the Rhino Doc
     guids = []
@@ -646,9 +596,7 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
             bake_mesh(_IGH, _layer_name, geometry, draw_order)
 
         elif isinstance(geometry, rg.Curve):
-            rhino_geom = _IGH.scriptcontext.doc.Objects.Add(
-                geometry, _attr_obj or doc_object.Attributes
-            )
+            rhino_geom = _IGH.scriptcontext.doc.Objects.Add(geometry, _attr_obj or doc_object.Attributes)
 
             # Set the new Object's Layer
             if not _IGH.rhinoscriptsyntax.IsLayer(_layer_name):
@@ -657,9 +605,7 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
 
         else:
             # Just bake the regular Geometry with default attributes
-            rhino_geom = _IGH.scriptcontext.doc.Objects.Add(
-                geometry, doc_object.Attributes
-            )
+            rhino_geom = _IGH.scriptcontext.doc.Objects.Add(geometry, doc_object.Attributes)
 
             # Set the new Object's Layer
             if not _IGH.rhinoscriptsyntax.IsLayer(_layer_name):
@@ -667,9 +613,7 @@ def bake_geometry_object(_IGH, _geom_obj, _attr_obj, _layer_name):
             _IGH.rhinoscriptsyntax.ObjectLayer(rhino_geom, _layer_name)
 
 
-def bake_annotation_object(
-    _IGH, _annotation, _target_layer, _avoid_collisions=False, _neighbors=None
-):
+def bake_annotation_object(_IGH, _annotation, _target_layer, _avoid_collisions=False, _neighbors=None):
     # type: (gh_io.IGH, TextAnnotation, str, bool, Optional[List[rg.Rectangle3d]]) -> Optional[rg.Rectangle3d]
     """Add a new Text element to the Rhino document.
 
@@ -699,9 +643,7 @@ def bake_annotation_object(
         except:
             pass
         txt.Text = _annotation.text
-        txt.Plane = _IGH.ghc.Move(
-            _annotation.plane, _IGH.ghc.Amplitude(_annotation.plane.Normal, 0.1)
-        ).geometry
+        txt.Plane = _IGH.ghc.Move(_annotation.plane, _IGH.ghc.Amplitude(_annotation.plane.Normal, 0.1)).geometry
         txt.TextHeight = _annotation.text_size
         txt.Justification = _annotation.justification
         txt.DrawForward = False
@@ -719,55 +661,37 @@ def bake_annotation_object(
             this_bounding_box = txt.GetBoundingBox(txt.Plane)
             box_x_dim = abs(this_bounding_box.Min.X - this_bounding_box.Max.X)
             box_y_dim = abs(this_bounding_box.Min.Y - this_bounding_box.Max.Y)
-            domain_x = _IGH.ghpythonlib_components.ConstructDomain(
-                (box_x_dim / 2) * -1, box_x_dim / 2
-            )
-            domain_y = _IGH.ghpythonlib_components.ConstructDomain(
-                (box_y_dim / 2) * -1, box_y_dim / 2
-            )
-            bounding_rect = _IGH.ghpythonlib_components.Rectangle(
-                txt.Plane, domain_x, domain_y, 0
-            ).rectangle
+            domain_x = _IGH.ghpythonlib_components.ConstructDomain((box_x_dim / 2) * -1, box_x_dim / 2)
+            domain_y = _IGH.ghpythonlib_components.ConstructDomain((box_y_dim / 2) * -1, box_y_dim / 2)
+            bounding_rect = _IGH.ghpythonlib_components.Rectangle(txt.Plane, domain_x, domain_y, 0).rectangle
 
             # Compare the current text note to the others already in the scene
             # Move the current tag if necessary
             for eachNeighbor in _neighbors:
-                intersection = _IGH.ghpythonlib_components.CurveXCurve(
-                    eachNeighbor, bounding_rect
-                )
+                intersection = _IGH.ghpythonlib_components.CurveXCurve(eachNeighbor, bounding_rect)
                 if intersection.points != None:
-                    neighbor = _IGH.ghpythonlib_components.DeconstuctRectangle(
-                        eachNeighbor
-                    )  # The overlapping textbox
+                    neighbor = _IGH.ghpythonlib_components.DeconstuctRectangle(eachNeighbor)  # The overlapping textbox
                     neighborY = neighbor.Y  # Returns a domain
                     # neighborY = abs(neighborY[0] - neighborY[1]) # Total Y distance
 
                     neighborCP = neighbor.base_plane.Origin
-                    thisCP = _IGH.ghpythonlib_components.DeconstuctRectangle(
-                        bounding_rect
-                    ).base_plane.Origin
+                    thisCP = _IGH.ghpythonlib_components.DeconstuctRectangle(bounding_rect).base_plane.Origin
 
                     if thisCP.Y > neighborCP.Y:
                         # Move the tag 'up'
                         neighborMaxY = neighborCP.Y + neighborY[1]
                         thisMinY = thisCP.Y - (box_y_dim / 2)
                         moveVector = rg.Vector3d(0, neighborMaxY - thisMinY, 0)
-                        bounding_rect = _IGH.ghpythonlib_components.Move(
-                            bounding_rect, moveVector
-                        ).geometry
+                        bounding_rect = _IGH.ghpythonlib_components.Move(bounding_rect, moveVector).geometry
                     else:
                         # Move the tag 'down'
                         neighborMinY = neighborCP.Y - neighborY[1]
                         thisMaxY = thisCP.Y + (box_y_dim / 2)
                         moveVector = rg.Vector3d(0, neighborMinY - thisMaxY, 0)
-                        bounding_rect = _IGH.ghpythonlib_components.Move(
-                            bounding_rect, moveVector
-                        ).geometry
+                        bounding_rect = _IGH.ghpythonlib_components.Move(bounding_rect, moveVector).geometry
 
                     # Re-Set the text tag's origin to the new location
-                    txt.Plane = _IGH.ghpythonlib_components.DeconstuctRectangle(
-                        bounding_rect
-                    ).base_plane
+                    txt.Plane = _IGH.ghpythonlib_components.DeconstuctRectangle(bounding_rect).base_plane
 
         # Add the new text object to the Scene
         txtObj = _IGH.Rhino.RhinoDoc.ActiveDoc.Objects.AddText(txt)
@@ -803,9 +727,7 @@ def export_single_pdf(_IGH, _file_path, _dpi=300, _raster=True):
     # Ref: https://developer.rhino3d.com/api/RhinoScriptSyntax/#document-UnitScale
     # Ref: https://developer.rhino3d.com/api/RhinoCommon/html/P_Rhino_RhinoDoc_PageUnitSystem.htm
     page_unit_system_number = _IGH.rhinoscriptsyntax.UnitSystem(in_model_units=False)
-    page_unit_scale = _IGH.rhinoscriptsyntax.UnitScale(
-        8, page_unit_system_number
-    )  # Type 8 = Inches
+    page_unit_scale = _IGH.rhinoscriptsyntax.UnitScale(8, page_unit_system_number)  # Type 8 = Inches
 
     page_height = page_height * page_unit_scale
     page_width = page_width * page_unit_scale
@@ -814,9 +736,7 @@ def export_single_pdf(_IGH, _file_path, _dpi=300, _raster=True):
 
     pdf = FileIO.FilePdf.Create()  # type: ignore
     size = Size(page_width * _dpi, page_height * _dpi)
-    settings = rdp.ViewCaptureSettings(
-        _IGH.scriptcontext.doc.Views.ActiveView, size, _dpi
-    )
+    settings = rdp.ViewCaptureSettings(_IGH.scriptcontext.doc.Views.ActiveView, size, _dpi)
     settings.RasterMode = _raster
     settings.OutputColor = rdp.ViewCaptureSettings.ColorMode.DisplayColor  # type: ignore
     pdf.AddPage(settings)
@@ -937,9 +857,7 @@ def export_pdfs(
         # --------------------------------------------------------------------------------------------------------------
         # -- Find the Layout's Detail-View objects and View-Transform
         dtl_view_objs = get_detail_views_for_active_view(_IGH)
-        dtl_view_transform = get_layout_view_transform(
-            _IGH, dtl_view_objs, layout_view_name
-        )
+        dtl_view_transform = get_layout_view_transform(_IGH, dtl_view_objs, layout_view_name)
 
         # --------------------------------------------------------------------------------------------------------------
         # -- Create new temporary output layers
@@ -972,9 +890,7 @@ def export_pdfs(
             # -- Bake Model-Space Annotations (text in the RH model space)
             if _model_annotations.BranchCount != 0:
                 # -- Set the right view for baking
-                align_annotations = align_to_detail_view(
-                    _model_annotations.Branch(branch_num)
-                )
+                align_annotations = align_to_detail_view(_model_annotations.Branch(branch_num))
                 if align_annotations == True:
                     set_active_view_by_name(_IGH, layout_view_name)
                 else:

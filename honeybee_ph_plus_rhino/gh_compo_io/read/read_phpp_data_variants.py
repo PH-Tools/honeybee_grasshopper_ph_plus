@@ -71,9 +71,7 @@ class GHCompo_ReadPHPPVariantsData(object):
     def get_csv_output_file_path(self):
         # type: () -> str
         """The path to the CSV file to write the data to."""
-        filename = self.filename or "phpp_data_variants_{}.csv".format(
-            datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        )
+        filename = self.filename or "phpp_data_variants_{}.csv".format(datetime.now().strftime("%Y-%m-%d_%H-%M-%S"))
         if not filename.endswith(".csv"):
             filename = "{}.csv".format(filename)
 

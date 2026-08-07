@@ -36,9 +36,7 @@ def create_csv_Phius_net_source_energy(
     PE_df3 = PE_df2.dropna(axis=0, how="all")
 
     # -- add in the Target Row
-    targets = _cert_limits_abs.loc[
-        VARIANTS.certification_limits["PHIUS Net Source Energy Limit"].row
-    ]
+    targets = _cert_limits_abs.loc[VARIANTS.certification_limits["PHIUS Net Source Energy Limit"].row]
     if isinstance(targets, pd.Series):
         targets = targets.to_frame().T
     PE_df4 = pd.concat([PE_df3, targets], ignore_index=False)
@@ -128,9 +126,7 @@ def reduce_energy_by_solar(_df_main: pd.DataFrame, _pe_df: pd.DataFrame) -> pd.D
     pe_percentage_values_df.columns = PE_df_data.columns
 
     # -- Compute a reduction from solar for each of the consumption areas based on %
-    reduction_from_solar_df = pe_percentage_values_df.mul(
-        PE_solar_data_df.iloc[-1]
-    ).fillna(0)
+    reduction_from_solar_df = pe_percentage_values_df.mul(PE_solar_data_df.iloc[-1]).fillna(0)
     PE_NET_data_df = PE_df_data  # - reduction_from_solar_df
 
     # -- Recombine the final DF

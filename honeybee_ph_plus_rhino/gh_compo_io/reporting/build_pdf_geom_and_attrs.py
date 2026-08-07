@@ -45,9 +45,7 @@ class GHCompo_CreatePDFGeometryAndAttributes(object):
     line_color_default = Color.FromArgb(0, 0, 0)  # type: ignore
     lineweight_default = 0.25
 
-    def __init__(
-        self, _IGH, geometry, surface_color, line_color, lineweight, *args, **kwargs
-    ):
+    def __init__(self, _IGH, geometry, surface_color, line_color, lineweight, *args, **kwargs):
         # type: (gh_io.IGH, DataTree[Brep | Curve], List[Color], List[Color], List[float], Any, Any) -> None
         self.IGH = _IGH
         self.geometry = geometry
@@ -94,16 +92,10 @@ class GHCompo_CreatePDFGeometryAndAttributes(object):
 
         new_attr_obj.ObjectColor = _color
         new_attr_obj.PlotColor = _color
-        new_attr_obj.ColorSource = (
-            self.IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
-        )
-        new_attr_obj.PlotColorSource = (
-            self.IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
-        )
+        new_attr_obj.ColorSource = self.IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
+        new_attr_obj.PlotColorSource = self.IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
         new_attr_obj.PlotWeight = _lineweight
-        new_attr_obj.PlotWeightSource = (
-            self.IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
-        )
+        new_attr_obj.PlotWeightSource = self.IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
 
         return new_attr_obj
 
@@ -152,23 +144,17 @@ class GHCompo_CreatePDFGeometryAndAttributes(object):
 
             # -- Create the colored Mesh and outline curves, along with their attributes
             for i, geometry in enumerate(branch):
-                surface_color = clean_get(
-                    self.surface_color, i, self.surface_color_default
-                )
+                surface_color = clean_get(self.surface_color, i, self.surface_color_default)
                 line_color = clean_get(self.line_color, i) or self.line_color_default
                 lineweight = clean_get(self.lineweight, i) or self.lineweight_default
 
                 for surface in self.get_surface_geometry(geometry):
                     pdf_geom.append(self.get_mesh_from_brep(surface, surface_color))
-                    pdf_geom_attributes.append(
-                        self.create_rh_attr_object(surface_color, lineweight)
-                    )
+                    pdf_geom_attributes.append(self.create_rh_attr_object(surface_color, lineweight))
 
                 for edge in self.get_edge_geometry(geometry):
                     pdf_geom.append(edge)
-                    pdf_geom_attributes.append(
-                        self.create_rh_attr_object(line_color, lineweight)
-                    )
+                    pdf_geom_attributes.append(self.create_rh_attr_object(line_color, lineweight))
 
             # -- Package up for outut
             geom_.AddRange(pdf_geom, self.IGH.GH_Path(j))

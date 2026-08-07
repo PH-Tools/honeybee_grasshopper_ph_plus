@@ -12,9 +12,7 @@ from honeybee_ph_plus_rhino.phpp.bt_web._variants_data_schema import VARIANTS
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def create_csv_bldg_basic_data_table(
-    _df_main: pd.DataFrame, _file_path: pathlib.Path
-) -> None:
+def create_csv_bldg_basic_data_table(_df_main: pd.DataFrame, _file_path: pathlib.Path) -> None:
     """Creates the Building Data Table CSV file based on the PHPP DataFrame.
 
     Arguments:
@@ -117,9 +115,7 @@ def create_csv_bldg_basic_data_table(
                 srfc_to_floor_area_ratio.append("-")
             else:
                 srfc_to_floor_area_ratio.append("Ext. Surface Area / Floor Area")
-    ext_srfc_floor_area_ratio_2 = pd.Series(
-        srfc_to_floor_area_ratio, index=[bldg_df.columns]
-    )
+    ext_srfc_floor_area_ratio_2 = pd.Series(srfc_to_floor_area_ratio, index=[bldg_df.columns])
 
     # --------------------------------------------------------------------------
     # Exterior Surface / Gross-Volume Ratio
@@ -132,9 +128,7 @@ def create_csv_bldg_basic_data_table(
                 srfc_to_volume_ratio.append("-")
             else:
                 srfc_to_volume_ratio.append("Ext. Surface Area / Gross Volume")
-    ext_srfc_to_gross_volume_ratio_2 = pd.Series(
-        srfc_to_volume_ratio, index=[bldg_df.columns]
-    )
+    ext_srfc_to_gross_volume_ratio_2 = pd.Series(srfc_to_volume_ratio, index=[bldg_df.columns])
 
     # --------------------------------------------------------------------------
     # Floor-Area / Gross-Volume Ratio
@@ -147,9 +141,7 @@ def create_csv_bldg_basic_data_table(
                 floor_area_to_volume_ratio.append("-")
             else:
                 floor_area_to_volume_ratio.append("Floor Area / Gross Volume")
-    floor_area_to_gross_volume_ratio_2 = pd.Series(
-        floor_area_to_volume_ratio, index=[bldg_df.columns]
-    )
+    floor_area_to_gross_volume_ratio_2 = pd.Series(floor_area_to_volume_ratio, index=[bldg_df.columns])
 
     # --------------------------------------------------------------------------
     # Window Areas by Orientation

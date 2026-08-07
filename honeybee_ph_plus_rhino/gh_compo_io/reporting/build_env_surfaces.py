@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""Functions for getting / sorting all the Honeybee-Model Envelope Surfaces. """
+"""Functions for getting / sorting all the Honeybee-Model Envelope Surfaces."""
 
 from collections import defaultdict
 
@@ -71,17 +71,11 @@ class GHCompo_CreateEnvelopeSurfaces(object):
 
         new_attr_obj.ObjectColor = _color
         new_attr_obj.PlotColor = _color
-        new_attr_obj.ColorSource = (
-            self.IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
-        )
-        new_attr_obj.PlotColorSource = (
-            self.IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
-        )
+        new_attr_obj.ColorSource = self.IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
+        new_attr_obj.PlotColorSource = self.IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
 
         new_attr_obj.PlotWeight = _weight
-        new_attr_obj.PlotWeightSource = (
-            self.IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
-        )
+        new_attr_obj.PlotWeightSource = self.IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
 
         # new_attr_obj.DisplayOrder = 0  # 1 = Front, -1 = Back
 
@@ -143,18 +137,12 @@ class GHCompo_CreateEnvelopeSurfaces(object):
         pth = self.IGH.Grasshopper.Kernel.Data.GH_Path
 
         # -- Build the RH AttributeObjects
-        rh_attr_surface_highlight = self.create_rh_attr_object(
-            self.highlight_surface_color, 0
-        )
-        rh_attr_surface_default = self.create_rh_attr_object(
-            self.default_surface_color, 0
-        )
+        rh_attr_surface_highlight = self.create_rh_attr_object(self.highlight_surface_color, 0)
+        rh_attr_surface_default = self.create_rh_attr_object(self.default_surface_color, 0)
         rh_attr_curve_highlight = self.create_rh_attr_object(
             self.highlight_outline_color, self.highlight_outline_weight
         )
-        rh_attr_curve_default = self.create_rh_attr_object(
-            self.default_outline_color, self.default_outline_weight
-        )
+        rh_attr_curve_default = self.create_rh_attr_object(self.default_outline_color, self.default_outline_weight)
 
         # -- Get all the exterior surfaces from the Model
         hb_face_groups = self.get_hb_face_groups_from_model(self.hb_model)
@@ -182,12 +170,8 @@ class GHCompo_CreateEnvelopeSurfaces(object):
                     face_rh_attributes_.Add(surface_color, pth(i))
 
                     # -- Create the Mesh Boundary Edges
-                    msh_edges = self.IGH.ghpythonlib_components.MeshEdges(
-                        mesh
-                    ).naked_edges
-                    msh_boundary = self.IGH.ghpythonlib_components.JoinCurves(
-                        msh_edges, preserve=False
-                    )
+                    msh_edges = self.IGH.ghpythonlib_components.MeshEdges(mesh).naked_edges
+                    msh_boundary = self.IGH.ghpythonlib_components.JoinCurves(msh_edges, preserve=False)
                     if isinstance(msh_boundary, list):
                         # If boundary is more than one curve, its a donut shaped face....
                         for crv in msh_boundary:

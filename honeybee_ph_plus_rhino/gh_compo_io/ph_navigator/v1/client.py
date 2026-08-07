@@ -242,9 +242,7 @@ class PHNavV1Client(object):
         response = _web_exception.Response
         if response is None:
             # -- No HTTP response at all (DNS failure, connection refused, timeout, ...)
-            return "Could not reach the PH-Navigator server at:\n{}\n{}".format(
-                self.url_base, _web_exception.Message
-            )
+            return "Could not reach the PH-Navigator server at:\n{}\n{}".format(self.url_base, _web_exception.Message)
 
         status = int(response.StatusCode)
         body = self._read_error_body(response)

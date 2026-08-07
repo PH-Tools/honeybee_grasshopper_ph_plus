@@ -28,8 +28,6 @@ def create_csv_airtightness(_df_main: pd.DataFrame, _output_path: pathlib.Path) 
     airflow_df = _df_main.loc[start_row:end_row]
 
     # drop the 'SYSTEMS' row
-    airflow_df_2 = airflow_df.drop(
-        airflow_df[airflow_df["Datatype"] == "AIRTIGHTNESS"].index
-    )
+    airflow_df_2 = airflow_df.drop(airflow_df[airflow_df["Datatype"] == "AIRTIGHTNESS"].index)
 
     airflow_df_2.to_csv(_output_path, index=False)

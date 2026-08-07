@@ -22,9 +22,7 @@ class InputFileError(Exception):
 
 
 Filepaths = namedtuple("Filepaths", ["sql"])
-ColumnData = namedtuple(
-    "ColumnData", ["index", "name", "type", "not_null", "default", "primary_key"]
-)
+ColumnData = namedtuple("ColumnData", ["index", "name", "type", "not_null", "default", "primary_key"])
 
 
 def resolve_arguments(_args: list[str]) -> tuple[Filepaths, str]:

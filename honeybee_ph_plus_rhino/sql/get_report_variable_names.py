@@ -58,9 +58,7 @@ def resolve_arguments(_args: list[str]) -> tuple[Filepaths, str, str]:
     return (Filepaths(results_sql_file), table_name, column_name)
 
 
-def get_report_variable_names(
-    source_file_path: Path, table_name: str, column_name: str
-) -> list:
+def get_report_variable_names(source_file_path: Path, table_name: str, column_name: str) -> list:
     """Get the Distinct values from the specified SQLite file | Table | Column."""
 
     conn = sqlite3.connect(source_file_path)

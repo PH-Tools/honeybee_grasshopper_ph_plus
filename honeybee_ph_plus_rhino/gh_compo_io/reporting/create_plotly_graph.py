@@ -35,9 +35,7 @@ except ImportError as e:
 
 class GHCompo_CreatePlotlyGraph(object):
 
-    def __init__(
-        self, _IGH, _folder, _name, _title, _data, _horiz_lines, _run, *args, **kwargs
-    ):
+    def __init__(self, _IGH, _folder, _name, _title, _data, _horiz_lines, _run, *args, **kwargs):
         # type: (gh_io.IGH, str | None, str | None, str | None, list[HourlyContinuousCollection], list[float], bool, *Any, **Any) -> None
         self.IGH = _IGH
         self.folder = _folder or hb_folders.default_simulation_folder
@@ -53,9 +51,7 @@ class GHCompo_CreatePlotlyGraph(object):
         if not unit_types:
             return None
         if len(unit_types) > 1:
-            msg = "All datasets must have the same unit type. Found: {}".format(
-                ", ".join(unit_types)
-            )
+            msg = "All datasets must have the same unit type. Found: {}".format(", ".join(unit_types))
             print(msg)
             self.IGH.error(msg)
         return unit_types.pop()
@@ -66,9 +62,7 @@ class GHCompo_CreatePlotlyGraph(object):
         if not _types_:
             return None
         if len(_types_) > 1:
-            msg = "All datasets must have the same data-type. Found: {}".format(
-                ", ".join(_types_)
-            )
+            msg = "All datasets must have the same data-type. Found: {}".format(", ".join(_types_))
             print(msg)
             self.IGH.error(msg)
         return _types_.pop()
@@ -84,25 +78,17 @@ class GHCompo_CreatePlotlyGraph(object):
             if not dataset:
                 return False
             if not isinstance(dataset, HourlyContinuousCollection):
-                print(
-                    "Error: All datasets must be of type HourlyContinuousCollection. Got: {}".format(
-                        type(dataset)
-                    )
-                )
+                print("Error: All datasets must be of type HourlyContinuousCollection. Got: {}".format(type(dataset)))
                 return False
 
         unit_types = {dataset.header.unit for dataset in self.data}
         if len(unit_types) > 1:
-            msg = "All datasets must have the same unit type. Found: {}".format(
-                ", ".join(unit_types)
-            )
+            msg = "All datasets must have the same unit type. Found: {}".format(", ".join(unit_types))
             print(msg)
             self.IGH.error(msg)
             return False
 
-        analysis_period_lengths = {
-            len(dataset.header.analysis_period.datetimes) for dataset in self.data
-        }
+        analysis_period_lengths = {len(dataset.header.analysis_period.datetimes) for dataset in self.data}
         if len(analysis_period_lengths) > 1:
             msg = "All datasets must have the same analysis period length. Found: {}".format(
                 ", ".join(str(analysis_period_lengths))

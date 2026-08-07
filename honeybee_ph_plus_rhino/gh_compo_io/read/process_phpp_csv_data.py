@@ -33,17 +33,7 @@ except ImportError as e:
 
 class GHCompo_ProcessPHPPCSVData(object):
 
-    def __init__(
-        self,
-        _IGH,
-        _folder,
-        _variant_data,
-        _climate_data,
-        _room_ventilation_data,
-        _run,
-        *args,
-        **kwargs
-    ):
+    def __init__(self, _IGH, _folder, _variant_data, _climate_data, _room_ventilation_data, _run, *args, **kwargs):
         # type: (gh_io.IGH, str, str, str, str, bool, *Any, **Any) -> None
         self.IGH = _IGH
         self.save_folder = _folder
@@ -56,18 +46,14 @@ class GHCompo_ProcessPHPPCSVData(object):
     def ready(self):
         # type: () -> bool
         """Return True if the component is ready to run."""
-        if not all(
-            [self.variant_data_csv, self.climate_data_csv, self.room_vent_data_csv]
-        ):
+        if not all([self.variant_data_csv, self.climate_data_csv, self.room_vent_data_csv]):
             self.IGH.warning("Please provide the source-data CSV-files to process.")
             return False
         if not self.save_folder:
             self.IGH.warning("Please provide a save-folder location.")
             return False
         if not self._run:
-            self.IGH.warning(
-                "Set '_run' to True to process the PHPP data into CSV files."
-            )
+            self.IGH.warning("Set '_run' to True to process the PHPP data into CSV files.")
             return False
         if not os.path.exists(self.save_folder):
             os.makedirs(self.save_folder)

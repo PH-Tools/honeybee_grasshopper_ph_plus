@@ -33,26 +33,18 @@ def create_csv_detailed_heating_demand(
 
     # Create the Detailed Heating Demand CSV
     demand_heat_losses_df = _df_main.loc[
-        VARIANTS.heating_demand["Walls (AG)"]
-        .row : VARIANTS.heating_demand["Ventilation"]
-        .row
+        VARIANTS.heating_demand["Walls (AG)"].row : VARIANTS.heating_demand["Ventilation"].row
     ]
     demand_heat_gains_df = _df_main.loc[
-        VARIANTS.heating_demand["Heating Demand"]
-        .row : VARIANTS.heating_demand["Internal Gains"]
-        .row
+        VARIANTS.heating_demand["Heating Demand"].row : VARIANTS.heating_demand["Internal Gains"].row
     ]
 
     # Get the variant column names (ignore the first two items 'Datatype' and 'Units')
     cols = demand_heat_losses_df.columns[2:].tolist()
 
     # Get the datatype and units values for both losses and gains
-    dTtpes = pd.concat(
-        [demand_heat_losses_df["Datatype"], demand_heat_gains_df["Datatype"]], sort=True
-    )
-    units = pd.concat(
-        [demand_heat_losses_df["Units"], demand_heat_gains_df["Units"]], sort=True
-    )
+    dTtpes = pd.concat([demand_heat_losses_df["Datatype"], demand_heat_gains_df["Datatype"]], sort=True)
+    units = pd.concat([demand_heat_losses_df["Units"], demand_heat_gains_df["Units"]], sort=True)
 
     # Create the 'Demand Limit' items in a way that matches the format of the main DF
     tempLimits = {}
@@ -61,12 +53,8 @@ def create_csv_detailed_heating_demand(
         vals = [
             "Heating Demand Limit",
             "kWh",
-            _cert_limits_abs.loc[VARIANTS.certification_limits["Heat Demand Limit"].row][
-                colName
-            ],
-            _cert_limits_abs.loc[VARIANTS.certification_limits["Heat Demand Limit"].row][
-                colName
-            ],
+            _cert_limits_abs.loc[VARIANTS.certification_limits["Heat Demand Limit"].row][colName],
+            _cert_limits_abs.loc[VARIANTS.certification_limits["Heat Demand Limit"].row][colName],
         ]
         newSeries = pd.Series(vals, index=index_temp)
         tempLimits[colName] = newSeries

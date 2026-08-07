@@ -145,9 +145,7 @@ Record = namedtuple("Record", ["Date", "Value", "Zone", "DataType", "DataUnit"])
 
 if __name__ == "__main__":
     # -- Get the Ladybug Hourly Data as a list of JSON Objects
-    save_filer_path, unit_type, y_axis_label, plot_title, horizontal_lines = (
-        resolve_arguments(sys.argv)
-    )
+    save_filer_path, unit_type, y_axis_label, plot_title, horizontal_lines = resolve_arguments(sys.argv)
     input_data = sys.stdin.read()
     data = json.loads(input_data)
 

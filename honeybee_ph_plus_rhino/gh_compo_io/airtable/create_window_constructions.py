@@ -51,14 +51,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
     """GHCompo Interface: HBPH - Airtable Create Constructions."""
 
     def __init__(
-        self,
-        IGH,
-        _glazing_records,
-        _frame_element_records,
-        _window_unit_records,
-        _psi_install_records,
-        *args,
-        **kwargs
+        self, IGH, _glazing_records, _frame_element_records, _window_unit_records, _psi_install_records, *args, **kwargs
     ):
         # type: (gh_io.IGH, List[TableRecord], List[TableRecord], List[TableRecord], Optional[List[TableRecord]], *Any, **Any) -> None
         self.IGH = IGH
@@ -87,10 +80,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         # type: (TableFields) -> str
         """Return the display name of the window unit."""
         try:
-            name = (
-                _window_unit_data.construction_name
-                or str(_window_unit_data.display_name).strip()
-            )
+            name = _window_unit_data.construction_name or str(_window_unit_data.display_name).strip()
         except AttributeError:
             name = str(_window_unit_data.display_name).strip()
 
@@ -101,8 +91,8 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         """Create a dictionary of the Psi-Install values."""
         psi_installs_ = {}  # type: Dict[str, float]
         for record in _records or []:
-            psi_installs_[record.FIELDS["DISPLAY_NAME"]] = (
-                self.get_float_value_with_warning(record.FIELDS, "PSI-VALUE [W/MK]")
+            psi_installs_[record.FIELDS["DISPLAY_NAME"]] = self.get_float_value_with_warning(
+                record.FIELDS, "PSI-VALUE [W/MK]"
             )
         return psi_installs_
 
@@ -146,15 +136,9 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         hbph_frame_element = PhWindowFrameElement(frame_data.display_name)
         hbph_frame_element.display_name = frame_data.display_name
 
-        hbph_frame_element.width = (
-            self.get_float_value_with_warning(frame_data, "WIDTH [MM]") / 1000
-        )
-        hbph_frame_element.u_factor = self.get_float_value_with_warning(
-            frame_data, "U-VALUE [W/M2K]"
-        )
-        hbph_frame_element.psi_glazing = self.get_float_value_with_warning(
-            frame_data, "PSI-GLAZING [W/MK]"
-        )
+        hbph_frame_element.width = self.get_float_value_with_warning(frame_data, "WIDTH [MM]") / 1000
+        hbph_frame_element.u_factor = self.get_float_value_with_warning(frame_data, "U-VALUE [W/M2K]")
+        hbph_frame_element.psi_glazing = self.get_float_value_with_warning(frame_data, "PSI-GLAZING [W/MK]")
 
         hbph_frame_element.psi_install = 0.0
         hbph_frame_element.chi_value = 0.0
@@ -170,18 +154,10 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         hbph_frame_type = PhWindowFrame(hbph_display_name)
         hbph_frame_type.display_name = hbph_display_name
         try:
-            hbph_frame_type.top = self.hbph_frame_elements[
-                window_unit_data["FRAME ELEMENT NAME: TOP"][0]
-            ]
-            hbph_frame_type.right = self.hbph_frame_elements[
-                window_unit_data["FRAME ELEMENT NAME: RIGHT"][0]
-            ]
-            hbph_frame_type.bottom = self.hbph_frame_elements[
-                window_unit_data["FRAME ELEMENT NAME: BOTTOM"][0]
-            ]
-            hbph_frame_type.left = self.hbph_frame_elements[
-                window_unit_data["FRAME ELEMENT NAME: LEFT"][0]
-            ]
+            hbph_frame_type.top = self.hbph_frame_elements[window_unit_data["FRAME ELEMENT NAME: TOP"][0]]
+            hbph_frame_type.right = self.hbph_frame_elements[window_unit_data["FRAME ELEMENT NAME: RIGHT"][0]]
+            hbph_frame_type.bottom = self.hbph_frame_elements[window_unit_data["FRAME ELEMENT NAME: BOTTOM"][0]]
+            hbph_frame_type.left = self.hbph_frame_elements[window_unit_data["FRAME ELEMENT NAME: LEFT"][0]]
         except KeyError as e:
             raise KeyError(
                 "\nThe record: '{}' is missing the required field '{}'."
@@ -199,9 +175,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         nfrc_u_factor = iso_10077_1.calculate_window_uw(_hbph_frame, _hbph_glazing)
         nfrc_shgc = _hbph_glazing.g_value
         t_vis = 0.6
-        window_mat = EnergyWindowMaterialSimpleGlazSys(
-            _display_name, nfrc_u_factor, nfrc_shgc, t_vis
-        )
+        window_mat = EnergyWindowMaterialSimpleGlazSys(_display_name, nfrc_u_factor, nfrc_shgc, t_vis)
         window_mat.display_name = _display_name
         return window_mat
 
@@ -219,9 +193,7 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         glazing_names = _window_data.glazing_name
 
         if not glazing_names:
-            msg = "Error: Glazing-Name for window unit: '{}' is not-defined.".format(
-                _window_data.display_name
-            )
+            msg = "Error: Glazing-Name for window unit: '{}' is not-defined.".format(_window_data.display_name)
             raise Exception(msg)
 
         glazing_name = glazing_names[0]
@@ -246,24 +218,14 @@ class GHCompo_AirTableCreateWindowConstructions(object):
         # -- Set the Psi-Install value on the Frame Elements
         if self.psi_installs:
             hbph_frame = hbph_frame.duplicate()
-            hbph_frame.top.psi_install = self.psi_installs.get(
-                self._get_psi_install_name(record, "TOP"), 0.0
-            )
-            hbph_frame.right.psi_install = self.psi_installs.get(
-                self._get_psi_install_name(record, "RIGHT"), 0.0
-            )
-            hbph_frame.bottom.psi_install = self.psi_installs.get(
-                self._get_psi_install_name(record, "BOTTOM"), 0.0
-            )
-            hbph_frame.left.psi_install = self.psi_installs.get(
-                self._get_psi_install_name(record, "LEFT"), 0.0
-            )
+            hbph_frame.top.psi_install = self.psi_installs.get(self._get_psi_install_name(record, "TOP"), 0.0)
+            hbph_frame.right.psi_install = self.psi_installs.get(self._get_psi_install_name(record, "RIGHT"), 0.0)
+            hbph_frame.bottom.psi_install = self.psi_installs.get(self._get_psi_install_name(record, "BOTTOM"), 0.0)
+            hbph_frame.left.psi_install = self.psi_installs.get(self._get_psi_install_name(record, "LEFT"), 0.0)
 
         # # -----------------------------------------------------------------------------
         # -- Build the HB Window Material and Construction
-        hbph_mat = self.create_new_hbph_window_material(
-            hbph_display_name, hbph_frame, hbph_glazing
-        )
+        hbph_mat = self.create_new_hbph_window_material(hbph_display_name, hbph_frame, hbph_glazing)
         hb_win_construction = WindowConstruction(hbph_display_name, [hbph_mat])
 
         # # -- Set the PH Properties on the WindowConstructionProperties

@@ -88,14 +88,10 @@ class GHCompo_CreateThermalBridges(object):
         new_attr_obj.ObjectColor = _color
         new_attr_obj.PlotColor = _color
         new_attr_obj.ColorSource = _IGH.Rhino.DocObjects.ObjectColorSource.ColorFromObject
-        new_attr_obj.PlotColorSource = (
-            _IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
-        )
+        new_attr_obj.PlotColorSource = _IGH.Rhino.DocObjects.ObjectPlotColorSource.PlotColorFromObject
 
         new_attr_obj.PlotWeight = _weight
-        new_attr_obj.PlotWeightSource = (
-            _IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
-        )
+        new_attr_obj.PlotWeightSource = _IGH.Rhino.DocObjects.ObjectPlotWeightSource.PlotWeightFromObject
 
         # new_attr_obj.DisplayOrder = 0  # 1 = Front, -1 = Back
 
@@ -169,9 +165,7 @@ class GHCompo_CreateThermalBridges(object):
             return tb_names_tree_, tb_geom_tree_, tb_attr_tree_, tb_lengths_tree_
 
         # -- Build the RH AttributeObjects
-        rh_attr_surface_default = self.create_rh_attr_object(
-            self.IGH, self.default_surface_color, 0
-        )
+        rh_attr_surface_default = self.create_rh_attr_object(self.IGH, self.default_surface_color, 0)
         rh_attr_curve_highlight = self.create_rh_attr_object(
             self.IGH, self.highlight_outline_color, self.highlight_outline_weight
         )
@@ -194,14 +188,10 @@ class GHCompo_CreateThermalBridges(object):
 
                 # -- Boundary Edges
                 msh_edges = self.IGH.ghpythonlib_components.MeshEdges(mesh).naked_edges
-                msh_boundary = self.IGH.ghpythonlib_components.JoinCurves(
-                    msh_edges, preserve=False
-                )
+                msh_boundary = self.IGH.ghpythonlib_components.JoinCurves(msh_edges, preserve=False)
                 if isinstance(msh_boundary, list):
                     bldg_surface_geom.extend(msh_boundary)
-                    bldg_surface_attrs.extend(
-                        [rh_attr_curve_default for _ in range(len((msh_boundary)))]
-                    )
+                    bldg_surface_attrs.extend([rh_attr_curve_default for _ in range(len((msh_boundary)))])
                 else:
                     bldg_surface_geom.append(msh_boundary)
                     bldg_surface_attrs.append(rh_attr_curve_default)

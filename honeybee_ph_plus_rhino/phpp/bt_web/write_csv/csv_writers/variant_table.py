@@ -102,21 +102,15 @@ def split_table_into_sections(_variants_data: pd.DataFrame) -> dict[str, pd.Data
                 continue
 
             # --  Add the row to the current section
-            sections[current_section] = pd.concat(
-                [sections[current_section], row.to_frame().T], ignore_index=True
-            )
+            sections[current_section] = pd.concat([sections[current_section], row.to_frame().T], ignore_index=True)
             sections[current_section].reset_index(drop=True, inplace=True)
 
     return sections
 
 
-def clean_variant_table_data(
-    _df_main: pd.DataFrame, _variant_names: pd.Series
-) -> pd.DataFrame:
+def clean_variant_table_data(_df_main: pd.DataFrame, _variant_names: pd.Series) -> pd.DataFrame:
     # Certification Yes/No
-    cert_df1 = _df_main.loc[
-        VARIANTS.certification_compliant["Certification Compliant?"].row
-    ]
+    cert_df1 = _df_main.loc[VARIANTS.certification_compliant["Certification Compliant?"].row]
 
     # Energy and Load values
     # --------------------------------------------------------------------------
@@ -153,9 +147,7 @@ def clean_variant_table_data(
     cd_df3 = pd.Series(["Cooling Demand", "kWh/yr"], index=["Datatype", "Units"])
     cd_df4 = pd.concat([cd_df3, cd_df2])
 
-    demand_results_df1 = pd.concat(
-        [cert_df1, pe_df4, se_df5, hd_df4, hd_df1, cd_df4, cd_df1], axis=1
-    )
+    demand_results_df1 = pd.concat([cert_df1, pe_df4, se_df5, hd_df4, hd_df1, cd_df4, cd_df1], axis=1)
     demand_results_df2 = demand_results_df1.T
 
     # Peak Loads
@@ -173,23 +165,14 @@ def clean_variant_table_data(
     env_end_row = VARIANTS.envelope.end_row()
     env_df1 = _df_main.loc[env_start_row:env_end_row]
     env_df1 = pd.DataFrame(env_df1)
-    new_datatype_column = (
-        env_df1["Datatype"].str.replace("_", " ").str.replace("Generic ", "")
-    )
+    new_datatype_column = env_df1["Datatype"].str.replace("_", " ").str.replace("Generic ", "")
     # Remove any rows that have 'Datatype' == '-'
     env_df1 = env_df1[env_df1["Datatype"] != "-"]
     env_df1["Datatype"] = new_datatype_column
 
     # Convert in the envelope leakage rate
-    q50_ip1 = (
-        env_df1.loc[VARIANTS.envelope["Envelope Air Leakage Rate (q50)"].row][
-            _variant_names
-        ]
-        * 0.054680665
-    )
-    q50_ip2 = pd.Series(
-        ["Envelope Air Leakage Rate (q50)", "cfm/ft2"], index=["Datatype", "Units"]
-    )
+    q50_ip1 = env_df1.loc[VARIANTS.envelope["Envelope Air Leakage Rate (q50)"].row][_variant_names] * 0.054680665
+    q50_ip2 = pd.Series(["Envelope Air Leakage Rate (q50)", "cfm/ft2"], index=["Datatype", "Units"])
     q50_ip3 = pd.concat([q50_ip2, q50_ip1])
     env_df1.loc[VARIANTS.envelope["Envelope Air Leakage Rate (q50)"].row] = q50_ip3
     env_results_df2 = env_df1.dropna(how="any")
@@ -205,13 +188,8 @@ def clean_variant_table_data(
     sys_df2 = sys_df1.drop(sys_df1[sys_df1["Datatype"] == "SYSTEMS"].index)
 
     # Re-set the units for duct
-    duct_len_s1 = (
-        sys_df2.loc[VARIANTS.systems["Cold Air Duct Length (ea)"].row][_variant_names]
-        * 3.280839895
-    )
-    duct_len_s2 = pd.Series(
-        ["Cold Air Duct Length (ea)", "ft"], index=["Datatype", "Units"]
-    )
+    duct_len_s1 = sys_df2.loc[VARIANTS.systems["Cold Air Duct Length (ea)"].row][_variant_names] * 3.280839895
+    duct_len_s2 = pd.Series(["Cold Air Duct Length (ea)", "ft"], index=["Datatype", "Units"])
     duct_len_s3 = pd.concat([duct_len_s2, duct_len_s1])
 
     sys_df3 = sys_df2.copy(deep=True)
@@ -219,14 +197,9 @@ def clean_variant_table_data(
 
     # Insulation
     duct_insul_s1 = (
-        sys_df3.loc[VARIANTS.systems["Cold Air Duct Insulation Thickness"].row][
-            _variant_names
-        ]
-        * 0.039370079
+        sys_df3.loc[VARIANTS.systems["Cold Air Duct Insulation Thickness"].row][_variant_names] * 0.039370079
     )
-    ductInsul_s2 = pd.Series(
-        ["Cold Air Duct Insulation Thickness", "inches"], index=["Datatype", "Units"]
-    )
+    ductInsul_s2 = pd.Series(["Cold Air Duct Insulation Thickness", "inches"], index=["Datatype", "Units"])
     ductInsul_s3 = pd.concat([ductInsul_s2, duct_insul_s1])
 
     sys_df4 = sys_df3.copy(deep=True)
@@ -245,9 +218,7 @@ def clean_variant_table_data(
 
     # --------------------------------------------------------------------------
     # -- Build the final df in the right order
-    variants_data_df1 = pd.concat(
-        [brk_env, env_results_df2, brk_sys, sys_df5, brk_results, key_results_df]
-    )
+    variants_data_df1 = pd.concat([brk_env, env_results_df2, brk_sys, sys_df5, brk_results, key_results_df])
     variants_data_df2 = variants_data_df1.fillna("")
     return variants_data_df2
 
@@ -277,8 +248,6 @@ def create_csv_variant_table(
 
     # --------------------------------------------------------------------------
     # Break up the Table into 'sections'
-    for section_name, section_df in split_table_into_sections(
-        variants_data_complete
-    ).items():
+    for section_name, section_df in split_table_into_sections(variants_data_complete).items():
         section_file_path = _file_path.parent / f"{_file_path.stem}_{section_name}.csv"
         section_df.to_csv(section_file_path, index=False)

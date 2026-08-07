@@ -53,9 +53,7 @@ def get_table_names(source_file_path: Path) -> list[str]:
     data_ = []  # defaultdict(list)
     try:
         c = conn.cursor()
-        c.execute(
-            "SELECT DISTINCT name FROM sqlite_master WHERE type='table' ORDER BY name;"
-        )
+        c.execute("SELECT DISTINCT name FROM sqlite_master WHERE type='table' ORDER BY name;")
         for row in c.fetchall():
             data_.append(str(row[0]))
     except Exception as e:

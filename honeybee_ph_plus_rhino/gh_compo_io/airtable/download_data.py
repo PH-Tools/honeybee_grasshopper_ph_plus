@@ -111,22 +111,15 @@ class GHCompo_AirTableDownloadTableData(object):
     @property
     def url(self):
         # URL for the AirTable API
-        _url = "https://api.airtable.com/v0/{}/{}".format(
-            self.AIRTABLE_BASE_ID, self.AIRTABLE_TABLE_NAME
-        )
+        _url = "https://api.airtable.com/v0/{}/{}".format(self.AIRTABLE_BASE_ID, self.AIRTABLE_TABLE_NAME)
 
         try:
             # TLS 1.2 is needed to download over https
-            System.Net.ServicePointManager.SecurityProtocol = (
-                System.Net.SecurityProtocolType.Tls12
-            )
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12
         except AttributeError:
             # TLS 1.2 is not provided by MacOS .NET in Rhino 5
             if _url.lower().startswith("https"):
-                self.IGH.error(
-                    "This system lacks the necessary security"
-                    " libraries to download over https."
-                )
+                self.IGH.error("This system lacks the necessary security" " libraries to download over https.")
 
         return _url
 

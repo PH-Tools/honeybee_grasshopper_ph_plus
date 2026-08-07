@@ -33,9 +33,7 @@ class GHCompo_PHNavGetConstructions(object):
 
     URL_BASE = "https://ph-dash-0cye.onrender.com"
 
-    def __init__(
-        self, _IGH, _project_number, _url_base, _get_constructions, *args, **kwargs
-    ):
+    def __init__(self, _IGH, _project_number, _url_base, _get_constructions, *args, **kwargs):
         # type: (gh_io.IGH, str, str | None, bool, *Any, **Any) -> None
         self.IGH = _IGH
         self.PROJECT_NUMBER = _project_number
@@ -56,22 +54,15 @@ class GHCompo_PHNavGetConstructions(object):
         # type: () -> str
         """Get the URL for the PH-Navigator API."""
         # URL for the PH-Navigator API
-        _url = "{}/assembly/get-assemblies-as-hbjson/{}".format(
-            self._url_base or self.URL_BASE, self.PROJECT_NUMBER
-        )
+        _url = "{}/assembly/get-assemblies-as-hbjson/{}".format(self._url_base or self.URL_BASE, self.PROJECT_NUMBER)
 
         try:
             # TLS 1.2 is needed to download over https
-            System.Net.ServicePointManager.SecurityProtocol = (
-                System.Net.SecurityProtocolType.Tls12
-            )
+            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12
         except AttributeError:
             # TLS 1.2 is not provided by MacOS .NET in Rhino 5
             if _url.lower().startswith("https"):
-                self.IGH.error(
-                    "This system lacks the necessary security"
-                    " libraries to download over https."
-                )
+                self.IGH.error("This system lacks the necessary security" " libraries to download over https.")
 
         print("PH-Navigator URL: {}".format(_url))
         return _url

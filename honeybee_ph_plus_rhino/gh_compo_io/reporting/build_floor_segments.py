@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""Functions for getting / sorting all the Honeybee-Model TFA Floor Surfaces. """
+"""Functions for getting / sorting all the Honeybee-Model TFA Floor Surfaces."""
 
 from collections import OrderedDict, defaultdict
 
@@ -111,33 +111,19 @@ def text_by_TFA(_space, _IGH, _units="SI"):
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} ft2".format(
-                convert(_space.floor_area, rhdoc_area_units, "FT2")
-            ),
-            "WEIGHTED AREA: {:.01f} ft2".format(
-                convert(_space.weighted_floor_area, rhdoc_area_units, "FT2")
-            ),
-            "Vn50: {:.01f} ft3".format(
-                convert(_space.net_volume, rhdoc_vol_units, "FT3")
-            ),
-            "CLG HEIGHT: {:.01f} ft".format(
-                convert(_space.avg_clear_height, rhdoc_len_units, "FT")
-            ),
+            "GROSS AREA: {:.01f} ft2".format(convert(_space.floor_area, rhdoc_area_units, "FT2")),
+            "WEIGHTED AREA: {:.01f} ft2".format(convert(_space.weighted_floor_area, rhdoc_area_units, "FT2")),
+            "Vn50: {:.01f} ft3".format(convert(_space.net_volume, rhdoc_vol_units, "FT3")),
+            "CLG HEIGHT: {:.01f} ft".format(convert(_space.avg_clear_height, rhdoc_len_units, "FT")),
         ]
     else:
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} m2".format(
-                convert(_space.floor_area, rhdoc_area_units, "M2")
-            ),
-            "WEIGHTED AREA: {:.01f} m2".format(
-                convert(_space.weighted_floor_area, rhdoc_area_units, "M2")
-            ),
+            "GROSS AREA: {:.01f} m2".format(convert(_space.floor_area, rhdoc_area_units, "M2")),
+            "WEIGHTED AREA: {:.01f} m2".format(convert(_space.weighted_floor_area, rhdoc_area_units, "M2")),
             "Vn50: {:.01f} m3".format(convert(_space.net_volume, rhdoc_vol_units, "M3")),
-            "CLG HEIGHT: {:.01f} m".format(
-                convert(_space.avg_clear_height, rhdoc_len_units, "M")
-            ),
+            "CLG HEIGHT: {:.01f} m".format(convert(_space.avg_clear_height, rhdoc_len_units, "M")),
         ]
 
     return "\n".join(txt)
@@ -164,12 +150,8 @@ def text_by_Vent(_space, _IGH, _units="SI"):
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} ft2".format(
-                convert(_space.floor_area, rhdoc_area_units, "FT2")
-            ),
-            "NET AREA: {:.01f} ft2".format(
-                convert(_space.net_floor_area, rhdoc_area_units, "FT2")
-            ),
+            "GROSS AREA: {:.01f} ft2".format(convert(_space.floor_area, rhdoc_area_units, "FT2")),
+            "NET AREA: {:.01f} ft2".format(convert(_space.net_floor_area, rhdoc_area_units, "FT2")),
             "SUP: {} cfm".format(format_vent_rate(space_prop_ph._v_sup or 0.0, "CFM")),
             "ETA: {} cfm".format(format_vent_rate(space_prop_ph._v_eta or 0.0, "CFM")),
             "TRAN: {} cfm".format(format_vent_rate(space_prop_ph._v_tran or 0.0, "CFM")),
@@ -178,21 +160,11 @@ def text_by_Vent(_space, _IGH, _units="SI"):
         txt = [
             "ZONE: {}".format(_space.host.display_name),
             "NAME: {}".format(_space.full_name),
-            "GROSS AREA: {:.01f} m2".format(
-                convert(_space.floor_area, rhdoc_area_units, "M2")
-            ),
-            "NET AREA: {:.01f} m2".format(
-                convert(_space.net_floor_area, rhdoc_area_units, "M2")
-            ),
-            "SUP: {} m3/hr".format(
-                format_vent_rate(space_prop_ph._v_sup or 0.0, "M3/HR")
-            ),
-            "ETA: {} m3/hr".format(
-                format_vent_rate(space_prop_ph._v_eta or 0.0, "M3/HR")
-            ),
-            "TRAN: {} m3/hr".format(
-                format_vent_rate(space_prop_ph._v_tran or 0.0, "M3/HR")
-            ),
+            "GROSS AREA: {:.01f} m2".format(convert(_space.floor_area, rhdoc_area_units, "M2")),
+            "NET AREA: {:.01f} m2".format(convert(_space.net_floor_area, rhdoc_area_units, "M2")),
+            "SUP: {} m3/hr".format(format_vent_rate(space_prop_ph._v_sup or 0.0, "M3/HR")),
+            "ETA: {} m3/hr".format(format_vent_rate(space_prop_ph._v_eta or 0.0, "M3/HR")),
+            "TRAN: {} m3/hr".format(format_vent_rate(space_prop_ph._v_tran or 0.0, "M3/HR")),
         ]
 
     return "\n".join(txt)
@@ -306,9 +278,7 @@ def _get_flr_seg_data(_IGH, _get_color, _space):
 
             # -- Boundary Edges
             msh_edges = _IGH.ghpythonlib_components.MeshEdges(msh).naked_edges
-            msh_boundary = _IGH.ghpythonlib_components.JoinCurves(
-                msh_edges, preserve=False
-            )
+            msh_boundary = _IGH.ghpythonlib_components.JoinCurves(msh_edges, preserve=False)
 
             # -- Sometimes Join Curves returns a list of items....
             if isinstance(msh_boundary, list):
@@ -344,12 +314,7 @@ def _get_clipping_plane_locations(_IGH, _room_group, _offset_up=0.25, _offset_do
         for faces in sp.floor_segment_surfaces
         for face in faces
     ]
-    hb_room_floor_srfcs = [
-        face
-        for rm in _room_group
-        for face in rm.faces
-        if (isinstance(face.type, facetype.Floor))
-    ]
+    hb_room_floor_srfcs = [face for rm in _room_group for face in rm.faces if (isinstance(face.type, facetype.Floor))]
     flr_faces = space_floor_segments + hb_room_floor_srfcs
     flr_level_min_z = min(hb_face.min.z for hb_face in flr_faces)
     flr_level_max_z = max(hb_face.max.z for hb_face in flr_faces)
@@ -370,9 +335,7 @@ def _get_clipping_plane_locations(_IGH, _room_group, _offset_up=0.25, _offset_do
 def _find_space_annotation_location(_IGH, _space):
     # type: (gh_io.IGH, space.Space) -> Point3d
     """Returns a single geometric center point of a Space's Volumes."""
-    return _IGH.ghpythonlib_components.Average(
-        [from_point3d(p) for p in _space.reference_points]
-    )
+    return _IGH.ghpythonlib_components.Average([from_point3d(p) for p in _space.reference_points])
 
 
 def _get_all_space_floor_segment_center_points(_IGH, space):
@@ -380,9 +343,7 @@ def _get_all_space_floor_segment_center_points(_IGH, space):
     """Return a list of all the SpaceFloorSegment center-points in the Space's Volumes."""
 
     return [
-        from_point3d(flr_seg.geometry.center)
-        for volume in space.volumes
-        for flr_seg in volume.floor.floor_segments
+        from_point3d(flr_seg.geometry.center) for volume in space.volumes for flr_seg in volume.floor.floor_segments
     ]
 
 
@@ -413,9 +374,7 @@ def _build_annotation_leader_marker(_IGH, _cp, _radius=0.0075):
 
 
 class GHCompo_CreateFloorSegmentPDFGeometry(object):
-    def __init__(
-        self, _IGH, _hb_model, _drawing_type, _units_, _flr_anno_txt_size, *args, **kwargs
-    ):
+    def __init__(self, _IGH, _hb_model, _drawing_type, _units_, _flr_anno_txt_size, *args, **kwargs):
         # type: (gh_io.IGH, model.Model, str, str, float, *Any, **Any) -> None
         self.IGH = _IGH
         self.hb_model = _hb_model
@@ -471,17 +430,13 @@ class GHCompo_CreateFloorSegmentPDFGeometry(object):
         for i, item in enumerate(rooms_grouped_by_story.items()):
             level_name, hb_rm_group = item
             floor_names_.Add(level_name, pth(i))
-            clipping_plane_locations_.AddRange(
-                _get_clipping_plane_locations(self.IGH, hb_rm_group), pth(i)
-            )
+            clipping_plane_locations_.AddRange(_get_clipping_plane_locations(self.IGH, hb_rm_group), pth(i))
 
             # -- Create space floor Geometry and Annotation
             spaces = _get_hbph_spaces(hb_rm_group)
             for space in spaces:
                 #  -- Add the Floor segment geometry
-                flr_seg_geom, flr_seg_attrs = _get_flr_seg_data(
-                    self.IGH, self.colors, space
-                )
+                flr_seg_geom, flr_seg_attrs = _get_flr_seg_data(self.IGH, self.colors, space)
                 floor_geom_.AddRange(flr_seg_geom, pth(i))
                 floor_attributes_.AddRange(flr_seg_attrs, pth(i))
 
@@ -490,16 +445,12 @@ class GHCompo_CreateFloorSegmentPDFGeometry(object):
                 flr_seg_cps = _get_all_space_floor_segment_center_points(self.IGH, space)
                 for flr_cp in flr_seg_cps:
                     # -- add the leader line itself
-                    ldr, ldr_attr = _build_annotation_leader_line(
-                        self.IGH, anno_cp, flr_cp
-                    )
+                    ldr, ldr_attr = _build_annotation_leader_line(self.IGH, anno_cp, flr_cp)
                     floor_geom_.Add(ldr, pth(i))
                     floor_attributes_.Add(ldr_attr, pth(i))
 
                     # -- add a dot marker at the leader line end point
-                    marker_geom, marker_attrs = _build_annotation_leader_marker(
-                        self.IGH, flr_cp, 0.05
-                    )
+                    marker_geom, marker_attrs = _build_annotation_leader_marker(self.IGH, flr_cp, 0.05)
                     floor_geom_.Add(marker_geom, pth(i))
                     floor_attributes_.Add(marker_attrs, pth(i))
 

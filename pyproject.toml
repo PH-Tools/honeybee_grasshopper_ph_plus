@@ -15,6 +15,8 @@ replace = 'RELEASE_VERSION = "Honeybee-PH+ v{new_version}"'
 # -- Code Quality ------------------------------------------------------------------
 [tool.black]
 line-length = 120
+# Grasshopper rewrites these component facades when they are scraped from GH.
+extend-exclude = '^/honeybee_grasshopper_ph_plus/'
 
 [tool.ruff]
 line-length = 120

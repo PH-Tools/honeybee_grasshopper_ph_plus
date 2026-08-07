@@ -4,9 +4,9 @@
 """Create ERV duct Model-Objects from a Honeybee Model's PH-HVAC Ventilation Systems."""
 
 try:
-    from System import Object # type: ignore
-    from Grasshopper import DataTree # type: ignore
-    from Grasshopper.Kernel.Data import GH_Path # type: ignore
+    from System import Object  # type: ignore
+    from Grasshopper import DataTree  # type: ignore
+    from Grasshopper.Kernel.Data import GH_Path  # type: ignore
     from Rhino.Geometry import PolylineCurve  # type: ignore
 except ImportError as e:
     raise ImportError("\nFailed to import ghpythonlib or Grasshopper:\n\t{}".format(e))
@@ -63,7 +63,7 @@ def get_duct_block_name(_parent_name, _duct):
         shape = "{}in Diam".format(_duct.segments[0].diameter)
     else:
         shape = "{}in x {}in".format(_duct.segments[0].height, _duct.segments[0].width)
-    return "{} | {} | {}".format(_parent_name, "OA" if _duct.duct_type==1 else "EA", shape)
+    return "{} | {} | {}".format(_parent_name, "OA" if _duct.duct_type == 1 else "EA", shape)
 
 
 # ----------------------------------------------------------------------

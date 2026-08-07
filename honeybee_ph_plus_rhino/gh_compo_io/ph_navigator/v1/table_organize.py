@@ -102,10 +102,14 @@ OUTPUT_SPECS = {
     "ventilators": [
         _Port("name_", "name", "(str) Ventilator name."),
         _Port("heat_recovery_pct_", "heat_recovery_percent", "(float) Heat-recovery efficiency [%]."),
-        _Port("energy_recovery_pct_", "moisture_recovery_percent", "(float) Moisture/enthalpy-recovery efficiency [%]."),
+        _Port(
+            "energy_recovery_pct_", "moisture_recovery_percent", "(float) Moisture/enthalpy-recovery efficiency [%]."
+        ),
         _Port("elec_efficiency_", "electrical_efficiency_wh_m3", "(float) Electrical efficiency [Wh/m3] (SI)."),
         _Port("frost_protection_", "frost_protection", "(str) Frost protection (single-select label)."),
-        _Port("frost_temp_limit_", "frost_protection_limit_temp_c", "(float) Frost-protection limit temp [deg C] (SI)."),
+        _Port(
+            "frost_temp_limit_", "frost_protection_limit_temp_c", "(float) Frost-protection limit temp [deg C] (SI)."
+        ),
         _Port("inside_outside_", "inside_outside", "(str) Inside / Outside (single-select label)."),
     ],
     "pumps": [
@@ -115,7 +119,11 @@ OUTPUT_SPECS = {
         _Port("inside_outside_", "inside_outside", "(str) Inside / Outside (single-select label)."),
         _Port("annual_energy_", "annual_energy_kwh", "(float) Annual energy demand [kWh/yr]."),
         _Port("annual_runtime_", "runtime_khr_yr", "(float) Annual runtime [thousand-hr/yr]."),
-        _Port("ihg_util_factor_", "internal_heat_gains_utilization_factor", "(float) Internal-heat-gains utilization factor."),
+        _Port(
+            "ihg_util_factor_",
+            "internal_heat_gains_utilization_factor",
+            "(float) Internal-heat-gains utilization factor.",
+        ),
     ],
     "fans": [
         _Port("name_", "name", "(str) Fan name."),
@@ -226,9 +234,7 @@ class GHCompo_PHNavV1OrganizeTable(object):
 
         kind = _classify_table(self.type)
         if kind == _DEFERRED:
-            self.IGH.error(
-                "Organize for '{}' is not implemented yet (heat-pump joins are deferred).".format(self.type)
-            )
+            self.IGH.error("Organize for '{}' is not implemented yet (heat-pump joins are deferred).".format(self.type))
             return {}
         if kind == _UNKNOWN:
             self.IGH.error(
