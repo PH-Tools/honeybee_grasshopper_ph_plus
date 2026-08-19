@@ -2,7 +2,7 @@
 
 Open-source (`github.com/PH-Tools`) plugin adding **extra utility** Grasshopper components on top of the base `honeybee_grasshopper_ph` package (Airtable integration, reporting/PDF, PHPP readers, SQL/E+ readers, Plotly plotting, PH-Navigator, and more). Requires the base HBPH package.
 
-> **Runtime constraint (critical):** deployed code runs inside **Rhino/Grasshopper's IronPython 2.7**, not CPython 3. Repo tooling (black/ruff/bumpversion, `.venv`) is CPython and is for linting/release only — never installed into Rhino. See `context/CODING_STANDARDS.md`.
+> **Runtime constraint (critical):** deployed code runs inside **Rhino/Grasshopper's IronPython 2.7**, not CPython 3. Repo tooling (black/ruff/bumpversion, `.venv`) is CPython and is for linting/release only — never installed into Rhino. Apply the **ironpython-27-compatibility** skill; repo specifics in `context/CODING_STANDARDS.md`.
 
 ## Where things live — read before working
 

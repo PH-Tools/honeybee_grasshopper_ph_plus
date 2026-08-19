@@ -7,14 +7,19 @@ STATUS: CANONICAL ENGINEERING STANDARD
 
 ## 1. IronPython 2.7 for deployed code
 
-Everything that runs on the Grasshopper canvas must be Python-2.7 / IronPython-2.7 safe. (`.venv` + black/ruff/bumpversion are CPython, for lint/release only — never installed into Rhino.)
+The generic dual-runtime rules (banned syntax and modules, comment-style type
+hints, guarded `typing` imports, defensive third-party imports, and the lint
+settings they imply) live in the **ironpython-27-compatibility** skill. Apply it
+before editing anything on the Rhino load path. Only this repo's specifics are
+recorded below.
 
-- No f-strings, no `pathlib`, no modern stdlib.
-- Type **comments** (`# type: (int) -> None`), never inline annotations.
-- **Do not "modernize" to Python 3 idioms.** Match the surrounding Py2.7 style exactly.
-- `F401` (unused import) is globally ignored — it collides with the type-hint-in-comment style. Wildcard imports allowed in `__init__.py`.
-- Line length **120** (black + ruff).
-- `honeybee_grasshopper_ph_plus/` is scraped from Grasshopper and excluded from Black; each scrape regenerates its component-script formatting. Black-format maintained backend code in `honeybee_ph_plus_rhino/` and tests normally.
+**Zone split:** everything that runs on the Grasshopper canvas is IPy2.7-safe.
+The `.venv` plus black/ruff/bumpversion are CPython, for lint and release only,
+and are never installed into Rhino.
+
+`honeybee_grasshopper_ph_plus/` is scraped from Grasshopper and excluded from
+Black; each scrape regenerates its component-script formatting. Black-format
+maintained backend code in `honeybee_ph_plus_rhino/` and tests normally.
 
 ## 2. The component contract
 
