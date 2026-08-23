@@ -3,13 +3,12 @@
 
 """Create a simplified wireframe from a Honeybee Model."""
 
-
 try:
-    from System import Object  # type: ignore
-    from System.Drawing import Color  # type: ignore
     import Rhino  # type: ignore
     from Grasshopper import DataTree  # type: ignore
     from Grasshopper.Kernel.Data import GH_Path  # type: ignore
+    from System import Object  # type: ignore
+    from System.Drawing import Color  # type: ignore
 except ImportError as e:
     raise ImportError("\nFailed to import from Rhino:\n\t{}".format(e))
 
@@ -20,13 +19,13 @@ except ImportError as e:
 
 try:
     from honeybee.boundarycondition import Surface
-    from honeybee.model import Model
     from honeybee.face import Face
+    from honeybee.model import Model
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee:\n\t{}".format(e))
 
 try:
-    from honeybee_ph_utils.face_tools import sort_hb_faces_by_co_planar, group_hb_faces
+    from honeybee_ph_utils.face_tools import group_hb_faces, sort_hb_faces_by_co_planar
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_ph_utils:\n\t{}".format(e))
 
