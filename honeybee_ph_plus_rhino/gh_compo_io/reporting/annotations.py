@@ -14,7 +14,7 @@ except ImportError:
 
 try:
     from Grasshopper import DataTree  # type: ignore
-    from Rhino import Geometry as rg  # type:ignore
+    from Rhino import Geometry as rg  # type: ignore
 except ImportError:
     pass  # Outside Rhino
 

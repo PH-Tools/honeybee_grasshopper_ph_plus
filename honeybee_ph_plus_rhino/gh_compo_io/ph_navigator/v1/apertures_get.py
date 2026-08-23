@@ -18,21 +18,21 @@ except ImportError as e:
 try:
     from honeybee_ph_plus_rhino.gh_compo_io.collections.create_new_collection import CustomCollection
 
-    # -- Parse with the V1 schema fork: the route-3 payload emits explicit JSON `null`
-    # -- for unset numeric fields (e.g. `psi_install_w_mk`), which the V0 schema's
-    # -- `float(dict.get(...))` cannot handle. `v1/window_types_schema.py` is null-safe.
-    from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1.window_types_schema import ApertureTypeData
-
     # -- The build pipeline transforms schema objects -> HBPH objects (it never parses
     # -- raw dicts), so it does not diverge between V0/V1 and the frozen V0 helpers are
     # -- reused directly on our (duck-type-identical) V1 schema objects.
     from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v0.window_types_get import (
+        create_hbph_ep_constructions,
         create_hbph_glazing_types,
+        create_hbph_window_unit_types,
         create_new_hbph_frame_elements,
         create_new_hbph_frames,
-        create_hbph_window_unit_types,
-        create_hbph_ep_constructions,
     )
+
+    # -- Parse with the V1 schema fork: the route-3 payload emits explicit JSON `null`
+    # -- for unset numeric fields (e.g. `psi_install_w_mk`), which the V0 schema's
+    # -- `float(dict.get(...))` cannot handle. `v1/window_types_schema.py` is null-safe.
+    from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1.window_types_schema import ApertureTypeData
 except ImportError as e:
     raise ImportError("\nFailed to import from honeybee_ph_plus_rhino {}".format(e))
 

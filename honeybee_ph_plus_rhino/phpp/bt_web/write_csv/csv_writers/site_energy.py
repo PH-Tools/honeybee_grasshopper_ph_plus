@@ -3,7 +3,6 @@
 
 """Export Site Energy Data CSV files from the PHPP Main DataFrame"""
 
-
 import pathlib
 
 import pandas as pd

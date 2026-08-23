@@ -3,7 +3,6 @@
 
 """GHCompo Interface: HBPH+ - Group Connected Faces."""
 
-
 try:
     from typing import Any
 except ImportError:

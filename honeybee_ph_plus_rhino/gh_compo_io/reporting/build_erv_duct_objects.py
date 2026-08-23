@@ -4,10 +4,10 @@
 """Create ERV duct Model-Objects from a Honeybee Model's PH-HVAC Ventilation Systems."""
 
 try:
-    from System import Object  # type: ignore
     from Grasshopper import DataTree  # type: ignore
     from Grasshopper.Kernel.Data import GH_Path  # type: ignore
     from Rhino.Geometry import PolylineCurve  # type: ignore
+    from System import Object  # type: ignore
 except ImportError as e:
     raise ImportError("\nFailed to import ghpythonlib or Grasshopper:\n\t{}".format(e))
 
