@@ -1,15 +1,36 @@
-# Feature: Consume PH-Navigator per-edge Psi-Install data ("PHN phase 07" client side)
+# Research — original scoping doc (2026-08-13)
 
-**Status:** Deferred — **gated on Ed deploying the PH-Navigator `feature/aperture-psi-install`
-branch to production** (route-3 `installs` block; PHN packet phase-02 deploy gate). UI polish
-in progress on the PHN side as of 2026-08-13. Everything upstream is shipped and waiting.
+> **Superseded in part, 2026-08-26.** This was the first pass at scoping the work,
+> written before the live trace in `PRD.md`. Keep it for history and for §1, which
+> still holds. Two things have changed:
+>
+> - **The deploy gate is closed.** Route 3's `installs` block was confirmed live on
+>   `localhost:8000` against BT 1234 on 2026-08-26.
+> - **§2 item 2's direction is superseded** by `decisions.md` D-1 / D-5. The mapping
+>   table in §2 is still correct *except* its `source` row — see below; what changed
+>   is where the values land and the addition of the EP U-factor fix.
+> - **§2 item 3's "prefer the extra output" is superseded** by `decisions.md` D-2:
+>   the extra output ships, but a companion `HBPH+ - PH-Nav Set Apertures` ships
+>   with it, because the extra output alone cannot be wired correctly.
+> - **§2's `source` description is wrong.** It reads
+>   "`assigned`/`default`/`mull` + type source". The actual value is one of
+>   `"mull"` / `"assigned"` / `"default"` only
+>   (`ResolvedInstallPsi.source: Literal[...]`); the library row's own Source field
+>   (`opt_apit_src_*`) is never merged in. `PRD.md` §3.2 has it right.
+>
+> Read `README.md` → `PRD.md` → `decisions.md` → `PLAN.md` for the current spec.
+
+**Original status:** Deferred — gated on Ed deploying the PH-Navigator
+`feature/aperture-psi-install` branch to production (route-3 `installs` block; PHN packet
+phase-02 deploy gate). UI polish in progress on the PHN side as of 2026-08-13. Everything
+upstream is shipped and waiting.
 **Date:** 2026-08-13
 **Author:** Ed May + Claude
 **Kind:** Client-side completion of the cross-repo `aperture-psi-install` refactor
 (honeybee_ph v1.33.33 / PHX v1.56.73 / honeybee_grasshopper_ph PR #60 — all merged).
 
 **Companion docs:**
-- `ph-navigator-v2/planning/features_v1.1/aperture-psi-install/phases/phase-07-gh-client-per-edge.md` — the PHN-side spec for this work
+- `ph-navigator-v2/planning/features_v1.1/aperture-psi-install/phases/phase-07-gh-client-per-edge.md` — the PHN-side spec for this work (its §3 is likewise superseded by `decisions.md` D-1)
 - `ph-navigator-v2/planning/features_v1.1/aperture-psi-install/upstream-alignment.md` — field mapping (authoritative)
 - `honeybee_grasshopper_ph/planning/refactor/aperture-psi-install.md` — the base-repo components this feeds
 

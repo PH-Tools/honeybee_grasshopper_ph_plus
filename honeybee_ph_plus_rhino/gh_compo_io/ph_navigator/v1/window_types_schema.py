@@ -156,6 +156,14 @@ class FrameType(object):
         `psi_install_w_mk` is routinely emitted as `null` (unset) on route 3, so it
         defaults to 0.04 W/mK here - a standard PH install-psi placeholder, matching
         the V0 default.
+
+        NOTE: this field is the *frame-product type default* only. A current PH-Nav
+        server deliberately writes the uniform project-default psi-install into every
+        side here, never a per-edge value, so that an older client (which shares one
+        frame element across every edge using the product) cannot mis-apply it. The
+        per-edge truth lives in the sibling `installs` block - see `InstallsData`.
+        The 0.04 fallback below is therefore legacy-only: it can only be reached by a
+        payload from a server that predates the `installs` contract.
         """
         return cls(
             _name=_data_dict.get("name", ""),
@@ -316,6 +324,150 @@ class FramesData(object):
         return self.__str__()
 
 
+class InstallData(object):
+    """Schema for one edge's resolved Psi-Install condition from PH-Navigator.
+
+    Route 3 resolves each glazed element's four edges server-side (mull -> assigned
+    -> project default) and ships the answer here, so the client never re-derives it.
+    `install_type_id` / `name` are `None` on an interior (mulled) edge, which carries
+    `psi_install_w_mk = 0.0` and `source = "mull"`.
+    """
+
+    def __init__(self, _install_type_id, _name, _psi_install_w_mk, _source):
+        # type: (str | None, str | None, float, str) -> None
+        self.install_type_id = _install_type_id
+        self.name = _name
+        self.psi_install_w_mk = _psi_install_w_mk
+        self.source = _source
+
+    @classmethod
+    def from_dict(cls, _data_dict):
+        # type: (dict[str, Any]) -> InstallData
+        """Create an InstallData object from a dictionary.
+
+        Unlike the frame fields, `psi_install_w_mk` defaults to 0.0 rather than 0.04:
+        this block is the resolved per-edge truth, so an absent value means 'no
+        install thermal bridge', never 'assume the usual placeholder'.
+        """
+        return cls(
+            _install_type_id=_data_dict.get("install_type_id"),
+            _name=_data_dict.get("name"),
+            _psi_install_w_mk=_as_float(_data_dict.get("psi_install_w_mk"), 0.0),
+            _source=_data_dict.get("source") or "",
+        )
+
+    @property
+    def display_name(self):
+        return self.name
+
+    @property
+    def is_mull(self):
+        # type: () -> bool
+        """True if this edge is an interior (mulled) joint rather than a library assignment."""
+        return self.source == "mull"
+
+    def __copy__(self):
+        # type: () -> InstallData
+        """Create a copy of this InstallData object."""
+        return InstallData(
+            _install_type_id=self.install_type_id,
+            _name=self.name,
+            _psi_install_w_mk=self.psi_install_w_mk,
+            _source=self.source,
+        )
+
+    def __str__(self):
+        # type: () -> str
+        """String representation of the InstallData object."""
+        return "InstallData(_install_type_id={}, _name={}, _psi_install_w_mk={}, _source={})".format(
+            self.install_type_id, self.name, self.psi_install_w_mk, self.source
+        )
+
+    def __repr__(self):
+        # type: () -> str
+        return str(self)
+
+    def ToString(self):
+        # type: () -> str
+        return str(self)
+
+
+class InstallsData(object):
+    """Schema for the per-edge Psi-Install collection from PH-Navigator.
+
+    Parallel to `FramesData`, with two deliberate differences:
+
+    1. Side order is top / right / bottom / left - the `PhWindowFrame` element order
+       that every downstream consumer uses - rather than `FramesData`'s historical
+       left / right / top / bottom. `SIDES` is the single source of that order.
+    2. A missing or null side stays `None` instead of becoming a zero-valued object.
+       Fabricating a 0.0 here would silently assert 'no thermal bridge' for an edge
+       the server said nothing about.
+    """
+
+    SIDES = ("top", "right", "bottom", "left")
+
+    def __init__(self, _top, _right, _bottom, _left):
+        # type: (InstallData | None, InstallData | None, InstallData | None, InstallData | None) -> None
+        self.top = _top
+        self.right = _right
+        self.bottom = _bottom
+        self.left = _left
+
+    @classmethod
+    def from_dict(cls, _data_dict):
+        # type: (dict[str, Any]) -> InstallsData
+        """Create an InstallsData object from a dictionary."""
+        # -- NOTE: splatted positionally, so `SIDES` must stay in the same order as
+        # -- `__init__`'s parameters. `test_get_all_installs_is_top_right_bottom_left`
+        # -- pins that order.
+        sides = []
+        for side in cls.SIDES:
+            side_dict = _data_dict.get(side)
+            sides.append(InstallData.from_dict(side_dict) if side_dict else None)
+        return cls(*sides)
+
+    def get_install_by_side(self, _side):
+        # type: (str) -> InstallData | None
+        """Get the install data by side name, or None if that side has no data."""
+        return getattr(self, _side, None)
+
+    def get_all_installs(self):
+        # type: () -> list[InstallData | None]
+        """Get all four installs in top / right / bottom / left order.
+
+        NOTE: unlike `FramesData.get_all_frames`, this does NOT drop `None` entries.
+        The result is consumed positionally against `SIDES`, so filtering would
+        misalign the remaining sides.
+        """
+        return [self.get_install_by_side(side) for side in self.SIDES]
+
+    def __copy__(self):
+        # type: () -> InstallsData
+        """Create a copy of this InstallsData object."""
+        return InstallsData(
+            copy(self.top),
+            copy(self.right),
+            copy(self.bottom),
+            copy(self.left),
+        )
+
+    def __str__(self):
+        # type: () -> str
+        """String representation of the InstallsData object."""
+        return "InstallsData(_top={}, _right={}, _bottom={}, _left={})".format(
+            self.top, self.right, self.bottom, self.left
+        )
+
+    def __repr__(self):
+        # type: () -> str
+        return str(self)
+
+    def ToString(self):
+        # type: () -> str
+        return str(self)
+
+
 class ElementData(object):
     """Schema for element data from PH-Navigator."""
 
@@ -329,8 +481,9 @@ class ElementData(object):
         _row_span,
         _glazing,
         _frames,
+        _installs=None,
     ):
-        # type: (str, str, int, int, int, int, GlazingData, FramesData) -> None
+        # type: (str, str, int, int, int, int, GlazingData, FramesData, InstallsData | None) -> None
         self.aperture_type_name = _aperture_type_name
         self.name = _name
         self.column_number = _column_number
@@ -339,6 +492,10 @@ class ElementData(object):
         self.row_span = _row_span
         self.glazing = _glazing
         self.frames = _frames
+        # -- `None` (not an empty InstallsData) when the payload carries no `installs`
+        # -- block at all, ie. a server older than the per-edge contract. Downstream
+        # -- treats that as 'legacy payload, behave exactly as before'.
+        self.installs = _installs
 
     @property
     def type_name(self):
@@ -351,6 +508,7 @@ class ElementData(object):
         # type: (dict[str, Any], str) -> ElementData
         """Create an ElementData object from a dictionary."""
 
+        installs_dict = _data_dict.get("installs")
         return cls(
             _aperture_type_name=_aperture_type_name,
             _name=_data_dict.get("name", ""),
@@ -360,6 +518,7 @@ class ElementData(object):
             _row_span=_as_int(_data_dict.get("row_span"), 1),
             _glazing=GlazingData.from_dict(_data_dict.get("glazing") or {}),
             _frames=FramesData.from_dict(_data_dict.get("frames") or {}),
+            _installs=InstallsData.from_dict(installs_dict) if installs_dict else None,
         )
 
     def __copy__(self):
@@ -374,6 +533,7 @@ class ElementData(object):
             self.row_span,
             copy(self.glazing),
             copy(self.frames),
+            copy(self.installs),
         )
 
     def __str__(self):
