@@ -49,6 +49,13 @@ EM July 5, 2026
 
         last_modified_: (str) The save-timestamp of the downloaded version (for
             freshness / change-detection).
+
+        install_types_: (CustomCollection[List[PhApertureInstallType]]) The per-edge
+            Psi-Install 'Install Types', keyed by element-name (the same keys as
+            'constructions_'). Each value is the ordered list [top, right, bottom,
+            left]. Wire to 'HBPH+ - PH-Nav Set Apertures' to apply them to the
+            Apertures in the model. Empty if the server predates the per-edge
+            contract.
 """
 
 import scriptcontext as sc
@@ -90,4 +97,4 @@ gh_compo_interface = gh_compo_io.GHCompo_PHNavV1GetApertures(
     _token,
     _download,
     )
-window_types_, constructions_, json_, last_modified_ = gh_compo_interface.run()
+window_types_, constructions_, json_, last_modified_, install_types_ = gh_compo_interface.run()

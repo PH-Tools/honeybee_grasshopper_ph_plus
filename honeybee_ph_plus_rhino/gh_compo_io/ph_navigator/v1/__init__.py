@@ -5,6 +5,9 @@
 from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1.apertures_get import (
     GHCompo_PHNavV1GetApertures,
 )
+from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1.apertures_set import (
+    GHCompo_PHNavV1SetApertures,
+)
 from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1.constructions_get import (
     GHCompo_PHNavV1GetConstructions,
 )

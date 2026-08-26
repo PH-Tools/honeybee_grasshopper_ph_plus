@@ -13,15 +13,14 @@ RELATED: README.md, PRD.md, decisions.md, PLAN.md, research.md
 against the working tree. Design accepted, with D-2 revised. Implementation
 under way on branch `feat/phn-psi-install-per-edge`.
 
-**Next step:** Phase 02 — build the Install Types, the `install_types_` output,
-and `HBPH+ - PH-Nav Set Apertures`.
+**Next step:** Phase 03 — resolve the EP U-factor from the per-edge Ψ.
 
 ## Phase ledger
 
 | Phase | State |
 | --- | --- |
 | 01 Parse `installs` | **Complete** — `InstallData` / `InstallsData` / `ElementData.installs`, 15 tests |
-| 02 Build Install Types + `install_types_` output + `PH-Nav Set Apertures` | Not started |
+| 02 Build Install Types + `install_types_` output + `PH-Nav Set Apertures` | **Complete** — builder, new component, 13 tests; verified live against BT 1234 |
 | 03 EP U-factor from resolved Ψ + verification | Not started |
 
 ## Gates
@@ -37,9 +36,13 @@ and `HBPH+ - PH-Nav Set Apertures`.
    (`context/TECH_STACK.md`). Verified directly instead: the base Install-Type
    modules and the `HBPH - Set Aperture Psi-Installs.ghuser` are present in Ed's
    live Rhino 8 install, and PR #60 shipped in `honeybee_grasshopper_ph` v1.33.0.
-4. **`.ghuser` rebuild (Ed, Grasshopper).** *Open — the one gate an agent cannot
-   close.* Phase 02 adds an output to `PH-Nav Get Apertures` and introduces
-   `PH-Nav Set Apertures`; fsdeploy does not regenerate user-objects.
+4. **`.ghuser` rebuild + icon (Ed, Grasshopper/Illustrator).** *Open — the one
+   gate an agent cannot close.* Phase 02 appended an output to `PH-Nav Get
+   Apertures` and added `PH-Nav Set Apertures`; fsdeploy does not regenerate
+   user-objects. The new component also needs an icon in
+   `honeybee_grasshopper_ph_plus/icons/` (`AI/07_ph_nav/` + `PNG/07_ph_nav/`) —
+   note `PH-Nav Get Apertures` has no dedicated icon either, so this subcategory is
+   already partly unglazed.
 
 **Not gates any more.** The v1.1 packet listed phase 07 as blocked on deploying
 route 3. Route 3's `installs` block is live on `localhost:8000`, confirmed

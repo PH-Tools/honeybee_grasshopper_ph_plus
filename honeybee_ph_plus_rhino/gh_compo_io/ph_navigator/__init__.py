@@ -14,4 +14,5 @@ from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1 import (
     GHCompo_PHNavV1GetTable,
     GHCompo_PHNavV1GetVersions,
     GHCompo_PHNavV1OrganizeTable,
+    GHCompo_PHNavV1SetApertures,
 )
