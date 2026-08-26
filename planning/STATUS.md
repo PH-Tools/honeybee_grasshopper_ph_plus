@@ -8,7 +8,7 @@ _Last updated: 2026-08-26_
 
 | Item | Kind | Status | Pointer |
 |------|------|--------|---------|
-| Consume PHN per-edge Psi-Install data (`PH-Nav Get Apertures`) | Feature | **In progress** — all gates closed (D-1 confirmed, D-2 revised to add `HBPH+ - PH-Nav Set Apertures`); building on `feat/phn-psi-install-per-edge`. Remaining manual gate: `.ghuser` rebuild by Ed | [`features/phn-psi-install-per-edge/`](features/phn-psi-install-per-edge/README.md) |
+| Consume PHN per-edge Psi-Install data (`PH-Nav Get Apertures`) | Feature | **Implemented** — all 3 phases done on `feat/phn-psi-install-per-edge`, 35 tests, verified live against BT 1234. NOT yet `Complete`: acceptance items 3-5 and 8 need Rhino + a PHX write, so it stays here until Ed rebuilds the two `.ghuser`s and runs the canvas check | [`features/phn-psi-install-per-edge/`](features/phn-psi-install-per-edge/README.md) |
 | `Infiltration from ACH` — 50Pa output unit mismatch | Bug fix | **Implemented** — automated verification passed | [`bug-fixes/infiltration-from-ach-units.md`](bug-fixes/infiltration-from-ach-units.md) |
 
 ## Archived
