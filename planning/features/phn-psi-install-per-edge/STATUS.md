@@ -3,17 +3,20 @@
 ```
 DATE:    2026-08-26
 TIME:    17:45
-STATUS:  In progress — gates closed, implementation started
+STATUS:  Implemented — all three phases complete; canvas + PHX verification pending
 AUTHOR:  Ed May + Claude
 SCOPE:   State, gates, next step
 RELATED: README.md, PRD.md, decisions.md, PLAN.md, research.md
 ```
 
-**State:** Trace complete and verified live, then independently re-verified
-against the working tree. Design accepted, with D-2 revised. Implementation
-under way on branch `feat/phn-psi-install-per-edge`.
+**State:** All three phases implemented on branch `feat/phn-psi-install-per-edge`,
+35 tests passing. The code path is verified end-to-end against the live route-3
+response for BT 1234. What remains is the part that needs Rhino: the user-object
+rebuild, the canvas run, and a PHX → PHPP write.
 
-**Next step:** Phase 03 — resolve the EP U-factor from the per-edge Ψ.
+**Next step:** Ed — rebuild the two `.ghuser` user-objects and add an icon for
+the new component, then run the canvas verification in `PRD.md` §4 (items 3-5 and
+8 need Rhino / a PHX write and are the only acceptance items still unproven).
 
 ## Phase ledger
 
@@ -21,7 +24,7 @@ under way on branch `feat/phn-psi-install-per-edge`.
 | --- | --- |
 | 01 Parse `installs` | **Complete** — `InstallData` / `InstallsData` / `ElementData.installs`, 15 tests |
 | 02 Build Install Types + `install_types_` output + `PH-Nav Set Apertures` | **Complete** — builder, new component, 13 tests; verified live against BT 1234 |
-| 03 EP U-factor from resolved Ψ + verification | Not started |
+| 03 EP U-factor from resolved Ψ + verification | **Complete** — transient effective frames; 1.3011 → 1.2686 verified live |
 
 ## Gates
 

@@ -32,6 +32,7 @@ try:
     # -- Per-edge Install Types are V1-only: they come from the route-3 `installs`
     # -- block, which the frozen V0 schema does not parse.
     from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1.install_types_build import (
+        create_effective_frames,
         create_new_hbph_install_types,
     )
 
@@ -106,12 +107,19 @@ class GHCompo_PHNavV1GetApertures(object):
 
         aperture_types = self._parse_aperture_types(aperture_types_raw)
         window_unit_types = CustomCollection.from_dict(create_hbph_window_unit_types(self.IGH, aperture_types))
-        window_constructions = self._build_window_constructions(aperture_types)
-        # -- Empty (not None) against a server that predates the `installs` contract,
-        # -- so the downstream 'Set Apertures' component no-ops instead of erroring.
-        install_types = CustomCollection.from_dict(create_new_hbph_install_types(aperture_types))
+        # -- Built once: the constructions need them for the U-w, and they are also an
+        # -- output in their own right. Empty against a server that predates the
+        # -- `installs` contract, so everything downstream no-ops instead of erroring.
+        install_types = create_new_hbph_install_types(aperture_types)
+        window_constructions = self._build_window_constructions(aperture_types, install_types)
 
-        return window_unit_types, window_constructions, json_preview, client.last_modified, install_types
+        return (
+            window_unit_types,
+            window_constructions,
+            json_preview,
+            client.last_modified,
+            CustomCollection.from_dict(install_types),
+        )
 
     def _parse_aperture_types(self, _raw):
         # type: (dict[str, dict]) -> list[ApertureTypeData]
@@ -124,10 +132,19 @@ class GHCompo_PHNavV1GetApertures(object):
                 self.IGH.warning("Failed to parse aperture type: {}".format(e))
         return aperture_types
 
-    def _build_window_constructions(self, _aperture_types):
-        # type: (list[ApertureTypeData]) -> CustomCollection
-        """Build the `WindowConstruction` collection (glazings -> frames -> constructions)."""
+    def _build_window_constructions(self, _aperture_types, _install_types):
+        # type: (list[ApertureTypeData], dict[str, list]) -> CustomCollection
+        """Build the `WindowConstruction` collection (glazings -> frames -> constructions).
+
+        The constructions keep the frame-product type defaults, but their EnergyPlus
+        U-factor is computed from a transient frame carrying the resolved per-edge
+        psi-install - otherwise EnergyPlus would simulate 0.04 W/mK on a mulled edge
+        that is really 0.0. See `create_effective_frames`.
+        """
         glazing_types = create_hbph_glazing_types(_aperture_types)
         frame_elements = create_new_hbph_frame_elements(_aperture_types)
         frame_types = create_new_hbph_frames(_aperture_types, frame_elements)
-        return CustomCollection.from_dict(create_hbph_ep_constructions(_aperture_types, glazing_types, frame_types))
+        effective_frames = create_effective_frames(frame_types, _install_types)
+        return CustomCollection.from_dict(
+            create_hbph_ep_constructions(_aperture_types, glazing_types, frame_types, effective_frames)
+        )

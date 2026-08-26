@@ -32,7 +32,7 @@ except ImportError:
     pass  # IronPython 2.7
 
 try:
-    from honeybee_energy_ph.construction.window import PhApertureInstallType
+    from honeybee_energy_ph.construction.window import PhApertureInstallType, PhWindowFrame
 except ImportError as e:
     raise ImportError("\nFailed to import honeybee_energy_ph: {}".format(e))
 
@@ -116,3 +116,39 @@ def create_new_hbph_install_types(_aperture_types):
             ]
 
     return install_types_
+
+
+def create_effective_frames(_frame_types, _install_types):
+    # type: (dict[str, PhWindowFrame], dict[str, list[PhApertureInstallType | None]]) -> dict[str, PhWindowFrame]
+    """Build transient frames carrying the resolved per-edge psi-install, for U-w only.
+
+    `iso_10077_1` includes the install psi in its U-w, so the EnergyPlus U-factor is
+    psi-sensitive - and is wrong on a mulled edge while the frame still carries the
+    uniform type default. Fixing that without writing instance data into the shared
+    construction needs a throwaway duplicate, which is exactly what
+    `honeybee_ph_utils.aperture_psi_install.resolve_effective_frame` does upstream for
+    the same reason.
+
+    These frames are for the U-w calculation and nothing else. They are never
+    persisted: `WindowConstructionPhProperties.ph_frame` keeps the type defaults, and
+    the per-edge truth lives on the Aperture (D-1 / D-5). `PhWindowFrame.__copy__`
+    deep-copies all four elements, so the overwrite below cannot reach the shared
+    `PhWindowFrameElement` pool.
+
+    Returns `{element_type_name: PhWindowFrame}`, covering only the elements that
+    actually have Install Types - anything else keeps its original frame.
+    """
+    effective_frames_ = {}  # type: dict[str, PhWindowFrame]
+
+    for type_name, install_types in _install_types.items():
+        frame = _frame_types.get(type_name, None)
+        if frame is None:
+            continue
+
+        effective_frame = frame.duplicate()  # type: PhWindowFrame
+        for side, install_type in zip(InstallsData.SIDES, install_types):
+            if install_type is not None:
+                getattr(effective_frame, side).psi_install = install_type.psi_install
+        effective_frames_[type_name] = effective_frame
+
+    return effective_frames_

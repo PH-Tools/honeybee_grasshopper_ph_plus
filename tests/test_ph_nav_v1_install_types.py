@@ -31,6 +31,28 @@ class _PhApertureInstallType(object):
         self.source = ""
 
 
+class _FrameElement(object):
+    def __init__(self, psi_install=0.04):
+        self.psi_install = psi_install
+
+    def duplicate(self):
+        return _FrameElement(self.psi_install)
+
+
+class _PhWindowFrame(object):
+    """Stand-in for PhWindowFrame, with the real deep-copy semantics of __copy__."""
+
+    def __init__(self, shared_element=None):
+        for side in ("top", "right", "bottom", "left"):
+            setattr(self, side, shared_element or _FrameElement())
+
+    def duplicate(self):
+        dup = _PhWindowFrame()
+        for side in ("top", "right", "bottom", "left"):
+            setattr(dup, side, getattr(self, side).duplicate())
+        return dup
+
+
 def _clean_ep_string(value):
     return value.replace(",", "").replace(";", "").strip()
 
@@ -147,7 +169,11 @@ def modules():
 
     _install_module("honeybee_energy_ph")
     _install_module("honeybee_energy_ph.construction")
-    _install_module("honeybee_energy_ph.construction.window", PhApertureInstallType=_PhApertureInstallType)
+    _install_module(
+        "honeybee_energy_ph.construction.window",
+        PhApertureInstallType=_PhApertureInstallType,
+        PhWindowFrame=_PhWindowFrame,
+    )
 
     _install_module("honeybee_ph_rhino")
     _install_module("honeybee_ph_rhino.gh_compo_io")
@@ -282,6 +308,52 @@ def test_a_legacy_payload_yields_an_empty_collection(modules):
         del element["installs"]
 
     assert modules["builder"].create_new_hbph_install_types(_aperture_types(modules["schema"], payload)) == {}
+
+
+# -- Effective frames (the U-w fix) -------------------------------------------
+
+
+def test_effective_frames_carry_the_resolved_psi(modules):
+    schema, builder = modules["schema"], modules["builder"]
+    install_types = builder.create_new_hbph_install_types(_aperture_types(schema))
+    frames = dict((key, _PhWindowFrame()) for key in install_types)
+
+    effective = builder.create_effective_frames(frames, install_types)
+
+    assert effective["Test Aperture_C0_R0"].right.psi_install == pytest.approx(0.0)
+    assert effective["Test Aperture_C0_R0"].top.psi_install == pytest.approx(0.04)
+    assert effective["Test Aperture_C1_R0"].left.psi_install == pytest.approx(0.0)
+
+
+def test_effective_frames_do_not_mutate_the_originals(modules):
+    """D-1/D-5: the construction keeps the type defaults; the resolution is transient."""
+    schema, builder = modules["schema"], modules["builder"]
+    install_types = builder.create_new_hbph_install_types(_aperture_types(schema))
+    frames = dict((key, _PhWindowFrame()) for key in install_types)
+
+    builder.create_effective_frames(frames, install_types)
+
+    assert frames["Test Aperture_C0_R0"].right.psi_install == pytest.approx(0.04)
+
+
+def test_effective_frames_do_not_leak_through_a_shared_frame_element(modules):
+    """The #59 failure mode: frame elements are pooled per frame-product, so a
+    shallow duplicate would push one edge's psi onto every window using it."""
+    schema, builder = modules["schema"], modules["builder"]
+    install_types = builder.create_new_hbph_install_types(_aperture_types(schema))
+    shared = _FrameElement()
+    frames = dict((key, _PhWindowFrame(shared_element=shared)) for key in install_types)
+
+    builder.create_effective_frames(frames, install_types)
+
+    assert shared.psi_install == pytest.approx(0.04)
+
+
+def test_an_element_with_no_frame_is_skipped(modules):
+    schema, builder = modules["schema"], modules["builder"]
+    install_types = builder.create_new_hbph_install_types(_aperture_types(schema))
+
+    assert builder.create_effective_frames({}, install_types) == {}
 
 
 # -- The 'Set Apertures' component --------------------------------------------

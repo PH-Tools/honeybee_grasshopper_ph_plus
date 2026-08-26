@@ -251,6 +251,27 @@ EnergyPlus does. Noted so it is not mistaken for a bug later.
 
 ## 4. Acceptance
 
+> **Result, 2026-08-26.** Items 1, 2, 6 and 7 are **verified** — run against the
+> live route-3 response for BT 1234 on `localhost:8000`, driving the real build
+> pipeline with the real `honeybee_energy_ph` / `honeybee_ph_utils` (not stubs).
+> Items 3, 4, 5 and 8 need Rhino on the canvas and a PHX → PHPP write, and are
+> **pending Ed's user-object rebuild**. Evidence:
+>
+> ```
+> Test Aperture_C0_R0   t/r/b/l = [0.04, 0.0, 0.04, 0.04]
+>                       ids     = [apit_default, PhApertureInstallType_0.0000, apit_default, apit_default]
+>                       sources = [default, mull, default, default]
+> Test Aperture_C1_R0   t/r/b/l = [0.04, 0.04, 0.04, 0.0]
+> distinct PhApertureInstallType instances: 2   (8 edges, pooled)
+>
+> EP U-factor   before = 1.3011   after = 1.2686   (both constructions)
+> persisted ph_frame keeps the 0.04 type default on every edge: True
+> shared PhWindowFrameElement pool untouched:                    True
+> ```
+>
+> 35 unit tests cover the same ground against stubs, including the flat-list
+> regression that pins D-2 and the shared-frame-element leak that would re-open #59.
+
 Against BT `1234` on `http://localhost:8000`, both elements 1.0 m × 1.0 m,
 50 mm frame, U-f 1.5, U-g 1.0, Ψ-g 0.04:
 

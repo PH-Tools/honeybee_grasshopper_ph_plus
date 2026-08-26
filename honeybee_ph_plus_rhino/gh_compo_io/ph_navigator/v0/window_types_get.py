@@ -179,11 +179,20 @@ def create_hbph_window_unit_types(_IGH, _aperture_types):
     return window_types_
 
 
-def create_new_hbph_window_material(display_name, hbph_frame, hbph_glazing):
-    # type: (str, PhWindowFrame, PhWindowGlazing) -> EnergyWindowMaterialSimpleGlazSys
-    """Create a new HB Simple Window Material and set the NFRC/HBmaterial properties"""
+def create_new_hbph_window_material(display_name, hbph_frame, hbph_glazing, _uw_frame=None):
+    # type: (str, PhWindowFrame, PhWindowGlazing, PhWindowFrame | None) -> EnergyWindowMaterialSimpleGlazSys
+    """Create a new HB Simple Window Material and set the NFRC/HBmaterial properties
 
-    nfrc_u_factor = iso_10077_1.calculate_window_uw(hbph_frame, hbph_glazing)
+    `_uw_frame` optionally supplies a different frame to characterize the U-w with,
+    while `hbph_frame` stays the frame the construction is built from. The V1 caller
+    passes a transient duplicate carrying PH-Navigator's resolved per-edge
+    psi-installs, so the EnergyPlus U-factor reflects the real install condition
+    (notably 0.0 W/mK on a mulled edge) without instance data ever being written into
+    the shared construction. Defaults to `hbph_frame`, which is the frozen V0
+    behavior.
+    """
+
+    nfrc_u_factor = iso_10077_1.calculate_standard_window_uw(_uw_frame or hbph_frame, hbph_glazing)
     nfrc_shgc = hbph_glazing.g_value
     t_vis = 0.6
     window_mat = EnergyWindowMaterialSimpleGlazSys(display_name, nfrc_u_factor, nfrc_shgc, t_vis)
@@ -191,10 +200,16 @@ def create_new_hbph_window_material(display_name, hbph_frame, hbph_glazing):
     return window_mat
 
 
-def create_hbph_ep_constructions(_aperture_types, _glazing_types, _frame_types):
-    # type: (list[ApertureTypeData], dict[str, PhWindowGlazing], dict[str, PhWindowFrame]) -> dict[str, WindowConstruction]
-    """Create the HoneybeePH EP-Constructions for the Window Types."""
+def create_hbph_ep_constructions(_aperture_types, _glazing_types, _frame_types, _uw_frames=None):
+    # type: (list[ApertureTypeData], dict[str, PhWindowGlazing], dict[str, PhWindowFrame], dict[str, PhWindowFrame] | None) -> dict[str, WindowConstruction]
+    """Create the HoneybeePH EP-Constructions for the Window Types.
 
+    `_uw_frames` optionally maps element type-name to the frame to characterize that
+    element's U-w with (see `create_new_hbph_window_material`). Omitted by the V0
+    caller, which has no per-edge data to resolve.
+    """
+
+    uw_frames = _uw_frames or {}
     constructions_ = {}  # type: dict[str, WindowConstruction]
     for aperture_type in _aperture_types:
         for element in aperture_type.elements:
@@ -208,7 +223,9 @@ def create_hbph_ep_constructions(_aperture_types, _glazing_types, _frame_types):
                 continue
 
             # Build the HB Window Material and Construction
-            hbph_mat = create_new_hbph_window_material(element.type_name, hbph_frame, hbph_glazing)
+            hbph_mat = create_new_hbph_window_material(
+                element.type_name, hbph_frame, hbph_glazing, uw_frames.get(element.type_name, None)
+            )
             hb_win_construction = WindowConstruction(element.type_name, [hbph_mat])
 
             # Set the PH Properties on the WindowConstructionProperties
