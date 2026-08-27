@@ -10,8 +10,9 @@
 >   table in §2 is still correct *except* its `source` row — see below; what changed
 >   is where the values land and the addition of the EP U-factor fix.
 > - **§2 item 3's "prefer the extra output" is superseded** by `decisions.md` D-2:
->   the extra output ships, but a companion `HBPH+ - PH-Nav Set Apertures` ships
->   with it, because the extra output alone cannot be wired correctly.
+>   the extra output ships, but a companion
+>   `HBPH+ - PH-Nav Set Aperture Psi-Installs` ships with it, because the extra
+>   output alone cannot be wired correctly.
 > - **§2's `source` description is wrong.** It reads
 >   "`assigned`/`default`/`mull` + type source". The actual value is one of
 >   `"mull"` / `"assigned"` / `"default"` only

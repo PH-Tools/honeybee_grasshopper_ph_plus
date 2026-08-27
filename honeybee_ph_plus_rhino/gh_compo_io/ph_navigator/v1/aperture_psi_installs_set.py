@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # -*- Python Version: 2.7 -*-
 
-"""GHCompo Interface: HBPH+ - PH-Nav Set Apertures."""
+"""GHCompo Interface: HBPH+ - PH-Nav Set Aperture Psi-Installs."""
 
 try:
     from typing import Any
@@ -39,7 +39,7 @@ except ImportError as e:
 SIDES = AperturePsiInstalls.SIDES
 
 
-class GHCompo_PHNavV1SetApertures(object):
+class GHCompo_PHNavV1SetAperturePsiInstalls(object):
     """Assign PH-Navigator's per-edge Install Types onto Honeybee Apertures.
 
     The companion to 'HBPH+ - PH-Nav Get Apertures': that component downloads the

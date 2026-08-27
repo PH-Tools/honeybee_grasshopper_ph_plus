@@ -53,7 +53,7 @@ EM July 5, 2026
         install_types_: (CustomCollection[List[PhApertureInstallType]]) The per-edge
             Psi-Install 'Install Types', keyed by element-name (the same keys as
             'constructions_'). Each value is the ordered list [top, right, bottom,
-            left]. Wire to 'HBPH+ - PH-Nav Set Apertures' to apply them to the
+            left]. Wire to 'HBPH+ - PH-Nav Set Aperture Psi-Installs' to apply them to the
             Apertures in the model. Empty if the server predates the per-edge
             contract.
 """

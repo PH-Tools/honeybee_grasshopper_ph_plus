@@ -64,7 +64,7 @@ the inconsistency is a known one rather than a discovery.
 1. A new `install_types_` output on `HBPH+ - PH-Nav Get Apertures`: a
    `CustomCollection` keyed by element type-name (`Test Aperture_C0_R0`), value =
    the ordered list `[top, right, bottom, left]` of `PhApertureInstallType`.
-2. A new component, **`HBPH+ - PH-Nav Set Apertures`**, taking `_apertures` and
+2. A new component, **`HBPH+ - PH-Nav Set Aperture Psi-Installs`**, taking `_apertures` and
    `_install_types` (that collection) and doing the key → element lookup
    internally, off each aperture's own `display_name`. It duplicates the
    apertures and writes the four slots directly, never touching the construction.

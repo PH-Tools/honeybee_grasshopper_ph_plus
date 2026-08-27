@@ -58,10 +58,10 @@ test that pins "row reversal does not touch side names" (PRD §3.1).
 
 ## Phase 02 — Build Install Types, the `install_types_` output, and the setter component
 
-**Files:** a new `v1/install_types_build.py`; a new `v1/apertures_set.py`;
+**Files:** a new `v1/install_types_build.py`; a new `v1/aperture_psi_installs_set.py`;
 `v1/apertures_get.py`; `v1/__init__.py` (re-export the new `GHCompo_*`);
 `gh_compo_io/ph_navigator/__init__.py` (same); a new
-`honeybee_grasshopper_ph_plus/src/HBPH+ - PH-Nav Set Apertures.py`;
+`honeybee_grasshopper_ph_plus/src/HBPH+ - PH-Nav Set Aperture Psi-Installs.py`;
 `honeybee_grasshopper_ph_plus/src/HBPH+ - PH-Nav Get Apertures.py`;
 `honeybee_ph_plus_rhino/_component_info_.py` (new entry for the new component);
 an icon in `icons/`.
@@ -74,7 +74,8 @@ an icon in `icons/`.
   fifth value, `install_types_`, as a `CustomCollection.from_dict(...)`. Empty
   collection when no element carried an `installs` block. Facade gains the
   output, its docstring entry, and the unpack line.
-- **New component** (`apertures_set.py` → `GHCompo_PHNavV1SetApertures`, D-2):
+- **New component** (`aperture_psi_installs_set.py` →
+  `GHCompo_PHNavV1SetAperturePsiInstalls`, D-2):
   inputs `_apertures` (DataTree) + `_install_types` (CustomCollection). For each
   aperture, look up the collection by the aperture's `display_name`, duplicate
   the aperture, and set the four `properties.ph.install_types` slots. Preserve
@@ -85,8 +86,8 @@ an icon in `icons/`.
   match on key rather than branch index.
 - **`.ghuser` rebuild — Ed's manual step in Grasshopper.** Two user-objects now:
   the regenerated `PH-Nav Get Apertures` facade (new output) and the brand-new
-  `PH-Nav Set Apertures`. fsdeploy does not touch user-objects. This is the one
-  gate an agent cannot close.
+  `PH-Nav Set Aperture Psi-Installs`. fsdeploy does not touch user-objects.
+  This is the one gate an agent cannot close.
 
 **Tests** (stub `honeybee_energy_ph` / `honeybee_ph` via `sys.modules` per
 `tests/test_win_create_types.py`):
@@ -131,7 +132,7 @@ mulled rows.
 
 Here:
 - `honeybee_ph_plus_rhino/gh_compo_io/ph_navigator/.index.md` — two new modules
-  (`v1/install_types_build.py`, `v1/apertures_set.py`), the new
+  (`v1/install_types_build.py`, `v1/aperture_psi_installs_set.py`), the new
   `install_types_` output, and the new component.
 - `context/` — fold the accepted outcome in, per `planning/README.md` rule 1.
 - `planning/STATUS.md` — update the row.

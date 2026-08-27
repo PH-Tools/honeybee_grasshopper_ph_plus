@@ -199,7 +199,7 @@ A `CustomCollection` keyed by the **same** element type-name as
 `constructions_` (`Test Aperture_C0_R0`, …), whose value is the ordered list
 `[top, right, bottom, left]` of `PhApertureInstallType`.
 
-**New component: `HBPH+ - PH-Nav Set Apertures`.**
+**New component: `HBPH+ - PH-Nav Set Aperture Psi-Installs`.**
 
 Inputs `_apertures` (a DataTree of Honeybee Apertures) and `_install_types`
 (that collection). For each aperture it looks the key up from the aperture's own
@@ -283,7 +283,7 @@ Against BT `1234` on `http://localhost:8000`, both elements 1.0 m × 1.0 m,
 2. Mulled entries carry `psi_install == 0.0` and `source == "mull"`.
    Default entries carry `identifier == "apit_default"` and
    `display_name == "Default"`.
-3. After `HBPH+ - PH-Nav Set Apertures`,
+3. After `HBPH+ - PH-Nav Set Aperture Psi-Installs`,
    `ap.properties.ph.install_types.right.psi_install == 0.0` on the C0 aperture
    and `.left.psi_install == 0.0` on the C1 aperture — with the apertures on a
    **flat** input list, the topology that would have broken the old §3.3 plan.
@@ -299,7 +299,7 @@ Against BT `1234` on `http://localhost:8000`, both elements 1.0 m × 1.0 m,
    right edge at 0.0.
 7. Legacy payload with no `installs` key produces objects identical to today's,
    `install_types_` comes back empty rather than raising, and
-   `HBPH+ - PH-Nav Set Apertures` passes the apertures through untouched.
+   `HBPH+ - PH-Nav Set Aperture Psi-Installs` passes the apertures through untouched.
 8. PHX export of the resulting HBJSON writes distinct per-row Ψ-install to PHPP,
    with `0.0` on the mulled rows.
 

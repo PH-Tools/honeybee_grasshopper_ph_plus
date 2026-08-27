@@ -72,10 +72,10 @@ except ImportError as e:
 # ------------------------------------------------------------------------------
 import honeybee_ph_plus_rhino._component_info_
 reload(honeybee_ph_plus_rhino._component_info_)
-ghenv.Component.Name = "HBPH+ - PH-Nav Set Apertures"
+ghenv.Component.Name = "HBPH+ - PH-Nav Set Aperture Psi-Installs"
 DEV = honeybee_ph_plus_rhino._component_info_.set_component_params(ghenv, dev=False)
 if DEV:
-    from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1 import apertures_set as gh_compo_io
+    from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1 import aperture_psi_installs_set as gh_compo_io
     reload(gh_compo_io)
 
 # ------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ if DEV:
 IGH = gh_io.IGH( ghdoc, ghenv, sc, rh, rs, ghc, gh )
 
 # ------------------------------------------------------------------------------
-gh_compo_interface = gh_compo_io.GHCompo_PHNavV1SetApertures(
+gh_compo_interface = gh_compo_io.GHCompo_PHNavV1SetAperturePsiInstalls(
     IGH,
     _apertures,
     _install_types,

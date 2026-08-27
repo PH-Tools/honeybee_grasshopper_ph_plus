@@ -1,4 +1,4 @@
-"""Tests for the PH-Navigator V1 Install-Type builder and the 'Set Apertures' component.
+"""Tests for the PH-Navigator V1 Install-Type builder and the 'Set Aperture Psi-Installs' component.
 
 Both modules live on the Rhino load path, so their honeybee / Grasshopper imports are
 stubbed through `sys.modules` (the pattern in `test_win_create_types.py`) and the
@@ -194,7 +194,7 @@ def modules():
     _install_module("System", Object=object)
 
     builder = _load_from_path("hbph_v1_install_types_build_under_test", "install_types_build.py")
-    setter = _load_from_path("hbph_v1_apertures_set_under_test", "apertures_set.py")
+    setter = _load_from_path("hbph_v1_aperture_psi_installs_set_under_test", "aperture_psi_installs_set.py")
 
     yield {"schema": schema, "builder": builder, "setter": setter}
 
@@ -356,11 +356,11 @@ def test_an_element_with_no_frame_is_skipped(modules):
     assert builder.create_effective_frames({}, install_types) == {}
 
 
-# -- The 'Set Apertures' component --------------------------------------------
+# -- The 'Set Aperture Psi-Installs' component ---------------------------------
 
 
 def _run_setter(modules, apertures_tree, collection):
-    component = modules["setter"].GHCompo_PHNavV1SetApertures(_RecordingIGH(), apertures_tree, collection)
+    component = modules["setter"].GHCompo_PHNavV1SetAperturePsiInstalls(_RecordingIGH(), apertures_tree, collection)
     return component.run()
 
 
