@@ -29,6 +29,13 @@ try:
         create_new_hbph_frames,
     )
 
+    # -- Per-edge Install Types are V1-only: they come from the route-3 `installs`
+    # -- block, which the frozen V0 schema does not parse.
+    from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1.install_types_build import (
+        create_effective_frames,
+        create_new_hbph_install_types,
+    )
+
     # -- Parse with the V1 schema fork: the route-3 payload emits explicit JSON `null`
     # -- for unset numeric fields (e.g. `psi_install_w_mk`), which the V0 schema's
     # -- `float(dict.get(...))` cannot handle. `v1/window_types_schema.py` is null-safe.
@@ -76,16 +83,23 @@ class GHCompo_PHNavV1GetApertures(object):
         return bool(self.download and self.project_number)
 
     def run(self):
-        # type: () -> tuple[CustomCollection | None, CustomCollection | None, str | None, str | None]
-        """Download the aperture types and build the window-unit-type + construction collections."""
+        # type: () -> tuple[CustomCollection | None, CustomCollection | None, str | None, str | None, CustomCollection | None]
+        """Download the aperture types and build the window-unit-type + construction collections.
+
+        NOTE: `install_types_` is appended LAST rather than grouped with the other two
+        collections. Grasshopper matches the outputs of an already-placed component by
+        position, so inserting it mid-tuple would silently re-wire every existing
+        canvas (the `json_` panel would start receiving a collection). Appending keeps
+        older canvases correct through the user-object rebuild.
+        """
         if not self.ready:
-            return None, None, None, None
+            return None, None, None, None, None
 
         client = PHNavV1Client(self.IGH, self.project_number, self.url_base, self.token, self.version)
         aperture_types_raw = client.get_aperture_types()
         if aperture_types_raw is None:
             # -- The client already surfaced the failure via IGH.error.
-            return None, None, None, None
+            return None, None, None, None, None
 
         # -- Build the debug preview BEFORE parsing, so a malformed payload can still
         # -- be inspected on the canvas (the case the preview exists to diagnose).
@@ -93,9 +107,19 @@ class GHCompo_PHNavV1GetApertures(object):
 
         aperture_types = self._parse_aperture_types(aperture_types_raw)
         window_unit_types = CustomCollection.from_dict(create_hbph_window_unit_types(self.IGH, aperture_types))
-        window_constructions = self._build_window_constructions(aperture_types)
+        # -- Built once: the constructions need them for the U-w, and they are also an
+        # -- output in their own right. Empty against a server that predates the
+        # -- `installs` contract, so everything downstream no-ops instead of erroring.
+        install_types = create_new_hbph_install_types(aperture_types)
+        window_constructions = self._build_window_constructions(aperture_types, install_types)
 
-        return window_unit_types, window_constructions, json_preview, client.last_modified
+        return (
+            window_unit_types,
+            window_constructions,
+            json_preview,
+            client.last_modified,
+            CustomCollection.from_dict(install_types),
+        )
 
     def _parse_aperture_types(self, _raw):
         # type: (dict[str, dict]) -> list[ApertureTypeData]
@@ -108,10 +132,19 @@ class GHCompo_PHNavV1GetApertures(object):
                 self.IGH.warning("Failed to parse aperture type: {}".format(e))
         return aperture_types
 
-    def _build_window_constructions(self, _aperture_types):
-        # type: (list[ApertureTypeData]) -> CustomCollection
-        """Build the `WindowConstruction` collection (glazings -> frames -> constructions)."""
+    def _build_window_constructions(self, _aperture_types, _install_types):
+        # type: (list[ApertureTypeData], dict[str, list]) -> CustomCollection
+        """Build the `WindowConstruction` collection (glazings -> frames -> constructions).
+
+        The constructions keep the frame-product type defaults, but their EnergyPlus
+        U-factor is computed from a transient frame carrying the resolved per-edge
+        psi-install - otherwise EnergyPlus would simulate 0.04 W/mK on a mulled edge
+        that is really 0.0. See `create_effective_frames`.
+        """
         glazing_types = create_hbph_glazing_types(_aperture_types)
         frame_elements = create_new_hbph_frame_elements(_aperture_types)
         frame_types = create_new_hbph_frames(_aperture_types, frame_elements)
-        return CustomCollection.from_dict(create_hbph_ep_constructions(_aperture_types, glazing_types, frame_types))
+        effective_frames = create_effective_frames(frame_types, _install_types)
+        return CustomCollection.from_dict(
+            create_hbph_ep_constructions(_aperture_types, glazing_types, frame_types, effective_frames)
+        )

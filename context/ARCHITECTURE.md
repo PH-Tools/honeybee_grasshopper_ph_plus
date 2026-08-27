@@ -27,6 +27,31 @@ The wrapper instantiates the `GHCompo_*` class and calls `.run()`; logic never l
 
 `airtable/` · `collections/` · `ghpy/` · `hb_tools/` · `ph_navigator/` · `read/` · `reporting/` — each with its own `.index.md`. Backend integration packages `phpp/`, `plotly/`, `sql/` sit at the `honeybee_ph_plus_rhino/` root.
 
+## Two layers of Passive-House data: construction vs. aperture
+
+A recurring modelling rule, easy to get wrong because both layers are reachable
+from the same component:
+
+- The **WindowConstruction** carries the window *product* — frame elements,
+  glazing, and their type-default psi-values. It is **shared** across every window
+  that uses it.
+- The **Aperture** carries where that window actually *sits* — notably the
+  per-edge Psi-Install "Install Types" on `properties.ph.install_types`. This is
+  **instance** data.
+
+Never write instance data into a construction, and never duplicate a construction
+per window to make instance data fit: that is the defect `honeybee_grasshopper_ph`
+issue #59 closed. When a calculation legitimately needs both (the ISO 10077-1 U-w
+includes the install psi), resolve them into a **transient** frame duplicate, use
+it, and discard it — `honeybee_ph_utils.aperture_psi_install.resolve_effective_frame`
+upstream and `ph_navigator/v1/install_types_build.create_effective_frames` here are
+both that pattern.
+
+Two consequences worth knowing before debugging: a construction-level probe
+(`const.properties.ph.ph_frame.top.psi_install`) legitimately reports the type
+default even when the model is correct, and a construction's EnergyPlus U-factor
+can legitimately differ from its own `ph_frame` for the same reason.
+
 ## Registry & naming
 
 `_component_info_.py` styles each component and is mandatory for any new/renamed one. The display name `"HBPH+ - <Name>"` must match exactly across the `src/` filename, `ghenv.Component.Name`, and the registry key.
