@@ -25,7 +25,7 @@ into Honeybee-PH 'WindowUnitType' geometry and 'WindowConstruction' objects. Opt
 pin a specific saved version using the '_version' input (see the 'PH-Nav Get Versions'
 component); if no version is pinned, the project's latest saved version is used.
 -
-EM July 5, 2026
+EM August 28, 2026
     Args:
         _project_number: (str) The PH-Navigator project number (ie: '2524').
 
@@ -43,13 +43,7 @@ EM July 5, 2026
 
         constructions_: (CustomCollection[WindowConstruction]) The Honeybee-PH window
             constructions (frame + glazing), keyed by element-name.
-
-        json_: (str) The raw downloaded aperture data, as a formatted JSON string
-            (handy for debugging).
-
-        last_modified_: (str) The save-timestamp of the downloaded version (for
-            freshness / change-detection).
-
+        
         install_types_: (CustomCollection[List[PhApertureInstallType]]) The per-edge
             Psi-Install 'Install Types', keyed by element-name (the same keys as
             'constructions_'). Each value is the ordered list [top, right, bottom,
@@ -57,6 +51,12 @@ EM July 5, 2026
             them to the Apertures in the model - it accepts this collection directly
             and matches each Aperture by name. Empty if the server predates the
             per-edge contract.
+
+        last_modified_: (str) The save-timestamp of the downloaded version (for
+            freshness / change-detection).
+
+        json_: (str) The raw downloaded aperture data, as a formatted JSON string
+            (handy for debugging).
 """
 
 import scriptcontext as sc
