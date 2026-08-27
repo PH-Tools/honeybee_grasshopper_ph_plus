@@ -6,6 +6,7 @@ This README is the index — scan or grep it instead of guessing dates.
 
 | Item | Kind | Completed | Summary | Folder |
 |------|------|-----------|---------|--------|
+| Per-edge Ψ-Install into Rhino / Grasshopper | Feature | 2026-08-28 | Route-3 `installs` parsing, per-element `PhApertureInstallType` build + `install_types_` output, EP U-factor from the resolved Ψ. Base repo's `HBPH - Set Aperture Psi-Installs` gained a keyed-collection input to consume it (HBPH+ #10, honeybee_grasshopper_ph #71) | `phn-psi-install-per-edge/` |
 | PH-Navigator v1 integration | Feature | (v1, superseded) | Design docs for the v1 PH-Navigator GH components: shared client, get versions/constructions/apertures, table build & organize, gh-io helper | `ph-navigator-v1/` |
 
 ## Conventions

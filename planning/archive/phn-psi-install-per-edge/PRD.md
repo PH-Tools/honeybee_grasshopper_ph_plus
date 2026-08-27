@@ -3,7 +3,7 @@
 ```
 DATE:    2026-08-26
 TIME:    17:45
-STATUS:  Accepted — trace re-verified against the code and the live API 2026-08-26
+STATUS:  COMPLETE — implemented, merged, and confirmed via METr
 AUTHOR:  Ed May + Claude
 SCOPE:   Trace + design contract for the GH-client half of aperture-psi-install
 RELATED: README.md, decisions.md, PLAN.md, research.md;
@@ -231,10 +231,10 @@ EnergyPlus does. Noted so it is not mistaken for a bug later.
 > **Result, 2026-08-26.** Items 1, 2, 6 and 7 are **verified** — run against the
 > live route-3 response for BT 1234 on `localhost:8000`, driving the real build
 > pipeline with the real `honeybee_energy_ph` / `honeybee_ph_utils` (not stubs).
-> Items 3 and 4 were **confirmed by Ed on the canvas** the same day (DEV-mode
-> GHPython, before the user-object rebuild), and item 8 was confirmed as a
-> PHX → **WUFI** write placing Ψ=0 on the mulled edge. Item 5 (explicit HBJSON
-> round-trip) has not been exercised on its own. Evidence:
+> **All eight items now pass.** 1, 2, 6, 7 verified against the live API; 3 and 4
+> confirmed by Ed on the canvas; 5 exercised as a standalone HBJSON round-trip with
+> real Honeybee Apertures; 8 confirmed as a PHX write placing Ψ=0 on the mulled edge,
+> first to **WUFI** and then to **METr** on a real project. Evidence:
 >
 > ```
 > Test Aperture_C0_R0   t/r/b/l = [0.04, 0.0, 0.04, 0.04]

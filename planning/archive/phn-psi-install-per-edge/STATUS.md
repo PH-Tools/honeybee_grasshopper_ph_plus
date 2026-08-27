@@ -2,22 +2,17 @@
 
 ```
 DATE:    2026-08-26
-TIME:    17:45
-STATUS:  Implemented — all phases complete; canvas + WUFI confirmed; packaging pending
+TIME:    21:10
+STATUS:  COMPLETE — shipped, merged, and confirmed end-to-end via METr
 AUTHOR:  Ed May + Claude
 SCOPE:   State, gates, next step
 RELATED: README.md, PRD.md, decisions.md, PLAN.md, research.md
 ```
 
-**State:** All three phases implemented on branch `feat/phn-psi-install-per-edge`,
-35 tests passing. The code path is verified end-to-end against the live route-3
-response for BT 1234. Ed confirmed the canvas behaviour and a
-PHX → WUFI write on 2026-08-26. What remains is packaging: the user-object
-rebuild and an icon.
-
-**Next step:** Ed — rebuild the two `.ghuser` user-objects and add an icon for
-the new component. That is a packaging step, not a correctness one: the canvas
-behaviour is already confirmed in DEV mode (see below).
+**State:** **Complete.** All three phases shipped and merged:
+`honeybee_grasshopper_ph_plus` PR #10 and `honeybee_grasshopper_ph` PR #71. Ed
+regenerated both user-objects in Grasshopper, ran the full chain on a real project,
+and confirmed a **METr** export places Psi=0 on the mulled edges. 36 tests pass.
 
 ## Phase ledger
 
@@ -27,28 +22,17 @@ behaviour is already confirmed in DEV mode (see below).
 | 02 Build Install Types + `install_types_` output + base-setter key matching | **Complete** — builder + `HBPH - Set Aperture Psi-Installs` keyed input; verified live against BT 1234 |
 | 03 EP U-factor from resolved Ψ + verification | **Complete** — transient effective frames; 1.3011 → 1.2686 verified live |
 
-## Gates
+## Gates — all closed
 
-1. ~~**D-1 confirmation (Ed).**~~ **Closed 2026-08-26** — Ed confirmed. Per-edge Ψ
-   rides on the aperture, not the construction. Consequence stands: Ed's current
-   canvas probe keeps printing `0.04`. See `decisions.md` D-1 and `PRD.md` §3.4.
-2. ~~**D-2 delivery mechanism.**~~ **Closed 2026-08-26** — Ed chose "output +
-   set component" after review showed the collection-only wiring can silently
-   apply one element's values to the whole model. See `decisions.md` D-2.
-3. ~~**`requirements.txt` pin.**~~ **Void — no such file.** HBPH+ is not a pip
-   package; deps resolve against sibling packages on the Rhino Python path
-   (`context/TECH_STACK.md`). Verified directly instead: the base Install-Type
-   modules and the `HBPH - Set Aperture Psi-Installs.ghuser` are present in Ed's
-   live Rhino 8 install, and PR #60 shipped in `honeybee_grasshopper_ph` v1.33.0.
-4. **`.ghuser` rebuild (Ed, Grasshopper).** *Open — the one gate an agent cannot
-   close.* Phase 02 appended an output to `PH-Nav Get Apertures`; fsdeploy does not
-   regenerate user-objects. Only that one component needs rebuilding — the base
-   setter's facade is unchanged (its docstring/tooltip is stale until rebuilt, but
-   it is functionally correct as-is). No new icon is needed: D-2's revision removed
-   the new component.
-5. **Base repo release.** `honeybee_grasshopper_ph` carries the keyed-input change
-   on branch `feat/aperture-psi-installs-keyed-lookup` and needs its own release
-   before a non-DEV HBPH+ canvas can rely on it.
+1. ~~**D-1 confirmation (Ed).**~~ Closed 2026-08-26. Per-edge Ψ rides on the aperture.
+2. ~~**D-2 delivery mechanism.**~~ Closed, then revised twice. Final: the base
+   package's `HBPH - Set Aperture Psi-Installs` learned key matching; HBPH+ ships no
+   setter. See `decisions.md` D-2.
+3. ~~**`requirements.txt` pin.**~~ Void — no such file in HBPH+. Verified against the
+   deployed Rhino install instead.
+4. ~~**`.ghuser` rebuild.**~~ Done by Ed 2026-08-28; both user-objects regenerated and
+   committed. No icon needed — D-2's revision removed the new component.
+5. ~~**Base repo release.**~~ Merged to `main` (PR #71); Ed cuts the installer release.
 
 **Not gates any more.** The v1.1 packet listed phase 07 as blocked on deploying
 route 3. Route 3's `installs` block is live on `localhost:8000`, confirmed

@@ -3,7 +3,7 @@
 ```
 DATE:    2026-08-26
 TIME:    17:45
-STATUS:  In progress — design accepted (D-1 confirmed, D-2 revised)
+STATUS:  COMPLETE — merged (HBPH+ #10, base #71), confirmed via METr
 AUTHOR:  Ed May + Claude
 SCOPE:   Make PH-Navigator's per-edge Ψ-install values reach the Honeybee model
          built by `HBPH+ - PH-Nav Get Apertures`. All work is in this repo.

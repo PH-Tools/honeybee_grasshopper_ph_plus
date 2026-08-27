@@ -12,7 +12,7 @@ The distinction matters and is the whole point of this module. Install condition
 sits*, not of the window product, so it rides on the Aperture's PH-properties and
 never on the shared WindowConstruction. Writing it into the construction is the
 defect `honeybee_grasshopper_ph` issue #59 closed; see
-`planning/features/phn-psi-install-per-edge/decisions.md` D-1.
+`planning/archive/phn-psi-install-per-edge/decisions.md` D-1.
 
 PH-Navigator has already resolved each edge server-side (mull -> assigned ->
 project default) and shipped the answer, so this module only translates - it never
