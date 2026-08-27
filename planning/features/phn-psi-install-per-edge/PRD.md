@@ -254,8 +254,10 @@ EnergyPlus does. Noted so it is not mistaken for a bug later.
 > **Result, 2026-08-26.** Items 1, 2, 6 and 7 are **verified** — run against the
 > live route-3 response for BT 1234 on `localhost:8000`, driving the real build
 > pipeline with the real `honeybee_energy_ph` / `honeybee_ph_utils` (not stubs).
-> Items 3, 4, 5 and 8 need Rhino on the canvas and a PHX → PHPP write, and are
-> **pending Ed's user-object rebuild**. Evidence:
+> Items 3 and 4 were **confirmed by Ed on the canvas** the same day (DEV-mode
+> GHPython, before the user-object rebuild), and item 8 was confirmed as a
+> PHX → **WUFI** write placing Ψ=0 on the mulled edge. Item 5 (explicit HBJSON
+> round-trip) has not been exercised on its own. Evidence:
 >
 > ```
 > Test Aperture_C0_R0   t/r/b/l = [0.04, 0.0, 0.04, 0.04]

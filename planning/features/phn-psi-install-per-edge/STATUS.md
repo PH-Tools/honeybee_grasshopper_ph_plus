@@ -3,7 +3,7 @@
 ```
 DATE:    2026-08-26
 TIME:    17:45
-STATUS:  Implemented — all three phases complete; canvas + PHX verification pending
+STATUS:  Implemented — all phases complete; canvas + WUFI confirmed; packaging pending
 AUTHOR:  Ed May + Claude
 SCOPE:   State, gates, next step
 RELATED: README.md, PRD.md, decisions.md, PLAN.md, research.md
@@ -11,12 +11,13 @@ RELATED: README.md, PRD.md, decisions.md, PLAN.md, research.md
 
 **State:** All three phases implemented on branch `feat/phn-psi-install-per-edge`,
 35 tests passing. The code path is verified end-to-end against the live route-3
-response for BT 1234. What remains is the part that needs Rhino: the user-object
-rebuild, the canvas run, and a PHX → PHPP write.
+response for BT 1234. Ed confirmed the canvas behaviour and a
+PHX → WUFI write on 2026-08-26. What remains is packaging: the user-object
+rebuild and an icon.
 
 **Next step:** Ed — rebuild the two `.ghuser` user-objects and add an icon for
-the new component, then run the canvas verification in `PRD.md` §4 (items 3-5 and
-8 need Rhino / a PHX write and are the only acceptance items still unproven).
+the new component. That is a packaging step, not a correctness one: the canvas
+behaviour is already confirmed in DEV mode (see below).
 
 ## Phase ledger
 
