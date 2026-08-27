@@ -184,14 +184,12 @@ concept and edge adjacency stays PHN's business.
 Build the types into a pool keyed by identifier so a project with one Install
 Type across 200 windows produces one object, not 200.
 
-### 3.3 Deliver them — one new output, one new component, plus an honest U-factor
+### 3.3 Deliver them — one new output, one taught component, plus an honest U-factor
 
-> Revised 2026-08-26. The original plan routed the collection through
-> `HBPH+ - Get From Custom Collection` into `HBPH - Set Aperture Psi-Installs`.
-> That does not work; decisions.md D-2 carries the full reasoning. The short
-> version: the setter matches by **branch index** and gives every aperture in a
-> branch the same four Install Types, while `srfc_names_` is a flat list — so
-> the whole model would take element A's values, silently.
+> Revised 2026-08-26, twice. See decisions.md D-2 for the full trail. The short
+> version: the collection cannot be wired into the base setter as-is (it matches by
+> branch index, and `srfc_names_` is flat), but the fix is to teach that setter key
+> matching — not to ship a second component writing the same field.
 
 **New output on `HBPH+ - PH-Nav Get Apertures`: `install_types_`.**
 
@@ -199,35 +197,14 @@ A `CustomCollection` keyed by the **same** element type-name as
 `constructions_` (`Test Aperture_C0_R0`, …), whose value is the ordered list
 `[top, right, bottom, left]` of `PhApertureInstallType`.
 
-**New component: `HBPH+ - PH-Nav Set Aperture Psi-Installs`.**
+**Consumed by the base package's `HBPH - Set Aperture Psi-Installs`**, which now
+accepts a keyed collection as an alternative to its DataTree and matches each
+Aperture by `display_name` — the name `HBPH+ - Create Window Geometry` stamped on
+the geometry (`NAME_FORMAT = "{}_C{}_R{}"`). No grafting, flattening or branch
+bookkeeping is asked of the user, and an unmatched Aperture is warned about rather
+than silently mis-assigned.
 
-Inputs `_apertures` (a DataTree of Honeybee Apertures) and `_install_types`
-(that collection). For each aperture it looks the key up from the aperture's own
-`display_name`, duplicates the aperture, and writes the four slots on
-`properties.ph.install_types`. Output is the duplicated apertures in the input
-tree structure, plus a `report_` of any aperture whose name found no key.
-
-Key-based lookup is immune to tree topology, which is the whole point: the
-aperture already carries the key that `HBPH+ - Create Window Geometry` stamped
-on its geometry (`NAME_FORMAT = "{}_C{}_R{}"`), so no grafting, flattening, or
-branch bookkeeping is required of the user, and a mismatch is reported rather
-than silently mis-applied.
-
-`HBPH - Set Aperture Psi-Installs` in the base repo remains the right tool for
-hand-painting an install condition across a branch of windows. This is the bulk
-PH-Nav path, not a replacement for it.
-
-**And: compute the EP U-factor from the resolved per-edge Ψ.**
-
-In `create_new_hbph_window_material`, build a **transient** effective frame —
-duplicate the element's `PhWindowFrame`, overwrite each side's `psi_install`
-from the `installs` block, use it for the ISO 10077-1 call, and throw it away.
-The persisted `prop_ph.ph_frame` keeps the type-default values.
-
-This mirrors `resolve_effective_frame()` upstream, which does exactly this for
-the same reason. It means the EnergyPlus-visible U-factor reflects the real
-install condition without the construction ever carrying instance data — the
-thing `honeybee_grasshopper_ph` issue #59 forbids.
+HBPH+ ships no setter of its own.
 
 ### 3.4 What this deliberately does not do
 
@@ -283,7 +260,7 @@ Against BT `1234` on `http://localhost:8000`, both elements 1.0 m × 1.0 m,
 2. Mulled entries carry `psi_install == 0.0` and `source == "mull"`.
    Default entries carry `identifier == "apit_default"` and
    `display_name == "Default"`.
-3. After `HBPH+ - PH-Nav Set Aperture Psi-Installs`,
+3. After `HBPH - Set Aperture Psi-Installs` (fed the collection directly),
    `ap.properties.ph.install_types.right.psi_install == 0.0` on the C0 aperture
    and `.left.psi_install == 0.0` on the C1 aperture — with the apertures on a
    **flat** input list, the topology that would have broken the old §3.3 plan.
@@ -299,7 +276,8 @@ Against BT `1234` on `http://localhost:8000`, both elements 1.0 m × 1.0 m,
    right edge at 0.0.
 7. Legacy payload with no `installs` key produces objects identical to today's,
    `install_types_` comes back empty rather than raising, and
-   `HBPH+ - PH-Nav Set Aperture Psi-Installs` passes the apertures through untouched.
+   `HBPH - Set Aperture Psi-Installs` warns and passes the apertures through
+   untouched.
 8. PHX export of the resulting HBJSON writes distinct per-row Ψ-install to PHPP,
    with `0.0` on the mulled rows.
 

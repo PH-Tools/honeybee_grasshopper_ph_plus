@@ -1,9 +1,17 @@
-"""Tests for the PH-Navigator V1 Install-Type builder and the 'Set Aperture Psi-Installs' component.
+"""Tests for the PH-Navigator V1 Install-Type builder, and the contract it has with
+the base package's 'HBPH - Set Aperture Psi-Installs' component.
 
-Both modules live on the Rhino load path, so their honeybee / Grasshopper imports are
-stubbed through `sys.modules` (the pattern in `test_win_create_types.py`) and the
-modules are then loaded straight off disk. The real V1 schema module is used as-is -
-it has no third-party imports - so the payload fixtures exercise the actual parse.
+The modules under test live on the Rhino load path, so their honeybee / Grasshopper
+imports are stubbed through `sys.modules` (the pattern in `test_win_create_types.py`)
+and the modules are then loaded straight off disk. The real V1 schema module is used
+as-is - it has no third-party imports - so the payload fixtures exercise the actual
+parse.
+
+The second half tests a component in the SIBLING `honeybee_grasshopper_ph` repo. That
+is deliberate: HBPH+ owns the shape of `install_types_`, and these prove the consumer
+we tell users to wire it into actually honours that shape. The base repo hosts no
+tests of its own by policy (see its CONTRIBUTING.md), so this is the only place the
+contract can be pinned. They skip when the sibling repo is not checked out alongside.
 """
 
 from __future__ import absolute_import
@@ -16,6 +24,20 @@ from types import ModuleType
 import pytest
 
 _V1_DIR = Path(__file__).parents[1] / "honeybee_ph_plus_rhino" / "gh_compo_io" / "ph_navigator" / "v1"
+
+# -- The base package's aperture setter, in the sibling repo.
+_BASE_SETTER = (
+    Path(__file__).parents[2]
+    / "honeybee_grasshopper_ph"
+    / "honeybee_ph_rhino"
+    / "gh_compo_io"
+    / "apertures"
+    / "win_set_psi_install_values.py"
+)
+requires_base_repo = pytest.mark.skipif(
+    not _BASE_SETTER.exists(),
+    reason="sibling honeybee_grasshopper_ph repo not checked out alongside",
+)
 
 
 # -- Stubs ---------------------------------------------------------------------
@@ -59,6 +81,10 @@ def _clean_ep_string(value):
 
 def _content_keyed_identifier(_psi_install_w_mk):
     return _clean_ep_string("PhApertureInstallType_{:.4f}".format(_psi_install_w_mk))
+
+
+def _parse_psi_install_w_mk(_raw):
+    return float(_raw)
 
 
 def _build_install_type(_display_name, _psi_install_w_mk, _source=""):
@@ -120,11 +146,20 @@ class _RecordingIGH(object):
 
 
 class _CustomCollection(object):
+    """Mirrors the dict-like surface of the real `CustomCollection`.
+
+    `keys()` matters: the base setter's `as_keyed_lookup` requires both `.get()` and
+    `.keys()` to tell a collection from a list of Install Types.
+    """
+
     def __init__(self, mapping):
         self._storage = dict(mapping)
 
     def get(self, key, default):
         return self._storage.get(key, default)
+
+    def keys(self):
+        return self._storage.keys()
 
     def __len__(self):
         return len(self._storage)
@@ -182,6 +217,7 @@ def modules():
         "honeybee_ph_rhino.gh_compo_io.apertures.win_create_install_type",
         build_install_type=_build_install_type,
         content_keyed_identifier=_content_keyed_identifier,
+        parse_psi_install_w_mk=_parse_psi_install_w_mk,
     )
 
     _install_module("honeybee")
@@ -191,10 +227,17 @@ def modules():
     _install_module("honeybee_ph.properties.aperture", AperturePsiInstalls=_AperturePsiInstalls)
     _install_module("ph_gh_component_io", gh_io=ModuleType("gh_io"))
     _install_module("Grasshopper", DataTree=_FakeDataTree)
+    _install_module("Grasshopper.Kernel")
+    _install_module("Grasshopper.Kernel.Data", GH_Path=lambda i: i)
     _install_module("System", Object=object)
 
     builder = _load_from_path("hbph_v1_install_types_build_under_test", "install_types_build.py")
-    setter = _load_from_path("hbph_v1_aperture_psi_installs_set_under_test", "aperture_psi_installs_set.py")
+
+    setter = None
+    if _BASE_SETTER.exists():
+        spec = importlib.util.spec_from_file_location("hbph_base_aperture_setter_under_test", _BASE_SETTER)
+        setter = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(setter)
 
     yield {"schema": schema, "builder": builder, "setter": setter}
 
@@ -356,35 +399,61 @@ def test_an_element_with_no_frame_is_skipped(modules):
     assert builder.create_effective_frames({}, install_types) == {}
 
 
-# -- The 'Set Aperture Psi-Installs' component ---------------------------------
+# -- Contract with the base package's 'HBPH - Set Aperture Psi-Installs' ------
+#
+# HBPH+ emits `install_types_`; the base component consumes it. These pin the seam.
 
 
 def _run_setter(modules, apertures_tree, collection):
-    component = modules["setter"].GHCompo_PHNavV1SetAperturePsiInstalls(_RecordingIGH(), apertures_tree, collection)
-    return component.run()
+    """Drive the base component the way Grasshopper would.
+
+    A single collection object arrives as a one-item DataTree, which is exactly how
+    the component tells the keyed path from the branch-index path. Note the argument
+    order is (IGH, install_types, apertures).
+    """
+    igh = _RecordingIGH()
+    component = modules["setter"].GHCompo_SetAperturePsiInstallValues(
+        igh, _FakeDataTree([[collection]]), apertures_tree
+    )
+    return component.run(), igh
 
 
+@requires_base_repo
+def test_the_collection_is_recognised_as_a_keyed_lookup(modules):
+    """A CustomCollection must take the keyed path; four Install Types must not."""
+    setter = modules["setter"]
+    collection = _CustomCollection({"x": []})
+
+    assert setter.as_keyed_lookup(_FakeDataTree([[collection]])) is collection
+    four_types = [_build_install_type(None, 0.04, "user-input") for _ in range(4)]
+    assert setter.as_keyed_lookup(_FakeDataTree([four_types])) is None
+    assert setter.as_keyed_lookup(_FakeDataTree([[0.04]])) is None
+    assert setter.as_keyed_lookup(_FakeDataTree([])) is None
+
+
+@requires_base_repo
 def test_assigns_per_element_values_from_a_flat_aperture_list(modules):
-    """The D-2 regression test.
+    """The regression test for why keyed matching exists.
 
-    A flat list is exactly the topology `srfc_names_` produces and the one that
-    defeats branch-index matching: a positional setter would give every Aperture in
-    this single branch the FIRST element's four values. Key matching must not.
+    A flat list is exactly the topology `srfc_names_` produces, and the one that
+    defeats branch-index matching: every Aperture lands in branch 0, so a positional
+    match would give them all the FIRST element's four values.
     """
     schema, builder = modules["schema"], modules["builder"]
     collection = _CustomCollection(builder.create_new_hbph_install_types(_aperture_types(schema)))
     apertures = [_Aperture("Test Aperture_C0_R0"), _Aperture("Test Aperture_C1_R0")]
 
-    result, report = _run_setter(modules, _FakeDataTree([apertures]), collection)
+    result, igh = _run_setter(modules, _FakeDataTree([apertures]), collection)
 
     c0, c1 = result.Branches[0]
     assert c0.properties.ph.install_types.right.psi_install == pytest.approx(0.0)
     assert c0.properties.ph.install_types.left.psi_install == pytest.approx(0.04)
     assert c1.properties.ph.install_types.left.psi_install == pytest.approx(0.0)
     assert c1.properties.ph.install_types.right.psi_install == pytest.approx(0.04)
-    assert "2 Aperture(s) matched" in report[0]
+    assert igh.warnings == []
 
 
+@requires_base_repo
 def test_matching_is_unaffected_by_tree_topology(modules):
     """The same two Apertures, one per branch, must give the same answer."""
     schema, builder = modules["schema"], modules["builder"]
@@ -397,7 +466,8 @@ def test_matching_is_unaffected_by_tree_topology(modules):
     assert result.Branches[1][0].properties.ph.install_types.left.psi_install == pytest.approx(0.0)
 
 
-def test_input_tree_paths_are_preserved(modules):
+@requires_base_repo
+def test_input_tree_paths_are_preserved_on_the_keyed_path(modules):
     """A decorator, not a re-organizer: nested paths must not collapse to 0, 1, ..."""
     schema, builder = modules["schema"], modules["builder"]
     collection = _CustomCollection(builder.create_new_hbph_install_types(_aperture_types(schema)))
@@ -411,36 +481,43 @@ def test_input_tree_paths_are_preserved(modules):
     assert result.Paths == ["{0;0}", "{0;1}"]
 
 
-def test_an_unmatched_aperture_passes_through_and_is_reported(modules):
+@requires_base_repo
+def test_an_unmatched_aperture_passes_through_and_warns(modules):
     schema, builder = modules["schema"], modules["builder"]
     collection = _CustomCollection(builder.create_new_hbph_install_types(_aperture_types(schema)))
     stranger = _Aperture("Some Other Window")
 
-    result, report = _run_setter(modules, _FakeDataTree([[stranger]]), collection)
+    result, igh = _run_setter(modules, _FakeDataTree([[stranger]]), collection)
 
     assert result.Branches[0][0] is stranger  # -- untouched, not even duplicated
     assert stranger.properties.ph.install_types.top is None
-    assert "1 of 1 Aperture(s) did not match" in report[0]
-    assert "Some Other Window" in report
+    assert len(igh.warnings) == 1
+    assert "Some Other Window" in igh.warnings[0]
 
 
-def test_an_empty_collection_passes_the_apertures_through_unchanged(modules):
-    """PRD acceptance 4.7 - a legacy payload must not raise here either."""
-    apertures = _FakeDataTree([[_Aperture("Test Aperture_C0_R0")]])
-
-    result, report = _run_setter(modules, apertures, _CustomCollection({}))
-
-    assert result is apertures
-    assert report == []
-
-
+@requires_base_repo
 def test_a_short_install_type_list_is_refused_rather_than_half_applied(modules):
     """zip() would truncate silently, leaving some edges assigned and some inherited."""
     aperture = _Aperture("Test Aperture_C0_R0")
     collection = _CustomCollection({"Test Aperture_C0_R0": [_build_install_type(None, 0.0, "mull")]})
 
-    result, report = _run_setter(modules, _FakeDataTree([[aperture]]), collection)
+    result, igh = _run_setter(modules, _FakeDataTree([[aperture]]), collection)
 
     assert result.Branches[0][0] is aperture
     assert aperture.properties.ph.install_types.top is None
-    assert "did not match" in report[0]
+    assert len(igh.warnings) == 1
+
+
+@requires_base_repo
+def test_the_branch_index_path_still_works(modules):
+    """The pre-existing behaviour must be untouched by the keyed addition."""
+    setter = modules["setter"]
+    apertures = _FakeDataTree([[_Aperture("A"), _Aperture("B")]])
+    four = [_build_install_type(None, psi, "user-input") for psi in (0.01, 0.02, 0.03, 0.04)]
+
+    result = setter.GHCompo_SetAperturePsiInstallValues(_RecordingIGH(), _FakeDataTree([four]), apertures).run()
+
+    for ap in result.Branches[0]:
+        slots = ap.properties.ph.install_types
+        assert slots.top.psi_install == pytest.approx(0.01)
+        assert slots.left.psi_install == pytest.approx(0.04)

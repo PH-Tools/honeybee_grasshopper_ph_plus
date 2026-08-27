@@ -41,6 +41,7 @@ whole fix is one repo downstream.
 
 | Repo | Change |
 | --- | --- |
-| **`honeybee_grasshopper_ph_plus`** (here) | All of it: schema, build pipeline, a new `install_types_` output on `PH-Nav Get Apertures`, and a new `HBPH+ - PH-Nav Set Aperture Psi-Installs` component. |
+| **`honeybee_grasshopper_ph_plus`** (here) | Schema, build pipeline, and a new `install_types_` output on `PH-Nav Get Apertures`. No new component. |
 | `ph-navigator-v2` | **None to product code.** Its v1.1 packet's phase-07 row points here. |
-| `honeybee_ph` / `PHX` / `honeybee_grasshopper_ph` | **None.** Already shipped (v1.33.33 / v1.56.73 / PR #60) and verified in the trace. |
+| `honeybee_grasshopper_ph` | **One change:** `HBPH - Set Aperture Psi-Installs` gains a keyed-collection input alongside its DataTree (D-2). Needs its own release. |
+| `honeybee_ph` / `PHX` | **None.** Already shipped (v1.33.33 / v1.56.73) and verified in the trace. |

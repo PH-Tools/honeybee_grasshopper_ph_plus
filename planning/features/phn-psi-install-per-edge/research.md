@@ -9,10 +9,10 @@
 > - **§2 item 2's direction is superseded** by `decisions.md` D-1 / D-5. The mapping
 >   table in §2 is still correct *except* its `source` row — see below; what changed
 >   is where the values land and the addition of the EP U-factor fix.
-> - **§2 item 3's "prefer the extra output" is superseded** by `decisions.md` D-2:
->   the extra output ships, but a companion
->   `HBPH+ - PH-Nav Set Aperture Psi-Installs` ships with it, because the extra
->   output alone cannot be wired correctly.
+> - **§2 item 3's "prefer the extra output" is half right**, per `decisions.md` D-2:
+>   the extra output ships, but the base repo's `HBPH - Set Aperture Psi-Installs`
+>   had to learn key matching to consume it — the output alone could not be wired
+>   correctly against a flat aperture list.
 > - **§2's `source` description is wrong.** It reads
 >   "`assigned`/`default`/`mull` + type source". The actual value is one of
 >   `"mull"` / `"assigned"` / `"default"` only

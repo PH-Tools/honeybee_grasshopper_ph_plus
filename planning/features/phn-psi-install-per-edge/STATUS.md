@@ -24,7 +24,7 @@ behaviour is already confirmed in DEV mode (see below).
 | Phase | State |
 | --- | --- |
 | 01 Parse `installs` | **Complete** — `InstallData` / `InstallsData` / `ElementData.installs`, 15 tests |
-| 02 Build Install Types + `install_types_` output + `PH-Nav Set Aperture Psi-Installs` | **Complete** — builder, new component, 13 tests; verified live against BT 1234 |
+| 02 Build Install Types + `install_types_` output + base-setter key matching | **Complete** — builder + `HBPH - Set Aperture Psi-Installs` keyed input; verified live against BT 1234 |
 | 03 EP U-factor from resolved Ψ + verification | **Complete** — transient effective frames; 1.3011 → 1.2686 verified live |
 
 ## Gates
@@ -40,13 +40,15 @@ behaviour is already confirmed in DEV mode (see below).
    (`context/TECH_STACK.md`). Verified directly instead: the base Install-Type
    modules and the `HBPH - Set Aperture Psi-Installs.ghuser` are present in Ed's
    live Rhino 8 install, and PR #60 shipped in `honeybee_grasshopper_ph` v1.33.0.
-4. **`.ghuser` rebuild + icon (Ed, Grasshopper/Illustrator).** *Open — the one
-   gate an agent cannot close.* Phase 02 appended an output to `PH-Nav Get
-   Apertures` and added `PH-Nav Set Aperture Psi-Installs`; fsdeploy does not regenerate
-   user-objects. The new component also needs an icon in
-   `honeybee_grasshopper_ph_plus/icons/` (`AI/07_ph_nav/` + `PNG/07_ph_nav/`) —
-   note `PH-Nav Get Apertures` has no dedicated icon either, so this subcategory is
-   already partly unglazed.
+4. **`.ghuser` rebuild (Ed, Grasshopper).** *Open — the one gate an agent cannot
+   close.* Phase 02 appended an output to `PH-Nav Get Apertures`; fsdeploy does not
+   regenerate user-objects. Only that one component needs rebuilding — the base
+   setter's facade is unchanged (its docstring/tooltip is stale until rebuilt, but
+   it is functionally correct as-is). No new icon is needed: D-2's revision removed
+   the new component.
+5. **Base repo release.** `honeybee_grasshopper_ph` carries the keyed-input change
+   on branch `feat/aperture-psi-installs-keyed-lookup` and needs its own release
+   before a non-DEV HBPH+ canvas can rely on it.
 
 **Not gates any more.** The v1.1 packet listed phase 07 as blocked on deploying
 route 3. Route 3's `installs` block is live on `localhost:8000`, confirmed

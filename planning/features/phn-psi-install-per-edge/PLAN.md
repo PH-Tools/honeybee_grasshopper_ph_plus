@@ -56,50 +56,44 @@ test that pins "row reversal does not touch side names" (PRD §3.1).
 
 **Ships nothing user-visible.** Pure parse.
 
-## Phase 02 — Build Install Types, the `install_types_` output, and the setter component
+## Phase 02 — Build Install Types, the `install_types_` output, and key matching
 
-**Files:** a new `v1/install_types_build.py`; a new `v1/aperture_psi_installs_set.py`;
-`v1/apertures_get.py`; `v1/__init__.py` (re-export the new `GHCompo_*`);
-`gh_compo_io/ph_navigator/__init__.py` (same); a new
-`honeybee_grasshopper_ph_plus/src/HBPH+ - PH-Nav Set Aperture Psi-Installs.py`;
-`honeybee_grasshopper_ph_plus/src/HBPH+ - PH-Nav Get Apertures.py`;
-`honeybee_ph_plus_rhino/_component_info_.py` (new entry for the new component);
-an icon in `icons/`.
+**Files (HBPH+):** a new `v1/install_types_build.py`; `v1/apertures_get.py`;
+`honeybee_grasshopper_ph_plus/src/HBPH+ - PH-Nav Get Apertures.py`.
+
+**Files (base repo, `honeybee_grasshopper_ph`):**
+`honeybee_ph_rhino/gh_compo_io/apertures/win_set_psi_install_values.py`;
+`honeybee_grasshopper_ph/src/HBPH - Set Aperture Psi-Installs.py` (docstring only).
 
 - **New builder** (`install_types_build.py`): walk the parsed aperture types,
   pool one `PhApertureInstallType` per distinct identifier (D-3 content-keying
   for mulls, D-4 explicit assignment for defaults), and return
   `{element_type_name: [top, right, bottom, left]}`.
-- **Getter output:** `GHCompo_PHNavV1GetApertures.run()` (`:78-98`) returns a
-  fifth value, `install_types_`, as a `CustomCollection.from_dict(...)`. Empty
-  collection when no element carried an `installs` block. Facade gains the
-  output, its docstring entry, and the unpack line.
-- **New component** (`aperture_psi_installs_set.py` →
-  `GHCompo_PHNavV1SetAperturePsiInstalls`, D-2):
-  inputs `_apertures` (DataTree) + `_install_types` (CustomCollection). For each
-  aperture, look up the collection by the aperture's `display_name`, duplicate
-  the aperture, and set the four `properties.ph.install_types` slots. Preserve
-  the input tree structure. Emit a `report_` listing apertures whose name matched
-  no key; pass those through unchanged rather than raising. No key or an empty
-  collection ⇒ apertures pass through untouched.
-  Follow the `win_set_psi_install_values.py` shape for the DataTree handling, but
-  match on key rather than branch index.
-- **`.ghuser` rebuild — Ed's manual step in Grasshopper.** Two user-objects now:
-  the regenerated `PH-Nav Get Apertures` facade (new output) and the brand-new
-  `PH-Nav Set Aperture Psi-Installs`. fsdeploy does not touch user-objects.
-  This is the one gate an agent cannot close.
+- **Getter output:** `GHCompo_PHNavV1GetApertures.run()` returns a fifth value,
+  `install_types_`, as a `CustomCollection.from_dict(...)`. Empty collection when
+  no element carried an `installs` block. Facade gains the output, its docstring
+  entry, and the unpack line.
+- **Base setter learns key matching (D-2):** `as_keyed_lookup` detects a single
+  dict-like item in `_install_types` and switches from branch-index matching to
+  per-Aperture matching on `display_name`. Preserves input tree paths on that path;
+  warns via `IGH` for unmatched or short entries and passes those Apertures through
+  untouched. The DataTree path is unchanged, and the component facade is unchanged,
+  so no `.ghuser` rebuild is needed for it.
+- **`.ghuser` rebuild — Ed's manual step, HBPH+ only.** `PH-Nav Get Apertures`
+  gained an output. fsdeploy does not touch user-objects. This is the one gate an
+  agent cannot close.
 
-**Tests** (stub `honeybee_energy_ph` / `honeybee_ph` via `sys.modules` per
-`tests/test_win_create_types.py`):
+**Tests** (HBPH+, stubbing the Rhino deps via `sys.modules`):
 
 - the BT 1234 fixture payload produces the two expected four-item lists;
 - one `PhApertureInstallType` instance is shared across every `apit_default` edge;
 - mull identifiers are stable across two runs of the same payload;
-- the setter assigns per-element values correctly from a **flat** aperture list
-  (the topology that breaks the rejected branch-index route — this is the
-  regression test for D-2);
-- an aperture whose name is not in the collection lands in `report_` and comes
-  out unmodified.
+- **contract tests against the base setter** — loaded from the sibling repo, skipped
+  if it is not checked out, because the base repo hosts no tests by policy (its
+  `CONTRIBUTING.md`). These pin: the collection is recognised as a keyed lookup, a
+  **flat** aperture list gets per-element values (the regression for D-2), tree
+  topology does not change the answer, input paths survive, unmatched and short
+  entries warn rather than half-apply, and the branch-index path still works.
 
 ## Phase 03 — Honest EP U-factor + canvas verification
 
@@ -131,9 +125,9 @@ mulled rows.
 ## Docs to close out
 
 Here:
-- `honeybee_ph_plus_rhino/gh_compo_io/ph_navigator/.index.md` — two new modules
-  (`v1/install_types_build.py`, `v1/aperture_psi_installs_set.py`), the new
-  `install_types_` output, and the new component.
+- `honeybee_ph_plus_rhino/gh_compo_io/ph_navigator/.index.md` — the new
+  `v1/install_types_build.py` module and the `install_types_` output, plus a
+  pointer to the base repo's setter as its consumer.
 - `context/` — fold the accepted outcome in, per `planning/README.md` rule 1.
 - `planning/STATUS.md` — update the row.
 - On completion, move this folder to `planning/archive/phn-psi-install-per-edge/`

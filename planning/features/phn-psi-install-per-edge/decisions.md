@@ -51,62 +51,63 @@ the inconsistency is a known one rather than a discovery.
 
 **Confirmed by Ed, 2026-08-26.** Phase 01 is unblocked.
 
-## D-2 — Deliver an `install_types_` collection **plus** a component that applies it
+## D-2 — One canonical aperture setter, taught to match by key
 
-> **Revised 2026-08-26** after verifying the original plan against the code. The
-> first version of this decision routed the collection through
-> `HBPH+ - Get From Custom Collection` into the merged
-> `HBPH - Set Aperture Psi-Installs` and claimed that needed "no new matching
-> logic and no new component." That claim does not survive reading the setter.
+> **Revised twice.** (a) The original decision wired the collection through
+> `HBPH+ - Get From Custom Collection` into the base setter and claimed that needed
+> "no new matching logic and no new component" — untrue, see below. (b) The second
+> version added `HBPH+ - PH-Nav Set Aperture Psi-Installs`. Ed then made the right
+> call: that was a *third* component writing the same field as an existing one,
+> differing only in matching strategy. This version folds the capability in and
+> deletes the new component.
 
 **Decision.** Two pieces:
 
 1. A new `install_types_` output on `HBPH+ - PH-Nav Get Apertures`: a
    `CustomCollection` keyed by element type-name (`Test Aperture_C0_R0`), value =
    the ordered list `[top, right, bottom, left]` of `PhApertureInstallType`.
-2. A new component, **`HBPH+ - PH-Nav Set Aperture Psi-Installs`**, taking `_apertures` and
-   `_install_types` (that collection) and doing the key → element lookup
-   internally, off each aperture's own `display_name`. It duplicates the
-   apertures and writes the four slots directly, never touching the construction.
+2. The base package's **`HBPH - Set Aperture Psi-Installs`** learns a second input
+   shape. `_install_types` now accepts either its existing DataTree (matched by
+   branch index, unchanged) **or** a keyed collection — anything dict-like — whose
+   keys are Aperture display-names. HBPH+ ships **no setter of its own**.
 
-**Why the setter route fails.** `HBPH - Set Aperture Psi-Installs` matches by
-**branch index**, and every aperture in a branch receives the *same* four Install
-Types:
+**Why key matching is needed at all.** The base setter matches by **branch index**,
+and every Aperture in a branch receives the *same* four Install Types:
 
 ```python
 for branch_idx, apertures in enumerate(self._apertures.Branches):
-    install_types_by_side = [as_install_type(get_tree_item(self._install_types, branch_idx, side_idx)) ...]
+    install_types_by_side = [...get_tree_item(self._install_types, branch_idx, side_idx)...]
     for ap in apertures:   # <- all four shared across the whole branch
 ```
 
-That is the right contract for its own use case (one install condition painted
-over a set of windows). It is the wrong one here, where every element differs.
-And `srfc_names_` from `HBPH+ - Create Window Geometry` is a **flat list** of
-every element surface, so the apertures land in a single branch. Two failure
-modes, depending on how GhPython marshals a nested list on an output:
+That is right for its original use case: one install condition painted over a set of
+windows. It cannot express per-window values against a **flat** list of Apertures —
+and `srfc_names_` from `HBPH+ - Create Window Geometry` is exactly that, so every
+Aperture lands in branch 0 and silently takes the first element's psi-installs. No
+error, wrong model.
 
-- flattened → the branch holds 4N items, the setter reads items 0-3, and the
-  first element's four values are applied to **every** aperture. No error.
-- wrapped → `as_install_type` receives a list and `parse_psi_install_w_mk`
-  raises.
+**Why one component rather than two.** A second component writing byte-for-byte the
+same field (`aperture.properties.ph.install_types`), differing only in how it decides
+which types go where, is duplication — that is a component with two input modes, not
+two components. Folding it in keeps one answer to "set psi-installs on apertures."
 
-The first is silent and would ship a wrong model. Making the setter route work
-needs grafting on both trees *plus* a resolved answer on nested-list
-marshalling, which nothing in the repo currently exercises.
+**Why this does not invert the dependency.** The base repo does not learn that HBPH+
+exists. `CustomCollection` already implements `.get(key, default)` and `.keys()`, so
+the base component documents "a DataTree, or any dict-like keyed by Aperture name"
+and duck-types on that pair. A plain dict works identically. Detection is by shape:
+exactly one item in the tree, and that item dict-like — a `PhApertureInstallType`, a
+number and a unit-string all fail the test, so the branch path is never taken by
+surprise.
 
-**Why the new component instead.** The key is already on the aperture. A
-key-based lookup is immune to tree topology, cannot silently mis-align, and can
-report unmatched apertures. It costs the full component pattern — `src/`
-wrapper, `_component_info_.py` entry, icon, `.ghuser` — which is a known,
-bounded cost, unlike an unverified wiring assumption.
+**Cost, stated plainly.** The change lands in a published package, so it needs a base
+repo release. Existing DataTree wiring is untouched, and the component facade is
+unchanged (unmatched Apertures are surfaced via `IGH.warning`, not a new output port),
+so no `.ghuser` rebuild is required for it.
 
-**`HBPH - Set Aperture Psi-Installs` stays the right tool** for hand-painted
-install conditions on a branch of windows. This is the bulk PH-Nav path, not a
-replacement for it.
-
-**Rejected:** a separate `HBPH+ - PH-Nav Get Install Types` component. It would
-issue a second identical route-3 request or need the payload passed to it, for no
-gain over an extra output on the getter.
+**Rejected:** an adapter that grafts the collection into the tree shape the base
+setter already wants. It would have to emit *both* re-grafted apertures and a matching
+tree, so the user wires two outputs that must stay in lockstep — more fragile than the
+thing it replaces.
 
 ## D-3 — Mulled edges get a content-keyed synthetic identifier
 

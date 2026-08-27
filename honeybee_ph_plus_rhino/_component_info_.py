@@ -267,12 +267,6 @@ COMPONENT_PARAMS = {
         "Category": CATEGORY,
         "SubCategory": 4,
     },
-    "HBPH+ - PH-Nav Set Aperture Psi-Installs": {
-        "NickName": "PH-Nav Set Aperture Psi-Installs",
-        "Message": RELEASE_VERSION,
-        "Category": CATEGORY,
-        "SubCategory": 4,
-    },
     "HBPH+ - PH-Nav Get Table": {
         "NickName": "PH-Nav Get Table",
         "Message": RELEASE_VERSION,
