@@ -64,12 +64,12 @@ try:
     # -- package only wildcard-re-exports classes from, not free functions.
     from honeybee_ph_plus_rhino.gh_compo_io.ph_navigator.v1 import table_organize
 except ImportError as e:
-    raise ImportError('\nFailed to import honeybee_ph_plus_rhino:\n\t{}'.format(e))
+    raise ImportError('Failed to import honeybee_ph_plus_rhino:\t{}'.format(e))
 
 try:
     from ph_gh_component_io import gh_io
 except ImportError as e:
-    raise ImportError('\nFailed to import ph_gh_component_io:\n\t{}'.format(e))
+    raise ImportError('Failed to import ph_gh_component_io:\t{}'.format(e))
 
 
 # ------------------------------------------------------------------------------
